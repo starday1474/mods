@@ -120,7 +120,7 @@ cd mod
 - `length`: 동작 길이(초). 키는 `t: 0`에서 시작해 `t: length`에서 끝나야 함 (5~8개 정도면 부드럽게 이어짐, 사이는 Epic Fight가 보간)
 - `base`: 기준 자세. `epicfight:<경로>`는 Epic Fight jar 안 동작(`assets/epicfight/animmodels/animations/<경로>.json`)의 첫 프레임, `rest`는 뼈대 기본 자세. 지금은 `epicfight:biped/living/idle`을 씀 (`hold_sword`는 이 Epic Fight 버전에 없음)
 - `rot`: 관절별 회전(도). 관절 자기 축 기준 X → Y → Z 순서. 적지 않은 관절은 기준 자세 그대로. 자주 쓰는 축: `Arm_R` X=팔을 앞·위로 듦, Z=음수면 바깥으로 벌림 / `Hand_R` X=팔꿈치 굽힘(0~130) / `Tool_R` X=칼끝 위·아래, Y=칼끝 좌우 / `Chest` Y=양수면 왼쪽으로 몸통 비틀기
-- `translate`: 관절 위치 이동. `Root` `[0, 0.3, 0]`은 앞으로 반 걸음 (+Y가 앞, +Z가 위). Epic Fight 공격 동작은 `Root`의 앞뒤 이동을 캐릭터 이동으로 쓰는 것으로 보임 (Epic Fight 검 동작의 `Root`는 앞으로만 나아감). 3타 찌르기는 반 걸음 나갔다가 제자리로 돌아오므로 게임에서 뒤로 밀리는 느낌이 나면 돌아오는 이동을 빼고 다시 빌드
+- `translate`: 관절 위치 이동. `Root` `[0, 0.35, 0]`은 앞으로 반 걸음 (+Y가 앞, +Z가 위). **Epic Fight는 공격 동작의 `Root` 앞뒤 이동을 실제 캐릭터 이동으로 바꾸므로, 한 동작 안에서 앞으로 간 `Root`를 절대 되돌리지 말 것** (되돌리면 회복 중에 캐릭터가 뒤로 밀림). 3타 찌르기는 반 걸음 나간 `Root` 위치(`y 0.35`)를 마지막 키까지 유지함 (높이 `z`는 원래대로 돌아와도 됨). 테스트(`test_root_never_moves_back`)가 확인
 - `phase`: 공격 판정 시간 (선딜 끝 `antic`, 판정 끝 `contact`, 다음 동작으로 넘어갈 수 있는 `recovery`). Java의 `RpgAnimations`에 같은 값을 적어야 함 (테스트가 확인)
 - `trail`: 칼 궤적 효과 시작·끝 시간 (보통 `antic`~`contact`)
 - 왼팔은 방패를 든 가드 자세(`Shoulder_L`, `Arm_L`, `Hand_L`)를 모든 키에 같은 값으로 넣어 유지

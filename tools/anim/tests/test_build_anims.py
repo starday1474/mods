@@ -135,3 +135,10 @@ def test_java_phases_match_sources():
         assert m, p.stem
         assert [float(x) for x in m.groups()[1:]] == pytest.approx([ph["antic"], ph["contact"], ph["recovery"]])
         assert ph["recovery"] <= src["length"]
+
+
+def test_root_never_moves_back():
+    """EF turns Root translation into player movement: forward offset must never be undone."""
+    for p in sorted(SRC.glob("*.json")):
+        ys = [(k.get("translate") or {}).get("Root", [0, 0, 0])[1] for k in json.loads(p.read_text())["keys"]]
+        assert all(b >= a for a, b in zip(ys, ys[1:])), (p.stem, ys)
