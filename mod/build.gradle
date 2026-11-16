@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+group = 'dev.goddessrpg'
+version = file('version.txt').text.trim()
+base { archivesName = 'goddessrpg' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+configurations {
+    localRuntime
+    gametestLocalRuntime
+    runtimeClasspath.extendsFrom localRuntime
+    gametestRuntimeClasspath.extendsFrom gametestLocalRuntime
+}
+
+def efJar = files('../.cache/jars/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar')
+
+neoForge {
+    version = '21.1.266'
+
+    runs {
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'goddessrpg'
+            sourceSet = sourceSets.gametest
+        }
+    }
+
+    mods {
+        goddessrpg {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.gametest
+        }
+    }
+}
+
+dependencies {
+    compileOnly efJar
+    localRuntime efJar
+    gametestCompileOnly efJar
+    gametestLocalRuntime efJar
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(Test).configureEach { useJUnitPlatform() }
+
+tasks.named('processResources') {
+    var props = [mod_version: project.version]
+    inputs.properties props
+    filesMatching('META-INF/neoforge.mods.toml') { expand props }
+}

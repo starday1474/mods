@@ -91,3 +91,16 @@ Epic Fight 호환 모드가 담당하지 않는 무기는 Epic Fight 공격 동�
 `pack/config/`의 파일은 업데이트 때마다 덮어씁니다 (게임 규칙이라 친구별로 다르면 안 되는 것만).
 
 - `block_factorys_bosses-server.toml`: Bosses'Rise 구르기 끔 (Epic Fight 회피와 겹치고 Epic Fight 애니메이션이 없음)
+
+## 우리 모드 빌드
+
+모드 소스는 `mod/`에 있습니다. 먼저 저장소 루트에서 `python3 tools/fetch_jars.py pack .cache/jars`로 Epic Fight jar를 받아 둡니다 (Epic Fight는 개발용 의존성으로 `.cache/jars/`의 jar를 씁니다). 모드 버전은 `mod/version.txt`에 있습니다.
+
+```
+cd mod
+./gradlew test runGameTestServer build
+```
+
+- `test`: JUnit 단위 테스트
+- `runGameTestServer`: 서버를 띄워 GameTest를 실행하고 끝나면 종료 (실패하면 빌드 실패). 로그에 `All 1 required tests passed`가 나와야 함
+- `build`: `mod/build/libs/goddessrpg-<버전>.jar` 생성
