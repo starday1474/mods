@@ -9,6 +9,7 @@
 | Abyssal Corrupter | `abyssal-corrupter` | Modrinth | `abyssal_corrupter.jar` | both |
 | Apotheosis | `apotheosis` | Modrinth | `Apotheosis-1.21.1-8.9.0.jar` | both |
 | Apothic Attributes | `apothic-attributes` | Modrinth | `ApothicAttributes-1.21.1-2.11.0.jar` | both |
+| Apothic Category Compat | `apothic-category-compat` | Modrinth | `apothic_category_compat-2.1.0.jar` | both |
 | Apothic-Enchanting | `apothic-enchanting` | Modrinth | `ApothicEnchanting-1.21.1-1.6.4.jar` | both |
 | Apothic-Spawners | `apothic-spawners` | Modrinth | `ApothicSpawners-1.21.1-1.4.0.jar` | both |
 | Architectury API | `architectury-api` | CurseForge | `architectury-13.0.12-neoforge.jar` | both |
@@ -22,6 +23,7 @@
 | Bosses'Rise | `bossesrise` | Modrinth | `block_factorys_bosses-2.1.2-neo-1.21.1.jar` | both |
 | CERBON's API | `cerbons-api` | Modrinth | `CerbonsAPI-NeoForge-1.21-1.3.0.jar` | both |
 | Chunky | `chunky` | Modrinth | `Chunky-NeoForge-1.4.23.jar` | both |
+| Cinematic Cataclysm | `cinematic-cataclysm` | Modrinth | `cinematiccataclysm-1.0.1-1.21.1.jar` | both |
 | Cloth Config API | `cloth-config` | Modrinth | `cloth-config-15.0.140-neoforge.jar` | both |
 | Clumps | `clumps` | Modrinth | `Clumps-neoforge-1.21.1-19.0.0.1.jar` | both |
 | Corpse | `corpse` | Modrinth | `corpse-neoforge-1.21.1-1.1.22.jar` | both |
@@ -39,13 +41,16 @@
 | EpicFight Sword Light Modifications | `epicfight-sword-light-modifications` | Modrinth | `zylob-21.16.2.jar` | client |
 | EpicFight-Extra | `epicfight-extra` | Modrinth | `epicfight-extra-neoforge1.21.1-1.2.2.jar` | both |
 | Essential Mod | `essential` | Modrinth | `Essential_1-5-2_neoforge_1-21-1.jar` | client |
+| Eternal Hunts | `eternal-hunts` | Modrinth | `eternal_hunts-0.3.2.jar` | both |
 | Eternal Starlight | `eternal-starlight` | Modrinth | `eternalstarlight-0.9.1+1.21.1+neoforge.jar` | both |
+| FDLib | `fdlib` | Modrinth | `fdlib-1.0.9-1.21.1.jar` | both |
 | FerriteCore | `ferrite-core` | Modrinth | `ferritecore-7.0.3-neoforge.jar` | both |
 | FTB Library (NeoForge) | `ftb-library-forge` | CurseForge | `ftb-library-neoforge-2101.1.39.jar` | both |
 | FTB Quests (NeoForge) | `ftb-quests-forge` | CurseForge | `ftb-quests-neoforge-2101.1.38.jar` | both |
 | FTB Teams (NeoForge) | `ftb-teams-forge` | CurseForge | `ftb-teams-neoforge-2101.1.12.jar` | both |
 | Fzzy Config | `fzzy-config` | Modrinth | `fzzy_config-0.7.7+fix1+1.21+neoforge.jar` | both |
 | Geckolib | `geckolib` | Modrinth | `geckolib-neoforge-1.21.1-4.9.3.jar` | both |
+| GTBC's Cataclysmic Boss UI | `gtbcs-cataclysmic-boss-ui` | Modrinth | `gtbcs_cataclysmic_uis-1.0.3+1.21.1.jar` | both |
 | ImmediatelyFast | `immediatelyfast` | Modrinth | `ImmediatelyFast-NeoForge-1.6.15+1.21.1.jar` | client |
 | Iris Shaders | `iris` | Modrinth | `iris-neoforge-1.8.14-beta.1+mc1.21.1.jar` | client |
 | Jade 🔍 | `jade` | Modrinth | `Jade-1.21.1-NeoForge-15.10.6.jar` | both |
@@ -58,6 +63,7 @@
 | Lootr | `lootr` | Modrinth | `lootr-neoforge-1.21.1-1.11.38.127.jar` | both |
 | MezzConfig | `mezzconfig` | Modrinth | `mezz_config-1.21.1-neoforge-0.7.1-standalone.jar` | both |
 | ModernFix | `modernfix` | Modrinth | `modernfix-neoforge-5.27.27+mc1.21.1.jar` | both |
+| Mowzie's Cataclysm | `mowzies-cataclysm` | Modrinth | `mowzies_cataclysm-1.2.2.jar` | both |
 | Mowzie's Mobs | `mowzies-mobs` | Modrinth | `mowziesmobs-1.21.1-1.8.2.jar` | both |
 | Multiplayer Bosses | `multiplayerbosses` | Modrinth | `multiplayerbosses-neoforge-1.21.1-1.0.0.jar` | both |
 | Mutant Monsters | `mutant-monsters` | Modrinth | `MutantMonsters-v21.1.1-1.21.1-NeoForge.jar` | both |
@@ -68,6 +74,7 @@
 | Savage Ender Dragon | `savage-ender-dragon` | CurseForge | `dragonfight-1.21.1-5.1.jar` | both |
 | Simple Voice Chat | `simple-voice-chat` | Modrinth | `voicechat-neoforge-1.21.1-2.6.27.jar` | both |
 | Simply Swords | `simply-swords` | Modrinth | `simplyswords-neoforge-1.70.2-1.21.1.jar` | both |
+| Simply Swords: Cataclysm | `simplycataclysm` | Modrinth | `simplycataclysm-1.0.2+1.21.1+neoforge.jar` | both |
 | Simply Tooltips | `simply-tooltips` | Modrinth | `SimplyTooltips-neoforge-0.1.5.jar` | client |
 | Sodium | `sodium` | Modrinth | `sodium-neoforge-0.8.13+mc1.21.1.jar` | client |
 | Sophisticated Backpacks | `sophisticated-backpacks` | Modrinth | `sophisticatedbackpacks-1.21.1-3.26.21.2249.jar` | both |
@@ -102,10 +109,12 @@
 | Async Locator | 보류 (넣지 않음) | 설계상 1.21.1 빌드 확인 후 결정 |
 | Epic Fight: Resurrection (동작 모음) | 제외 | CurseForge가 자동 다운로드를 막은 모드(수동 다운로드 전용) |
 | Battle Arts | 제외 | ParCool 연동 모드를 숨은 의존으로 요구해 서버 로딩 크래시 (`com/yesman/epicparcool` 없음). 파쿠르 모드는 넣지 않음 |
+| Reliquified L_Ender's Cataclysm | 제외 | 유물은 유물사 전용으로 우리가 직접 만듦 (누구나 쓰는 유물 모드는 넣지 않음) |
 | Alex's Caves | 보류 (넣지 않음) | 공식 1.21.1 없음, 비공식 포팅만 존재 |
 
 ## 메모
 
-- 현재 모드 수는 라이브러리 포함 83개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
+- 현재 모드 수는 라이브러리 포함 90개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
 - Kotlin for Forge는 Fzzy Config(다른 모드의 의존)가 요구해서 서버 로딩 테스트 중 추가했습니다.
 - EpicFight Sword Light Modifications(검 궤적 효과)는 클라이언트 전용입니다. 서버에 넣으면 크래시가 나서 `side = "client"`로 바꿨습니다.
+- 대격변 보스 연계 모드 6개 추가 (2026-11-16, 사용자 선택): Apothic Category Compat, Eternal Hunts, Simply Swords: Cataclysm, Cinematic Cataclysm, GTBC's Boss UI, Mowzie's Cataclysm. GTBC's Boss UI는 보스 설명 문구가 많아 번역 분량이 큼.

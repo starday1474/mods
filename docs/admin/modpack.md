@@ -39,7 +39,7 @@ bash tools/smoke_server.sh
 
 `bash tools/smoke_server.sh` (2026-11-16, NeoForge 21.1.266)
 
-- 결과: **성공**, 서버 로딩 약 50초, 서버 쪽 모드 75개 (2026-11-16 동작 모드 추가 후 재확인) (클라이언트 전용 모드는 서버에 설치되지 않음)
+- 결과: **성공**, 서버 로딩 약 50초, 서버 쪽 모드 82개 (2026-11-16 동작 모드·대격변 연계 모드 추가 후 재확인) (클라이언트 전용 모드는 서버에 설치되지 않음)
 - 메모리: `-Xmx6G`로 정상 로딩
 - 고친 것: Fzzy Config(다른 모드의 의존)가 Kotlin for Forge를 요구해서 추가
 - 남은 로그 오류(무해): 없는 모드와의 호환 레시피(Simply Swords의 Mythic Metals 등), Unusual End 일부 전리품 표, Blueprint 태그 경고, 오프라인 서버라서 생기는 Yggdrasil 키 오류
@@ -74,6 +74,7 @@ Epic Fight 호환 모드가 담당하지 않는 무기는 Epic Fight 공격 동�
 
 - 쓸 수 있는 종류: `tools/pack_rules.py`의 `EF_WEAPON_TYPES` (검사 도구가 잘못된 종류를 막음)
 - 현재 연결: Born in Chaos 12종, Eternal Starlight 12종, Cataclysm 2종(astrape, brontes), Undergarden 2종, Mowzie's Mobs 1종(sculptor_staff)
+- Simply Swords: Cataclysm 75종 (재료 5종 × 무기 15종): Epic Fight Weapons Compat이 Simply Swords의 같은 종류(`netherite_<종류>`)에 쓰는 설정을 그대로 복사. 예) claymore·greataxe·greathammer=greatsword, katana=uchigatana, glaive·halberd·scythe·spear·twinblade=spear
 - 해머·메이스는 `axe` 또는 `greatsword`, 낫은 `greatsword`, 지팡이는 `spear`로 연결
 - 총·대포 종류(Cataclysm laser_gatling, wither_assault_shoulder_weapon 등)는 근접 무기가 아니라 연결하지 않음
 - 새 무기를 찾을 때: 게임에서 F3+H로 아이템 ID 확인 후 위 폴더에 추가

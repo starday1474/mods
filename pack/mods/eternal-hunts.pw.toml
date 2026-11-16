@@ -1,0 +1,13 @@
+name = "Eternal Hunts [Cataclysm & Mowzie's Mobs & Born in Chaos]"
+filename = "eternal_hunts-0.3.2.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/Nm28WokL/versions/9GfUyRGd/eternal_hunts-0.3.2.jar"
+hash-format = "sha512"
+hash = "3f8c353c0b99e19f73d28dbf68473f7a0bcf8f9a2b5d076f3327804c86700202805a30bf505127233c1ca8287d3d618073032607c549bba34c14b5598401e720"
+
+[update]
+[update.modrinth]
+mod-id = "Nm28WokL"
+version = "9GfUyRGd"
