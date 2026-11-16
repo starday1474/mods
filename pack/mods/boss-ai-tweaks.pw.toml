@@ -1,0 +1,13 @@
+name = "Boss AI Tweaks"
+filename = "boss_ai_tweaks-neoforge-1.0.3-1.21.1.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/nJiDXoiw/versions/Wn9LmQBo/boss_ai_tweaks-neoforge-1.0.3-1.21.1.jar"
+hash-format = "sha512"
+hash = "15efad7bc3af66d983dc1b4b416d6443c61d2abd0bcf51c1a2e9b3bb153b7586a13d663a6c34f1fcfa784fb5e4f3de5a39adc70cae22f04f21db9b9a8494ffec"
+
+[update]
+[update.modrinth]
+mod-id = "nJiDXoiw"
+version = "Wn9LmQBo"

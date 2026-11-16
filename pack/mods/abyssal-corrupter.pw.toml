@@ -1,0 +1,13 @@
+name = "Abyssal Corrupter"
+filename = "abyssal_corrupter.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/jQFpRIay/versions/Dh5OYy56/abyssal_corrupter.jar"
+hash-format = "sha512"
+hash = "bc000a9d3a691323d634e92ff7bf1eb3f0ca687364c9c277f8bb8c00bfed38486265576beaee365af9f2590e91e5d5adc3191e29a53f9cdf61c270e3b77e9c12"
+
+[update]
+[update.modrinth]
+mod-id = "jQFpRIay"
+version = "Dh5OYy56"
