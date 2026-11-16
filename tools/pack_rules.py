@@ -60,3 +60,11 @@ DEFAULT_OPTIONS: dict[str, str] = {
     "lang": "ko_kr",
 }
 KOREAN_RESOURCE_PACK = "file/rpg-korean"
+
+# 모드팩이 강제로 정하는 게임 설정 (pack/config/ 기준 경로 -> {키: 값})
+# Bosses'Rise 구르기는 Epic Fight 회피와 겹치고 Epic Fight 애니메이션이 없어 끈다.
+FORCED_CONFIGS: dict[str, dict[str, str]] = {
+    "config/block_factorys_bosses-server.toml": {
+        '"Can players use the Roll ability"': "false",
+    },
+}

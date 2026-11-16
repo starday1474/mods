@@ -1,6 +1,10 @@
 hash-format = "sha256"
 
 [[files]]
+file = "config/block_factorys_bosses-server.toml"
+hash = "38d8b232f39cafe536469d6160ad37118df7ad6adc8117a6b6ff15a82024527b"
+
+[[files]]
 file = "config/yosbr/config/iris.properties"
 hash = "eb4c72f6737a9c80e57445045729a969bb0bed4f4261c14ac07eebfd473a25f7"
 

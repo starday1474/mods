@@ -194,3 +194,22 @@ def test_loader_suffix_does_not_deny_unrelated(tmp_path):
     mods = required_mods() | {"ftb-quests-forge": {"name": "FTB Quests (NeoForge)"}}
     report = validate(make_pack(tmp_path, mods), check_defaults_files=False)
     assert report.errors == []
+
+
+# --- 모드팩이 강제로 정하는 게임 설정 ---
+from validate_pack import check_forced_configs
+
+
+def test_forced_config_missing(tmp_path):
+    pack = make_pack(tmp_path, required_mods())
+    assert any("block_factorys_bosses-server.toml" in e for e in check_forced_configs(pack))
+
+
+def test_forced_config_roll_disabled(tmp_path):
+    pack = make_pack(tmp_path, required_mods())
+    (pack / "config").mkdir(parents=True, exist_ok=True)
+    f = pack / "config" / "block_factorys_bosses-server.toml"
+    f.write_text('["Gameplay Changes"]\n\t"Can players use the Roll ability" = true\n', encoding="utf-8")
+    assert any("Roll" in e for e in check_forced_configs(pack))
+    f.write_text('["Gameplay Changes"]\n\t"Can players use the Roll ability" = false\n', encoding="utf-8")
+    assert check_forced_configs(pack) == []

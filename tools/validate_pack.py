@@ -73,6 +73,20 @@ def check_defaults(pack_dir: Path) -> list[str]:
     return errors
 
 
+def check_forced_configs(pack_dir: Path) -> list[str]:
+    errors: list[str] = []
+    for rel, wanted in pack_rules.FORCED_CONFIGS.items():
+        path = pack_dir / rel
+        if not path.exists():
+            errors.append(f"강제 설정 파일 없음: {rel}")
+            continue
+        kv = _read_kv(path, "=")
+        for key, want in wanted.items():
+            if kv.get(key) != want:
+                errors.append(f"{rel}: {key} = {kv.get(key)} (기대값 {want})")
+    return errors
+
+
 def validate(
     pack_dir: Path,
     allow_missing_required: bool = False,
@@ -112,6 +126,7 @@ def validate(
 
     if check_defaults_files:
         report.errors.extend(check_defaults(pack_dir))
+        report.errors.extend(check_forced_configs(pack_dir))
     return report
 
 
