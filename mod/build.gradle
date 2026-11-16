@@ -57,6 +57,8 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Codec-based rule records are tested without booting Minecraft; DFU is the only library they need.
+    testImplementation 'com.mojang:datafixerupper:8.0.16'
 }
 
 tasks.withType(Test).configureEach { useJUnitPlatform() }
