@@ -36,6 +36,8 @@
 | Epic Fight Weapons Compat | `epic-fight-weapons-compat` | Modrinth | `efweaponscompat-1.0.0.jar` | both |
 | Epic Fight | `epic-fight` | Modrinth | `epic-fight-21.17.3.1-mc1.21.1-neoforge.jar` | both |
 | Epic Knights: Shields Armor and Weapons | `epic-knights-shields-armor-and-weapons` | Modrinth | `epic-knights-1.21.1-neoforge-10.17.jar` | both |
+| EpicFight Sword Light Modifications | `epicfight-sword-light-modifications` | Modrinth | `zylob-21.16.2.jar` | client |
+| EpicFight-Extra | `epicfight-extra` | Modrinth | `epicfight-extra-neoforge1.21.1-1.2.2.jar` | both |
 | Essential Mod | `essential` | Modrinth | `Essential_1-5-2_neoforge_1-21-1.jar` | client |
 | Eternal Starlight | `eternal-starlight` | Modrinth | `eternalstarlight-0.9.1+1.21.1+neoforge.jar` | both |
 | FerriteCore | `ferrite-core` | Modrinth | `ferritecore-7.0.3-neoforge.jar` | both |
@@ -75,6 +77,7 @@
 | Towns and Towers | `towns-and-towers` | Modrinth | `t_and_t-fabric-neoforge-1.13.11.jar` | both |
 | Unusual End | `unusual_end` | Modrinth | `unusualend-2.3.1b.jar` | both |
 | Waystones | `waystones` | Modrinth | `waystones-neoforge-1.21.1-21.1.47.jar` | both |
+| Weapons of Miracles | `weapons-of-miracles` | Modrinth | `WeaponsOfMiracles-2.0.178.jar` | both |
 | When Dungeons Arise | `when-dungeons-arise` | Modrinth | `DungeonsArise-1.21.1-2.1.68-release.jar` | both |
 | Your Options Shall Be Neoforged (YOSBR) | `yosbr-neo` | Modrinth | `yosbr-neo-0.1.2.1.jar` | both |
 | YUNG's API | `yungs-api` | Modrinth | `YungsApi-1.21.1-NeoForge-5.1.9.jar` | both |
@@ -97,9 +100,12 @@
 | Distant Horizons | **제외** | Chunky와 함께 쓰면 새 월드 생성 시 크래시("Chunky is not loaded", DH 3.3.3 + Chunky 1.4.23). 월드 미리 생성(Chunky)이 더 중요해서 DH를 뺌 |
 | Noisiumed | 보류 (넣지 않음) | 설계상 테스트 후 결정 |
 | Async Locator | 보류 (넣지 않음) | 설계상 1.21.1 빌드 확인 후 결정 |
+| Epic Fight: Resurrection (동작 모음) | 제외 | CurseForge가 자동 다운로드를 막은 모드(수동 다운로드 전용) |
+| Battle Arts | 제외 | ParCool 연동 모드를 숨은 의존으로 요구해 서버 로딩 크래시 (`com/yesman/epicparcool` 없음). 파쿠르 모드는 넣지 않음 |
 | Alex's Caves | 보류 (넣지 않음) | 공식 1.21.1 없음, 비공식 포팅만 존재 |
 
 ## 메모
 
-- 현재 모드 수는 라이브러리 포함 80개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
+- 현재 모드 수는 라이브러리 포함 83개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
 - Kotlin for Forge는 Fzzy Config(다른 모드의 의존)가 요구해서 서버 로딩 테스트 중 추가했습니다.
+- EpicFight Sword Light Modifications(검 궤적 효과)는 클라이언트 전용입니다. 서버에 넣으면 크래시가 나서 `side = "client"`로 바꿨습니다.

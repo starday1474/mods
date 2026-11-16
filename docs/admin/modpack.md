@@ -39,7 +39,7 @@ bash tools/smoke_server.sh
 
 `bash tools/smoke_server.sh` (2026-11-16, NeoForge 21.1.266)
 
-- 결과: **성공**, 서버 로딩 약 55초, 서버 쪽 모드 73개 (클라이언트 전용 모드는 서버에 설치되지 않음)
+- 결과: **성공**, 서버 로딩 약 50초, 서버 쪽 모드 75개 (2026-11-16 동작 모드 추가 후 재확인) (클라이언트 전용 모드는 서버에 설치되지 않음)
 - 메모리: `-Xmx6G`로 정상 로딩
 - 고친 것: Fzzy Config(다른 모드의 의존)가 Kotlin for Forge를 요구해서 추가
 - 남은 로그 오류(무해): 없는 모드와의 호환 레시피(Simply Swords의 Mythic Metals 등), Unusual End 일부 전리품 표, Blueprint 태그 경고, 오프라인 서버라서 생기는 Yggdrasil 키 오류
@@ -77,6 +77,13 @@ Epic Fight 호환 모드가 담당하지 않는 무기는 Epic Fight 공격 동�
 - 해머·메이스는 `axe` 또는 `greatsword`, 낫은 `greatsword`, 지팡이는 `spear`로 연결
 - 총·대포 종류(Cataclysm laser_gatling, wither_assault_shoulder_weapon 등)는 근접 무기가 아니라 연결하지 않음
 - 새 무기를 찾을 때: 게임에서 F3+H로 아이템 ID 확인 후 위 폴더에 추가
+
+### 추가 동작 모드 (2026-11-16 추가)
+
+- **EpicFight-Extra** (`epicfightx`): 새 동작 다수. 무기 종류 `epicfightx:great_tachi`, `eternal_night_scythe`, `yoto`, `efx_uchigatana`
+- **Weapons of Miracles** (`wom`): 자체 무기 + 동작 세트. 무기 종류 `wom:agony`, `antitheus`, `blackstar`, `gesetz`, `herrscher`, `jabberwocky`, `moonless`, `napoleon`, `nova`, `orbit`, `ruine`, `satsujin`, `solar`, `tormented_mind`, `evil_tachi`, `hollow_longsword`, `ender_blaster`, `*_greataxe`, `*_staff` 등
+- 두 모드의 종류도 다른 모드 무기에 `{"type": "wom:ruine"}`처럼 연결할 수 있음 (두 모드 모두 자체 종류를 등록함)
+- 위 29개 무기를 이 동작들로 다시 연결하는 작업은 우리 모드의 자체 동작 제작(계획 2) 뒤에 함께 정함. 그때 `EF_WEAPON_TYPES`에 새 종류를 추가
 
 ## 모드팩이 강제하는 설정
 

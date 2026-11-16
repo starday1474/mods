@@ -1,0 +1,13 @@
+name = "EpicFight Sword Light Modifications"
+filename = "zylob-21.16.2.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/FxmeaUaC/versions/ThghVhrJ/zylob-21.16.2.jar"
+hash-format = "sha512"
+hash = "7260f07391c8b1e2cf70f813d71aba8d9dfe6e8f4862f5bd5544b226c8755b1069af4ae257b8f9ccb2dc3f9e12626007850bbae36bdc07e2717aa2d2061df8ca"
+
+[update]
+[update.modrinth]
+mod-id = "FxmeaUaC"
+version = "ThghVhrJ"
