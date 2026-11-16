@@ -71,9 +71,12 @@ python3 prism/build_instance.py build/RPG-modpack-test.zip --pack-url https://ra
 ### 우리 모드 (goddessrpg) 시험
 
 - [ ] 새 월드 첫 접속 → 여신의 질의 3단계 → 여신의 서를 받는다
-- [ ] `/goddessrpg info` 출력 확인
+- [ ] `/goddessrpg info` 출력 확인 (명령어는 채팅창(T)에 입력)
 - [ ] 여신의 서 우클릭 → 능력치(★) 화면 확인
-- [ ] 좀비를 때리면 검술 레벨이 오르는 알림이 뜬다
+- [ ] 좀비를 몇 번 때린 뒤 `/goddessrpg info`에서 검술 경험치가 오른다 (레벨업은 한 번에 약 175타가 필요하니 알림은 `/goddessrpg xp sword 600`으로 확인)
+- [ ] (두 명 필요) 친구가 처음 접속하면 친구에게 질의 화면이 따로 뜬다 → 끝낸 뒤 나갔다 들어와도 `/goddessrpg info <친구>` 결과가 유지되고 호스트 결과는 그대로다
+- [ ] (관리자 테스트용) 질의 중에는 몬스터에게 맞지 않는다
+- [ ] (관리자 테스트용) 질의 중 죽거나 차원을 이동해도 질의 화면이 다시 뜬다
 - [ ] 방패나 Epic Fight 가드로 막으면 방어술 경험치가 오른다
 - [ ] Z(Epic Fight 회피) 구르기와 가드가 Epic Fight 동작으로 나온다
 - [ ] Epic Fight 스킬북 사용이 막힌다
@@ -115,7 +118,7 @@ cd mod
 ```
 
 - `test`: JUnit 단위 테스트
-- `runGameTestServer`: 서버를 띄워 GameTest를 실행하고 끝나면 종료 (실패하면 빌드 실패). 로그에 `All 1 required tests passed`가 나와야 함
+- `runGameTestServer`: 서버를 띄워 GameTest를 실행하고 끝나면 종료 (실패하면 빌드 실패). 로그에 `All required tests passed`가 나와야 함
 - `build`: `mod/build/libs/goddessrpg-<버전>.jar` 생성
 
 ## 전투 동작 만들기
@@ -163,5 +166,5 @@ python3 tools/anim/build_anims.py mod/anim mod/src/main/resources/assets/goddess
 - 버전은 `mod/version.txt`에 한 줄로 적습니다 (예 `0.1.0`). 릴리스 태그는 `mod-v<버전>`, 자산은 `goddessrpg-<버전>.jar`입니다.
 - `.github/workflows/mod-release.yml`이 `mod/version.txt`(또는 워크플로 파일) 변경 push, 또는 수동 실행(`workflow_dispatch`, 기본 브랜치에 워크플로가 있어야 함) 때 동작합니다.
 - 순서: Java 21 → 도구 의존성 설치 → `fetch_jars.py`로 Epic Fight jar 받기 → 동작 도구 테스트와 `--check` → `./gradlew test runGameTestServer build` → `gh release create`.
-- 같은 태그가 이미 있으면 덮어쓰지 않고 실패합니다. 새 릴리스는 `mod/version.txt`를 올리세요.
+- 같은 태그가 이미 있으면 덮어쓰지 않고 실패합니다. 워크플로 파일만 고쳐도 다시 실행되는데, 버전이 그대로면 `already exists`로 끝나는 빨간 실행은 예상된 정상 동작이며 해로울 게 없습니다. 새 릴리스를 내려면 `mod/version.txt`를 올리세요.
 - 모드팩에는 릴리스 자산 URL을 `cd pack && ~/go/bin/packwiz url add goddessrpg <자산 URL>`로 등록합니다 (`side = "both"`). 새 버전은 같은 방법으로 다시 등록합니다.

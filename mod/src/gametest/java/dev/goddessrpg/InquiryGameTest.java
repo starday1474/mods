@@ -170,4 +170,46 @@ public class InquiryGameTest {
         }
         h.succeed();
     }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void inquiryResentAfterRespawn(GameTestHelper h) {
+        ServerPlayer p = fakePlayer(h);
+        InquiryService.onLogin(p);
+        if (!InquiryService.submit(p, 1, List.of(0, 0, 0))) {
+            h.fail("stage 1 rejected");
+        }
+        ServerPlayer fresh = new ServerPlayer(h.getLevel().getServer(), h.getLevel(),
+                p.getGameProfile(), ClientInformation.createDefault());
+        fresh.restoreFrom(p, false);
+        InquiryService.resend(fresh);
+        if (!InquiryService.currentStage(fresh.getUUID()).equals(java.util.OptionalInt.of(2))) {
+            h.fail("stage changed: " + InquiryService.currentStage(fresh.getUUID()));
+        }
+        h.succeed();
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void inquiryPlayerInvulnerable(GameTestHelper h) {
+        ServerPlayer p = fakePlayer(h);
+        InquiryService.onLogin(p);
+        var ev = new net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent(
+                p, new net.neoforged.neoforge.common.damagesource.DamageContainer(p.damageSources().generic(), 5f));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(ev);
+        if (!ev.isCanceled()) {
+            h.fail("damage not cancelled during inquiry");
+        }
+        ServerPlayer q = fakePlayer(h);
+        RpgAttachments.set(q, RpgAttachments.get(q).withResult(RpgClass.VANGUARD, "balanced",
+                new dev.goddessrpg.rules.StarResult(
+                java.util.Map.of(Field.SWORD, 1), java.util.Map.of(Field.SWORD, 1)), List.of(), RpgDataLoader.tuning()));
+        var ev2 = new net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent(
+                q, new net.neoforged.neoforge.common.damagesource.DamageContainer(q.damageSources().generic(), 5f));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(ev2);
+        if (ev2.isCanceled()) {
+            h.fail("damage cancelled without inquiry");
+        }
+        h.succeed();
+    }
 }

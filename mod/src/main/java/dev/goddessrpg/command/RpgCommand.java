@@ -97,7 +97,7 @@ public final class RpgCommand {
     }
 
     private static int reset(CommandContext<CommandSourceStack> c, ServerPlayer target) {
-        RpgAttachments.set(target, RpgAttachments.get(target).resetKeepKnowledge());
+        dev.goddessrpg.inquiry.InquiryService.reroll(target);
         c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.reset", target.getDisplayName()), true);
         return 1;
     }

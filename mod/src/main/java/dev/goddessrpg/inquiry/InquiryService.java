@@ -14,12 +14,14 @@ import dev.goddessrpg.rules.StarResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -46,6 +48,21 @@ public final class InquiryService {
                 onLogin(sp);
             }
         });
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp) {
+                resend(sp);
+            }
+        });
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerChangedDimensionEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp) {
+                resend(sp);
+            }
+        });
+        NeoForge.EVENT_BUS.addListener((LivingIncomingDamageEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp && isInInquiry(sp)) {
+                e.setCanceled(true);
+            }
+        });
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent e) -> PROGRESS.remove(e.getEntity().getUUID()));
     }
 
@@ -53,6 +70,24 @@ public final class InquiryService {
     public static int currentStage(ServerPlayer player) {
         Progress p = PROGRESS.get(player.getUUID());
         return p == null ? 0 : p.stage;
+    }
+
+    public static OptionalInt currentStage(UUID id) {
+        Progress p = PROGRESS.get(id);
+        return p == null ? OptionalInt.empty() : OptionalInt.of(p.stage);
+    }
+
+    /** Players are invulnerable while an inquiry is in progress. */
+    public static boolean isInInquiry(ServerPlayer player) {
+        return PROGRESS.containsKey(player.getUUID());
+    }
+
+    /** Re-opens the current stage after the screen was lost (death, dimension change). */
+    public static void resend(ServerPlayer player) {
+        Progress p = PROGRESS.get(player.getUUID());
+        if (p != null) {
+            sendStage(player, p);
+        }
     }
 
     public static void onLogin(ServerPlayer player) {

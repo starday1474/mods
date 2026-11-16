@@ -126,7 +126,7 @@ tools/anim/
   - `SmokeTest.modIdIsStable()`: `assertEquals("goddessrpg", GoddessRpg.MODID)`
   - `BootGameTest.epicFightLoaded(GameTestHelper h)`: `ModList.get().isLoaded("epicfight")`가 참이어야 한다.
   - `neoforge.mods.toml`: EF를 `type="required"`, `versionRange="[21.17,)"`, `side="BOTH"`로 둔다.
-- [ ] **Step 5:** `cd mod && ./gradlew test runGameTestServer build`를 실행한다. 세 작업 모두 성공하고 GameTest 로그에 `All 1 required tests passed`가 나오며 `build/libs/goddessrpg-0.1.0.jar`가 생기면 통과다.
+- [ ] **Step 5:** `cd mod && ./gradlew test runGameTestServer build`를 실행한다. 세 작업 모두 성공하고 GameTest 로그에 `All required tests passed`가 나오며 `build/libs/goddessrpg-0.1.0.jar`가 생기면 통과다.
 - [ ] **Step 6:** `docs/admin/modpack.md`에 "우리 모드 빌드" 절을 추가한다(위 두 명령). 그다음 커밋한다: `feat(mod): goddessrpg gradle skeleton with Epic Fight dev dependency`
 
 ---
