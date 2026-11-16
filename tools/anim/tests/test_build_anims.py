@@ -125,16 +125,22 @@ def test_repo_assets_up_to_date():
 
 
 def test_java_phases_match_sources():
-    """RpgAnimations.java must use the phase times written in mod/anim."""
+    """RpgAnimations.java must use the phase times written in mod/anim (for the sources it references)."""
     java = JAVA.read_text()
+    checked = 0
     for p in sorted(SRC.glob("*.json")):
+        if '"biped/combat/%s"' % p.stem not in java:
+            continue
         src = json.loads(p.read_text())
+        assert "phase" in src, p.stem
         ph = src["phase"]
+        checked += 1
         m = re.search(r'"biped/combat/%s".*?new ComboAttackAnimation\(\s*([\d.]+)F,\s*([\d.]+)F,\s*([\d.]+)F,\s*([\d.]+)F'
                       % p.stem, java, re.S)
         assert m, p.stem
         assert [float(x) for x in m.groups()[1:]] == pytest.approx([ph["antic"], ph["contact"], ph["recovery"]])
         assert ph["recovery"] <= src["length"]
+    assert checked, "RpgAnimations.java references no mod/anim source"
 
 
 def test_root_never_moves_back():
