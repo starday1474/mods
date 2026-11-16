@@ -17,12 +17,12 @@ needs_jar = pytest.mark.skipif(not JAR.exists(), reason="EF jar not available")
 
 def _src(length, base, swing):
     return {
-        "length": length, "base": base,
+        "length": length, "base": base, "group": "test", "desc_ko": "시험 동작",
         "keys": [
             {"t": 0.0},
             {"t": length / 2, "rot": {"Arm_R": [swing, 0, -10], "Chest": [0, 15, 0]},
              "translate": {"Root": [0, 0.2, 0]}},
-            {"t": length},
+            {"t": length, "translate": {"Root": [0, 0.2, 0]}},
         ],
         "phase": {"antic": 0.1, "contact": 0.2, "recovery": 0.4},
         "trail": [0.1, 0.2],
@@ -140,5 +140,82 @@ def test_java_phases_match_sources():
 def test_root_never_moves_back():
     """EF turns Root translation into player movement: forward offset must never be undone."""
     for p in sorted(SRC.glob("*.json")):
-        ys = [(k.get("translate") or {}).get("Root", [0, 0, 0])[1] for k in json.loads(p.read_text())["keys"]]
+        src = json.loads(p.read_text())
+        if src.get("root_back"):
+            continue
+        ys = [(k.get("translate") or {}).get("Root", [0, 0, 0])[1] for k in src["keys"]]
         assert all(b >= a for a, b in zip(ys, ys[1:])), (p.stem, ys)
+
+
+def _back_src():
+    s = _src(0.6, "rest", 10)
+    s["keys"][-1]["translate"] = {"Root": [0, 0.0, 0]}  # 0.2 -> 0.0: moves back
+    return s
+
+
+def test_root_back_flag():
+    bad = _back_src()
+    with pytest.raises(ValueError, match="root_back"):
+        build_anims.validate_source("x", bad)
+    bad["root_back"] = True
+    build_anims.validate_source("x", bad)
+
+
+def _loop_src():
+    s = _src(0.6, "rest", 10)
+    s["loop"] = True
+    s["keys"][1]["translate"] = {}
+    del s["keys"][-1]["translate"]
+    s["keys"][1]["rot"]["Chest"] = [0, 15, 0]
+    s["keys"][0]["rot"] = {"Chest": [0, 3, 0]}
+    s["keys"][-1]["rot"] = {"Chest": [0, 3, 0]}
+    return s
+
+
+def test_loop_closes():
+    ok = _loop_src()
+    build_anims.validate_source("x", ok)
+    bad = _loop_src()
+    bad["keys"][-1]["rot"] = {"Chest": [0, 9, 0]}
+    with pytest.raises(ValueError, match="loop"):
+        build_anims.validate_source("x", bad)
+    # missing entries count as defaults (0)
+    bad = _loop_src()
+    del bad["keys"][-1]["rot"]
+    with pytest.raises(ValueError, match="loop"):
+        build_anims.validate_source("x", bad)
+    bad = _loop_src()
+    bad["keys"][-1]["translate"] = {"Root": [0, 0.1, 0]}
+    with pytest.raises(ValueError, match="loop"):
+        build_anims.validate_source("x", bad)
+
+
+@pytest.mark.parametrize("field", ["group", "desc_ko"])
+def test_missing_meta_fails(field):
+    bad = _src(0.6, "rest", 10)
+    del bad[field]
+    with pytest.raises(ValueError, match=field):
+        build_anims.validate_source("x", bad)
+
+
+@needs_jar
+def test_missing_base_fails(tmp_path):
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "nope.json").write_text(json.dumps(_src(0.6, "epicfight:biped/living/does_not_exist", 10)))
+    with pytest.raises(ValueError, match="nope.*does_not_exist"):
+        build_anims.main([str(src), str(tmp_path / "out")])
+
+
+@needs_jar
+def test_no_phase_no_trail_file(tmp_path):
+    src = tmp_path / "src"
+    src.mkdir()
+    s = _src(0.6, "rest", 10)
+    del s["phase"], s["trail"]
+    (src / "idle.json").write_text(json.dumps(s))
+    out = tmp_path / "out"
+    assert build_anims.main([str(src), str(out)]) == 0
+    assert (out / "idle.json").is_file()
+    assert not (out / "data" / "idle.json").exists()
+    assert build_anims.main([str(src), str(out), "--check"]) == 0

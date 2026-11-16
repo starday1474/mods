@@ -17,6 +17,8 @@
     {"t": 0.55,
      "rot": {"Shoulder_L": [0, 2, -6], "Arm_L": [58, -30, 33], "Hand_L": [45, -1, -102], "Arm_R": [11, -11, 16], "Hand_R": [58, 0, 0], "Tool_R": [-30, 4, 0]}}
   ],
+  "group": "balanced",
+  "desc_ko": "되돌려 베는 역사선 베기",
   "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.4},
   "trail": [0.15, 0.3]
 }

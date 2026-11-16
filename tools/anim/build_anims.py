@@ -4,12 +4,13 @@ Usage:
   python3 tools/anim/build_anims.py SRC_DIR OUT_DIR [--preview DIR] [--check] [--jar PATH]
 
 Each ``SRC_DIR/<name>.json`` becomes ``OUT_DIR/<name>.json`` (EF animation) and
-``OUT_DIR/data/<name>.json`` (trail effect, EF's ``combat/data`` layout).
+``OUT_DIR/data/<name>.json`` (trail effect, EF's ``combat/data`` layout; only when ``trail`` is set).
 
 Source format::
 
     {"length": 0.6, "base": "epicfight:biped/living/idle",
      "keys": [{"t": 0.0, "rot": {"Arm_R": [-30, 0, 10]}, "translate": {"Root": [0, 0, 0]}}, ...],
+     "group": "balanced", "desc_ko": "한 줄 설명", "loop": false, "root_back": false,
      "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.45}, "trail": [0.2, 0.32]}
 
 * ``base``: ``epicfight:<path>`` = first frame of that EF animation
@@ -20,6 +21,12 @@ Source format::
   +Y forward, +Z up).  Joints not named in a key keep the base pose.
 * Keys must start at t=0 and end at t=length; every joint gets one transform
   per key, EF interpolates between keys.
+* ``group`` and ``desc_ko`` (one-line Korean description) are required (gallery).
+* ``loop``: optional; first and last key must resolve to the same pose.
+  ``root_back``: optional; without it Root translate y must never decrease
+  (EF turns Root movement into player movement).
+* ``phase`` / ``trail`` are optional (attacks only); without ``trail`` no
+  ``data/<name>.json`` is written.
 * ``phase`` is not written to the asset: it documents the ComboAttackAnimation
   timings in RpgAnimations.java (a test keeps them in sync).
 * ``--check`` builds into a temporary folder and exits 1 if any generated file
@@ -99,12 +106,29 @@ def validate_source(name: str, src: dict) -> None:
                     err(f"unknown joint {j!r} at t={k['t']}")
                 if len(v) != 3:
                     err(f"{kind} {j} at t={k['t']} needs 3 numbers")
-    ph = src.get("phase") or {}
-    if not (0 <= ph.get("antic", -1) <= ph.get("contact", -1) <= ph.get("recovery", -1) <= length):
-        err("phase needs 0 <= antic <= contact <= recovery <= length")
-    tr = src.get("trail")
-    if not (isinstance(tr, list) and len(tr) == 2 and 0 <= tr[0] < tr[1] <= length):
-        err("trail must be [start, end] within the animation length")
+    for field in ("group", "desc_ko"):
+        if not isinstance(src.get(field), str) or not src[field].strip():
+            err(f"missing required field {field!r}")
+    if "phase" in src:
+        ph = src["phase"] or {}
+        if not (0 <= ph.get("antic", -1) <= ph.get("contact", -1) <= ph.get("recovery", -1) <= length):
+            err("phase needs 0 <= antic <= contact <= recovery <= length")
+    if "trail" in src:
+        tr = src["trail"]
+        if not (isinstance(tr, list) and len(tr) == 2 and 0 <= tr[0] < tr[1] <= length):
+            err("trail must be [start, end] within the animation length")
+    if not src.get("root_back"):
+        ys = [(k.get("translate") or {}).get("Root", [0, 0, 0])[1] for k in keys]
+        if any(b < a - 1e-9 for a, b in zip(ys, ys[1:])):
+            err(f"Root moves backwards (y {ys}); set \"root_back\": true if intended")
+    if src.get("loop"):
+        def resolved(k, kind, default):
+            return {j: list(map(float, (k.get(kind) or {}).get(j, default))) for j in joints}
+        for kind in ("rot", "translate"):
+            a, b = resolved(keys[0], kind, (0, 0, 0)), resolved(keys[-1], kind, (0, 0, 0))
+            bad = [j for j in joints if any(abs(x - y) > 1e-6 for x, y in zip(a[j], b[j]))]
+            if bad:
+                err(f"loop: first and last key differ in {kind} of {', '.join(sorted(bad))}")
 
 
 def build_animation(src: dict, arm: efanim.Armature, base: dict) -> efanim.Animation:
@@ -150,11 +174,16 @@ def build_all(src_dir: Path, out_dir: Path, jar=None, preview_dir: Path | None =
         src = json.loads(p.read_text())
         validate_source(p.stem, src)
         if src["base"] not in bases:
-            bases[src["base"]] = load_base(src["base"], arm, jar)
+            try:
+                bases[src["base"]] = load_base(src["base"], arm, jar)
+            except KeyError as e:
+                raise ValueError(f"{p.stem}: base {src['base']!r} not found in EF jar ({e})") from None
         anim = build_animation(src, arm, bases[src["base"]])
         efanim.save_animation(anim, out_dir / f"{p.stem}.json", arm)
-        (out_dir / "data" / f"{p.stem}.json").write_text(json.dumps(trail_json(src), indent=2) + "\n")
-        written += [Path(f"{p.stem}.json"), Path("data", f"{p.stem}.json")]
+        written.append(Path(f"{p.stem}.json"))
+        if "trail" in src:
+            (out_dir / "data" / f"{p.stem}.json").write_text(json.dumps(trail_json(src), indent=2) + "\n")
+            written.append(Path("data", f"{p.stem}.json"))
         if preview_dir:
             from tools.anim import preview
             preview_dir.mkdir(parents=True, exist_ok=True)
@@ -174,7 +203,7 @@ def main(argv=None) -> int:
     out = Path(a.out)
     if not a.check:
         files = build_all(Path(a.src), out, a.jar, a.preview)
-        print(f"built {len(files) // 2} animation(s) into {out}")
+        print(f"built {sum(1 for f in files if f.parent.name != 'data')} animation(s) into {out}")
         return 0
     with tempfile.TemporaryDirectory() as d:
         files = build_all(Path(a.src), Path(d), a.jar, a.preview)
@@ -183,7 +212,7 @@ def main(argv=None) -> int:
     if stale:
         print("generated animations are out of date (rerun build_anims.py): " + ", ".join(stale))
         return 1
-    print(f"{len(files) // 2} animation(s) up to date")
+    print(f"{sum(1 for f in files if f.parent.name != 'data')} animation(s) up to date")
     return 0
 
 
