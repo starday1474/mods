@@ -47,7 +47,8 @@
   - 다음 레벨까지 경험치 = `round(40 × (L+1)^1.6)`, 최대 레벨 50
   - 공격 경험치: 적대·중립 생물(플레이어·갑옷 거치대 제외)에게 피해를 주면 1회당 `3`
   - 방어 경험치: 1회당 `min(10, 2 + 막은 피해/2)`
-  - 자기 직업군의 두 분야만 경험치가 오른다.
+  - 다른 직업군 분야도 경험치가 오르지만 **배율 `0.3` 고정**(적성·지식 미적용, 시작 레벨 0). 자기 직업군 두 분야는 위 적성 배율. (2026-11-16 사용자 결정: 잡캐 가능, 대신 늦게)
+  - 스킬은 여전히 자기 직업군 것만 배운다 (설계 5.4·5.5 유지).
 
 ## Review Focus
 
@@ -140,10 +141,11 @@ tools/anim/
 - Produces:
   - `enum Field { SWORD, DEFENSE, ARCHERY, ELEMENTAL, SUMMONING, RELIC }`
   - `enum RpgClass { VANGUARD(SWORD, DEFENSE), REAR_DEALER(ARCHERY, ELEMENTAL), REAR_SUPPORTER(SUMMONING, RELIC); Field first(); Field second(); boolean owns(Field) }`
-  - `record GrowthTuning(Map<Integer,Integer> talentStartLevel, Map<Integer,Double> aptitudeMultiplier, double knowledgePerTome, double knowledgeCap, double xpBase, double xpExponent, int maxLevel, double hitXp, double guardXpBase, double guardXpCap)` with `static GrowthTuning DEFAULT` (Global Constraints 값) and `Codec<GrowthTuning> CODEC`
+  - `record GrowthTuning(Map<Integer,Integer> talentStartLevel, Map<Integer,Double> aptitudeMultiplier, double knowledgePerTome, double knowledgeCap, double xpBase, double xpExponent, int maxLevel, double hitXp, double guardXpBase, double guardXpCap, double offClassMultiplier)` with `static GrowthTuning DEFAULT` (Global Constraints 값) and `Codec<GrowthTuning> CODEC`
   - `ProficiencyRules`:
     - `static int xpToNext(GrowthTuning t, int level)`
     - `static double multiplier(GrowthTuning t, int aptitudeStars, double knowledge)`
+    - `static double fieldMultiplier(GrowthTuning t, RpgClass c, Field f, int aptitudeStars, double knowledge)`: 자기 직업군 분야면 `multiplier(...)`, 아니면 `t.offClassMultiplier()`
     - `static double guardXp(GrowthTuning t, float blocked)`
     - `static LevelProgress addXp(GrowthTuning t, int level, double xp, double gained)` (`record LevelProgress(int level, double xp)`, 최대 레벨에서 경험치 0 고정)
   - `InquiryData`:
@@ -162,6 +164,7 @@ tools/anim/
   - `ProficiencyRulesTest`:
     - `xpToNext(DEFAULT,0)==40`, `xpToNext(DEFAULT,9)==round(40*10^1.6)==1592`
     - `multiplier(DEFAULT,3,0.0)==1.0`, `multiplier(DEFAULT,5,0.5)==2.0`, `multiplier(DEFAULT,1,0.9)==0.6+0.5` (지식 상한 적용)
+    - `fieldMultiplier(DEFAULT, VANGUARD, SWORD, 5, 0.5)==2.0`, `fieldMultiplier(DEFAULT, VANGUARD, ARCHERY, 5, 0.5)==0.3`
     - `guardXp(DEFAULT,4f)==4.0`, `guardXp(DEFAULT,100f)==10.0`
     - `addXp(DEFAULT,0,30,15)` → `(1, 5.0)`. 한 번에 여러 레벨이 오르는 경우도 맞아야 한다.
     - `addXp(DEFAULT,50,0,999)` → `(50, 0.0)`
@@ -327,14 +330,14 @@ tools/anim/
     - `sword`, `longsword`, `greatsword`, `tachi`, `uchigatana`, `dagger`, `axe`, `spear`, `trident`, `fist`, `hoe` → `SWORD`
     - `bow`, `crossbow` → `ARCHERY`
     - 그 외 → 비어 있음
-  - `GrowthEvents.grant(ServerPlayer, Field, double baseXp)`: 자기 직업군 분야가 아니면 무시한다. 배율을 적용하고 레벨을 올린 뒤 동기화한다. 레벨이 오르면 액션바에 한국어 알림을 띄운다.
+  - `GrowthEvents.grant(ServerPlayer, Field, double baseXp)`: `fieldMultiplier`로 배율을 적용하고 (다른 직업군 분야는 `0.3`) 레벨을 올린 뒤 동기화한다. 레벨이 오르면 액션바에 한국어 알림을 띄운다.
   - `AncientTomeItem`: 데이터 컴포넌트 `goddessrpg:tome_id`. 읽으면 `withTome`을 적용하고, 이미 읽은 고서면 "이미 읽은 책입니다"를 띄우고 소모하지 않는다.
 
 - [ ] **Step 1: 실패하는 테스트 작성**
   - `WeaponFieldsTest`: 위 표를 확인한다. `shield`→비어 있음, `bow`→ARCHERY.
   - `GrowthGameTest.hitGivesSwordXp`: 밸런스형 플레이어(적성 ★3)가 철검으로 좀비에게 피해를 주면 검술 경험치가 `3.0` 오른다.
   - `aptitudeScalesXp`: 적성 ★5이면 같은 상황에서 `4.5` 오른다.
-  - `offClassFieldIgnored`: 전위가 `grant(ARCHERY, 10)`을 받아도 궁술 경험치는 0이다.
+  - `offClassFieldSlow`: 전위(적성 ★5)가 `grant(ARCHERY, 10)`을 받으면 궁술 경험치가 `3.0` 오른다.
   - `armorStandGivesNothing`: 갑옷 거치대를 때리면 경험치가 오르지 않는다.
   - `tomeReadOnce`: 같은 고서를 두 번 쓰면 지식은 `0.05`이고 두 번째 책은 인벤토리에 남는다.
   - `knowledgeCapped`: 서로 다른 고서 11권 분량을 더해도 지식은 `0.5`다. 고서 데이터는 테스트용 이름으로 만든다.
