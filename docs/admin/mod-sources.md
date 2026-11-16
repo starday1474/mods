@@ -49,6 +49,7 @@
 | Iris Shaders | `iris` | Modrinth | `iris-neoforge-1.8.14-beta.1+mc1.21.1.jar` | client |
 | Jade 🔍 | `jade` | Modrinth | `Jade-1.21.1-NeoForge-15.10.6.jar` | both |
 | Just Enough Items (JEI) | `jei` | Modrinth | `jei-1.21.1-neoforge-19.70.0.469.jar` | both |
+| Kotlin for Forge | `kotlin-for-forge` | Modrinth | `kotlinforforge-5.13.0-all.jar` | both |
 | KubeJS | `kubejs` | Modrinth | `kubejs-neoforge-2101.7.2-build.381.jar` | both |
 | L_Ender's Cataclysm | `l_enders-cataclysm` | Modrinth | `L_Ender's Cataclysm 1.21.1-3.33.jar` | both |
 | Lionfish-API | `lionfish-api` | Modrinth | `lionfishapi-3.1.jar` | both |
@@ -101,4 +102,5 @@
 ## 메모
 
 - Distant Horizons는 서버 쪽 LOD 생성을 쓰지 않도록 `side = "client"`로 지정했습니다 (월드 여는 PC 부담 감소).
-- 현재 모드 수는 라이브러리 포함 80개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
+- 현재 모드 수는 라이브러리 포함 81개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
+- Kotlin for Forge는 Fzzy Config(다른 모드의 의존)가 요구해서 서버 로딩 테스트 중 추가했습니다.

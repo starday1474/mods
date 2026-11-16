@@ -173,3 +173,25 @@ def test_no_root_options_txt(tmp_path):
 def test_validate_runs_defaults_check(tmp_path):
     report = validate(make_pack(tmp_path, required_mods()))
     assert any("options.txt" in e for e in report.errors)
+
+
+# --- Final review: denied-name variants ---
+import pytest
+
+
+@pytest.mark.parametrize("stem,name", [
+    ("ftb-chunks-forge", "FTB Chunks (NeoForge)"),
+    ("c2me-neoforge", "C2ME (NeoForge)"),
+    ("dimensions-dungeons", "Dimensions & Dungeons"),
+    ("pufferfishs-attributes", "Pufferfish's Attributes"),
+])
+def test_denied_name_variants(tmp_path, stem, name):
+    mods = required_mods() | {stem: {"name": name}}
+    report = validate(make_pack(tmp_path, mods), check_defaults_files=False)
+    assert report.errors, f"{name} should be denied"
+
+
+def test_loader_suffix_does_not_deny_unrelated(tmp_path):
+    mods = required_mods() | {"ftb-quests-forge": {"name": "FTB Quests (NeoForge)"}}
+    report = validate(make_pack(tmp_path, mods), check_defaults_files=False)
+    assert report.errors == []

@@ -22,7 +22,15 @@ class Report:
 
 
 def normalize(name: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", name.lower())
+    return re.sub(r"[^a-z0-9]", "", name.lower().replace("&", "and"))
+
+
+def _denied_key(name: str) -> str | None:
+    """정규화된 이름이 넣지 않기로 한 모드 키로 시작하면 그 키를 돌려준다 (로더 접미사·애드온 변형 포함)."""
+    for key in pack_rules.DENIED:
+        if name.startswith(key):
+            return key
+    return None
 
 
 def _mod_names(stem: str, data: dict) -> set[str]:
@@ -90,8 +98,9 @@ def validate(
         names = _mod_names(stem, data)
         present |= names
         for n in names:
-            if n in pack_rules.DENIED:
-                report.errors.append(f"넣지 않기로 한 모드: {n} ({path.name}) — {pack_rules.DENIED[n]}")
+            key = _denied_key(n)
+            if key:
+                report.errors.append(f"넣지 않기로 한 모드: {n} ({path.name}) — {pack_rules.DENIED[key]}")
             if n in pack_rules.CLIENT_ONLY and data.get("side") != "client":
                 report.errors.append(f"클라이언트 전용 모드 {n}의 side가 client가 아님: {data.get('side')}")
         if "curseforge" in data.get("update", {}):

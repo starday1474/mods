@@ -3,14 +3,15 @@
 MC_VERSION = "1.21.1"
 MAX_MODS = 200
 
-# 정규화된 이름(소문자, 영숫자만) -> 넣지 않는 사유
+# 정규화된 이름(소문자, 영숫자만, &→and)의 앞부분 -> 넣지 않는 사유.
+# 모드 이름이 이 키로 시작하면 걸린다 (예: ftbchunksneoforge).
 DENIED: dict[str, str] = {
     "ironsspellsnspellbooks": "마법은 우리 모드가 담당 (사용자 결정)",
     "bettercombat": "Epic Fight와 충돌",
     "projectmmo": "레벨업은 우리 모드가 담당",
     "pmmo": "레벨업은 우리 모드가 담당",
-    "puffishskills": "레벨업은 우리 모드가 담당",
-    "pufferfishsskills": "레벨업은 우리 모드가 담당",
+    "puffish": "레벨업은 우리 모드가 담당 (Pufferfish's Skills와 애드온)",
+    "pufferfishs": "레벨업은 우리 모드가 담당 (Pufferfish's Skills와 애드온)",
     "aether": "사용자 결정으로 제외",
     "thetwilightforest": "사용자 결정으로 제외",
     "twilightforest": "사용자 결정으로 제외",
