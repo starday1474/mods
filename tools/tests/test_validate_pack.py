@@ -213,3 +213,34 @@ def test_forced_config_roll_disabled(tmp_path):
     assert any("Roll" in e for e in check_forced_configs(pack))
     f.write_text('["Gameplay Changes"]\n\t"Can players use the Roll ability" = false\n', encoding="utf-8")
     assert check_forced_configs(pack) == []
+
+
+# --- 우리가 추가하는 Epic Fight 무기 연결 (kubejs/data/<ns>/capabilities/weapons/*.json) ---
+import json as _json
+from validate_pack import check_ef_weapon_caps
+
+
+def _write_cap(pack: Path, ns: str, item: str, data) -> None:
+    d = pack / "kubejs" / "data" / ns / "capabilities" / "weapons"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{item}.json").write_text(_json.dumps(data), encoding="utf-8")
+
+
+def test_ef_cap_valid(tmp_path):
+    pack = make_pack(tmp_path, required_mods())
+    _write_cap(pack, "born_in_chaos_v1", "skullbreaker_hammer", {"type": "epicfight:greatsword"})
+    assert check_ef_weapon_caps(pack) == []
+
+
+def test_ef_cap_unknown_type(tmp_path):
+    pack = make_pack(tmp_path, required_mods())
+    _write_cap(pack, "born_in_chaos_v1", "skullbreaker_hammer", {"type": "epicfight:hammer"})
+    assert any("skullbreaker_hammer" in e and "epicfight:hammer" in e for e in check_ef_weapon_caps(pack))
+
+
+def test_ef_cap_bad_json(tmp_path):
+    pack = make_pack(tmp_path, required_mods())
+    d = pack / "kubejs" / "data" / "x" / "capabilities" / "weapons"
+    d.mkdir(parents=True)
+    (d / "broken.json").write_text("{not json", encoding="utf-8")
+    assert any("broken" in e for e in check_ef_weapon_caps(pack))

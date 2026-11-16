@@ -67,3 +67,19 @@ python3 prism/build_instance.py build/RPG-modpack-test.zip --pack-url https://ra
 - [ ] Essential 코스튬이 Epic Fight 전투 중에 어떻게 보이는지
 - [ ] 16GB PC에서 월드를 열고 친구가 접속했을 때 프레임·메모리 (F3 화면의 메모리 수치)
 - [ ] 보스 몇 개를 Epic Fight로 실제로 잡아 보기 (경직, 피격 판정) — 계획 3 보스 재조정 때 함께 확인
+
+## Epic Fight 무기 연결 추가
+
+Epic Fight 호환 모드가 담당하지 않는 무기는 Epic Fight 공격 동작이 없습니다. 그런 무기는 `pack/kubejs/data/<모드ID>/capabilities/weapons/<아이템>.json`에 `{"type": "epicfight:<종류>"}`를 넣어 연결합니다.
+
+- 쓸 수 있는 종류: `tools/pack_rules.py`의 `EF_WEAPON_TYPES` (검사 도구가 잘못된 종류를 막음)
+- 현재 연결: Born in Chaos 12종, Eternal Starlight 12종, Cataclysm 2종(astrape, brontes), Undergarden 2종, Mowzie's Mobs 1종(sculptor_staff)
+- 해머·메이스는 `axe` 또는 `greatsword`, 낫은 `greatsword`, 지팡이는 `spear`로 연결
+- 총·대포 종류(Cataclysm laser_gatling, wither_assault_shoulder_weapon 등)는 근접 무기가 아니라 연결하지 않음
+- 새 무기를 찾을 때: 게임에서 F3+H로 아이템 ID 확인 후 위 폴더에 추가
+
+## 모드팩이 강제하는 설정
+
+`pack/config/`의 파일은 업데이트 때마다 덮어씁니다 (게임 규칙이라 친구별로 다르면 안 되는 것만).
+
+- `block_factorys_bosses-server.toml`: Bosses'Rise 구르기 끔 (Epic Fight 회피와 겹치고 Epic Fight 애니메이션이 없음)

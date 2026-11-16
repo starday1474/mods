@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 import tomllib
@@ -87,6 +88,21 @@ def check_forced_configs(pack_dir: Path) -> list[str]:
     return errors
 
 
+def check_ef_weapon_caps(pack_dir: Path) -> list[str]:
+    errors: list[str] = []
+    for path in sorted((pack_dir / "kubejs" / "data").glob("*/capabilities/weapons/*.json")):
+        rel = path.relative_to(pack_dir)
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except ValueError as e:
+            errors.append(f"{rel}: JSON 오류 ({e})")
+            continue
+        t = data.get("type")
+        if t not in pack_rules.EF_WEAPON_TYPES:
+            errors.append(f"{rel}: 알 수 없는 Epic Fight 무기 종류 {t}")
+    return errors
+
+
 def validate(
     pack_dir: Path,
     allow_missing_required: bool = False,
@@ -127,6 +143,7 @@ def validate(
     if check_defaults_files:
         report.errors.extend(check_defaults(pack_dir))
         report.errors.extend(check_forced_configs(pack_dir))
+    report.errors.extend(check_ef_weapon_caps(pack_dir))
     return report
 
 

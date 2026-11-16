@@ -13,6 +13,122 @@ file = "config/yosbr/options.txt"
 hash = "737e9ea6878c44573a2e87ac155838b9a22661857a2e287d0b5149a2dee7df6a"
 
 [[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/birch_branches.json"
+hash = "ed0d9ff4b104bdda12444bd974d58d0d0e319a88113cbb9ef8453d8b98697b21"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/darkwarblade.json"
+hash = "518c6f36acd8f2aab633a3f62b6903baac94fff0e2d0726321c10b8f44dd0a96"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/frostbitten_blade.json"
+hash = "ed0d9ff4b104bdda12444bd974d58d0d0e319a88113cbb9ef8453d8b98697b21"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/icy_sweetness.json"
+hash = "ed0d9ff4b104bdda12444bd974d58d0d0e319a88113cbb9ef8453d8b98697b21"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/nightmare_scythe.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/nut_hammer.json"
+hash = "61554a39fdefafe7236c32706d4def6115825734afa92c8e85ef891d81402c19"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/shell_mace.json"
+hash = "61554a39fdefafe7236c32706d4def6115825734afa92c8e85ef891d81402c19"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/skullbreaker_hammer.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/soul_cutlass.json"
+hash = "ed0d9ff4b104bdda12444bd974d58d0d0e319a88113cbb9ef8453d8b98697b21"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/soulbane.json"
+hash = "518c6f36acd8f2aab633a3f62b6903baac94fff0e2d0726321c10b8f44dd0a96"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/supreme_measure.json"
+hash = "61554a39fdefafe7236c32706d4def6115825734afa92c8e85ef891d81402c19"
+
+[[files]]
+file = "kubejs/data/born_in_chaos_v1/capabilities/weapons/trident_hayfork.json"
+hash = "aa0a137717806040df9144295377115deb64a5f5ba1c49c9cbadb7688c9aaf55"
+
+[[files]]
+file = "kubejs/data/cataclysm/capabilities/weapons/astrape.json"
+hash = "aa0a137717806040df9144295377115deb64a5f5ba1c49c9cbadb7688c9aaf55"
+
+[[files]]
+file = "kubejs/data/cataclysm/capabilities/weapons/brontes.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/bonemore.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/dagger_of_hunger.json"
+hash = "c6c83e8410cb2f434da2ff4f25435d0bb30086d8a15969908040a025750c99d4"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/doomeden_rapier.json"
+hash = "ed0d9ff4b104bdda12444bd974d58d0d0e319a88113cbb9ef8453d8b98697b21"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/flowglaze_scythe.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/glacite_scythe.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/glistering_morning_star.json"
+hash = "61554a39fdefafe7236c32706d4def6115825734afa92c8e85ef891d81402c19"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/petal_scythe.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/rage_of_stars.json"
+hash = "518c6f36acd8f2aab633a3f62b6903baac94fff0e2d0726321c10b8f44dd0a96"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/starfire_hammer.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/starfire_scythe.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/thermal_springstone_hammer.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/eternal_starlight/capabilities/weapons/thermal_springstone_scythe.json"
+hash = "d0d7ed87c1a48e24c0e0f9636d88de8f453b4317605c2796774b4694b6ce9e1a"
+
+[[files]]
+file = "kubejs/data/mowziesmobs/capabilities/weapons/sculptor_staff.json"
+hash = "aa0a137717806040df9144295377115deb64a5f5ba1c49c9cbadb7688c9aaf55"
+
+[[files]]
+file = "kubejs/data/undergarden/capabilities/weapons/cloggrum_battleaxe.json"
+hash = "61554a39fdefafe7236c32706d4def6115825734afa92c8e85ef891d81402c19"
+
+[[files]]
+file = "kubejs/data/undergarden/capabilities/weapons/forgotten_battleaxe.json"
+hash = "61554a39fdefafe7236c32706d4def6115825734afa92c8e85ef891d81402c19"
+
+[[files]]
 file = "mods/abyssal-corrupter.pw.toml"
 hash = "b0c34e110001cada519ef6b269044023658914ae9c5c5c43d8a6b3662d6002ac"
 metafile = true

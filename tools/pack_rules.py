@@ -68,3 +68,12 @@ FORCED_CONFIGS: dict[str, dict[str, str]] = {
         '"Can players use the Roll ability"': "false",
     },
 }
+
+# Epic Fight 1.21.1 무기 종류 (설치된 Epic Fight·호환 모드 데이터에서 실제 쓰이는 값)
+EF_WEAPON_TYPES: set[str] = {
+    f"epicfight:{t}" for t in (
+        "axe", "bokken", "bow", "crossbow", "dagger", "fist", "greatsword", "hoe",
+        "longsword", "pickaxe", "shield", "shovel", "spear", "sword", "tachi",
+        "trident", "uchigatana",
+    )
+}
