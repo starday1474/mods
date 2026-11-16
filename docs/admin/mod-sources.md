@@ -50,6 +50,7 @@
 | FTB Teams (NeoForge) | `ftb-teams-forge` | CurseForge | `ftb-teams-neoforge-2101.1.12.jar` | both |
 | Fzzy Config | `fzzy-config` | Modrinth | `fzzy_config-0.7.7+fix1+1.21+neoforge.jar` | both |
 | Geckolib | `geckolib` | Modrinth | `geckolib-neoforge-1.21.1-4.9.3.jar` | both |
+| Goddess RPG (우리 모드) | `goddessrpg` | GitHub Releases (`starday1474/mods`, 태그 `mod-v0.1.0`, 직접 만든 모드) | `goddessrpg-0.1.0.jar` | both |
 | GTBC's Cataclysmic Boss UI | `gtbcs-cataclysmic-boss-ui` | Modrinth | `gtbcs_cataclysmic_uis-1.0.3+1.21.1.jar` | both |
 | ImmediatelyFast | `immediatelyfast` | Modrinth | `ImmediatelyFast-NeoForge-1.6.15+1.21.1.jar` | client |
 | Iris Shaders | `iris` | Modrinth | `iris-neoforge-1.8.14-beta.1+mc1.21.1.jar` | client |
@@ -114,7 +115,8 @@
 
 ## 메모
 
-- 현재 모드 수는 라이브러리 포함 90개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
+- 우리 모드 goddessrpg는 Modrinth/CurseForge가 아니라 이 저장소의 GitHub Releases에서 받습니다 (릴리스 방법은 `modpack.md`의 "우리 모드 릴리스").
+- 현재 모드 수는 라이브러리 포함 91개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
 - Kotlin for Forge는 Fzzy Config(다른 모드의 의존)가 요구해서 서버 로딩 테스트 중 추가했습니다.
 - EpicFight Sword Light Modifications(검 궤적 효과)는 클라이언트 전용입니다. 서버에 넣으면 크래시가 나서 `side = "client"`로 바꿨습니다.
 - 대격변 보스 연계 모드 6개 추가 (2026-11-16, 사용자 선택): Apothic Category Compat, Eternal Hunts, Simply Swords: Cataclysm, Cinematic Cataclysm, GTBC's Boss UI, Mowzie's Cataclysm. GTBC's Boss UI는 보스 설명 문구가 많아 번역 분량이 큼.

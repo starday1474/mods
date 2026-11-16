@@ -649,6 +649,11 @@ hash = "35779b39ddc06059ec483b33de2ecfdc3adb95c0a49e69b6701fb0024827e2f5"
 metafile = true
 
 [[files]]
+file = "mods/goddessrpg.pw.toml"
+hash = "b0f3edc0f602523c585b7fa6bbdd8a944fd3592be56203bf28d3c82b665f22d6"
+metafile = true
+
+[[files]]
 file = "mods/gtbcs-cataclysmic-boss-ui.pw.toml"
 hash = "ecfb0a6592cf7eb815393a9433ad5453cfac841e12d8ad7a5e8563b517f4b0af"
 metafile = true

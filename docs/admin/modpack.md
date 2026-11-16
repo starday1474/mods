@@ -68,6 +68,19 @@ python3 prism/build_instance.py build/RPG-modpack-test.zip --pack-url https://ra
 - [ ] 16GB PC에서 월드를 열고 친구가 접속했을 때 프레임·메모리 (F3 화면의 메모리 수치)
 - [ ] 보스 몇 개를 Epic Fight로 실제로 잡아 보기 (경직, 피격 판정) — 계획 3 보스 재조정 때 함께 확인
 
+### 우리 모드 (goddessrpg) 시험
+
+- [ ] 새 월드 첫 접속 → 여신의 질의 3단계 → 여신의 서를 받는다
+- [ ] `/goddessrpg info` 출력 확인
+- [ ] 여신의 서 우클릭 → 능력치(★) 화면 확인
+- [ ] 좀비를 때리면 검술 레벨이 오르는 알림이 뜬다
+- [ ] 방패나 Epic Fight 가드로 막으면 방어술 경험치가 오른다
+- [ ] Z(Epic Fight 회피) 구르기와 가드가 Epic Fight 동작으로 나온다
+- [ ] Epic Fight 스킬북 사용이 막힌다
+- [ ] `/give @s goddessrpg:training_sword` → 3연격 동작이 나온다
+- [ ] 수련용 검 3연격의 궤적·손목 각도·검기(트레일)가 자연스럽고, 3타 후 뒤로 미끄러지지 않는다
+- [ ] `/give @s goddessrpg:goddess_reroll` → 재질의가 시작된다
+
 ## Epic Fight 무기 연결 추가
 
 Epic Fight 호환 모드가 담당하지 않는 무기는 Epic Fight 공격 동작이 없습니다. 그런 무기는 `pack/kubejs/data/<모드ID>/capabilities/weapons/<아이템>.json`에 `{"type": "epicfight:<종류>"}`를 넣어 연결합니다.
@@ -144,3 +157,11 @@ python3 tools/anim/build_anims.py mod/anim mod/src/main/resources/assets/goddess
 - 무기 종류: `RpgWeaponTypes.java`. `goddessrpg:balanced_sword`는 Epic Fight `sword`와 같고 한손 콤보만 `balanced_auto1~3` + Epic Fight 대시·공중 베기로 바꾼 것 (Epic Fight 1.21 버전은 콤보를 "무브셋"으로 관리하므로 무브셋 `goddessrpg:balanced_1h`를 함께 등록)
 - 무기 연결: `data/<모드ID>/capabilities/weapons/<아이템>.json`에 `{"type": "goddessrpg:balanced_sword"}` (모드팩 쪽은 위 "Epic Fight 무기 연결 추가"와 같은 방법, `EF_WEAPON_TYPES`에 이미 들어 있음)
 - 확인: `cd mod && ./gradlew runGameTestServer` (`AnimationGameTest`가 동작 등록과 수련용 검 연결을 확인)
+
+## 우리 모드 릴리스
+
+- 버전은 `mod/version.txt`에 한 줄로 적습니다 (예 `0.1.0`). 릴리스 태그는 `mod-v<버전>`, 자산은 `goddessrpg-<버전>.jar`입니다.
+- `.github/workflows/mod-release.yml`이 `mod/version.txt`(또는 워크플로 파일) 변경 push, 또는 수동 실행(`workflow_dispatch`, 기본 브랜치에 워크플로가 있어야 함) 때 동작합니다.
+- 순서: Java 21 → 도구 의존성 설치 → `fetch_jars.py`로 Epic Fight jar 받기 → 동작 도구 테스트와 `--check` → `./gradlew test runGameTestServer build` → `gh release create`.
+- 같은 태그가 이미 있으면 덮어쓰지 않고 실패합니다. 새 릴리스는 `mod/version.txt`를 올리세요.
+- 모드팩에는 릴리스 자산 URL을 `cd pack && ~/go/bin/packwiz url add goddessrpg <자산 URL>`로 등록합니다 (`side = "both"`). 새 버전은 같은 방법으로 다시 등록합니다.
