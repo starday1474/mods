@@ -30,6 +30,7 @@ import org.slf4j.Logger;
  * <li>{@code data/goddessrpg/subtypes/<id>.json} ({@code {"class":..,"available":..}}, id = file name)</li>
  * <li>{@code data/goddessrpg/inquiry/stage1.json}, {@code inquiry/stage2/<class>.json},
  *     {@code inquiry/stage3/<class>.json}: each an object {"questions":[...]}; missing files give empty lists</li>
+ * <li>{@code data/goddessrpg/tomes/<id>.json} ({@code {"knowledge":..,"title":..}}, id = file name)</li>
  * </ul>
  */
 public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataLoader.Snapshot> {
@@ -38,10 +39,11 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
             Question.CODEC.listOf().fieldOf("questions").codec();
 
     public record Snapshot(GrowthTuning tuning, List<Subtype> subtypes, List<Question> stage1,
-                           Map<RpgClass, List<Question>> stage2, Map<RpgClass, List<Question>> stage3) {}
+                           Map<RpgClass, List<Question>> stage2, Map<RpgClass, List<Question>> stage3,
+                           Map<String, TomeData> tomes) {}
 
     private static volatile Snapshot current = new Snapshot(GrowthTuning.DEFAULT, List.of(), List.of(),
-            new EnumMap<>(RpgClass.class), new EnumMap<>(RpgClass.class));
+            new EnumMap<>(RpgClass.class), new EnumMap<>(RpgClass.class), Map.of());
 
     public static GrowthTuning tuning() {
         return current.tuning();
@@ -61,6 +63,10 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
 
     public static List<Question> stage3(RpgClass c) {
         return current.stage3().getOrDefault(c, List.of());
+    }
+
+    public static Optional<TomeData> tome(String id) {
+        return Optional.ofNullable(current.tomes().get(id));
     }
 
     private static ResourceLocation id(String path) {
@@ -120,7 +126,17 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
             s2.put(c, readQuestions(rm, "inquiry/stage2/" + c.id() + ".json"));
             s3.put(c, readQuestions(rm, "inquiry/stage3/" + c.id() + ".json"));
         }
-        return new Snapshot(tuning, List.copyOf(subtypes), readQuestions(rm, "inquiry/stage1.json"), s2, s3);
+        Map<String, TomeData> tomes = new java.util.HashMap<>();
+        rm.listResources("tomes", l -> l.getNamespace().equals(GoddessRpg.MODID) && l.getPath().endsWith(".json"))
+                .forEach((loc, res) -> {
+                    String path = loc.getPath();
+                    String name = path.substring("tomes/".length(), path.length() - ".json".length());
+                    readJson(rm, loc).flatMap(j -> TomeData.CODEC.parse(JsonOps.INSTANCE, j)
+                                    .resultOrPartial(err -> LOGGER.error("Bad tome {}: {}", name, err)))
+                            .ifPresent(t -> tomes.put(name, t));
+                });
+        return new Snapshot(tuning, List.copyOf(subtypes), readQuestions(rm, "inquiry/stage1.json"), s2, s3,
+                Map.copyOf(tomes));
     }
 
     @Override

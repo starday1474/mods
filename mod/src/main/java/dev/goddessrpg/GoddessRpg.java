@@ -3,6 +3,7 @@ package dev.goddessrpg;
 import dev.goddessrpg.command.RpgCommand;
 import dev.goddessrpg.compat.epicfight.EfSkillPolicy;
 import dev.goddessrpg.data.RpgDataLoader;
+import dev.goddessrpg.growth.GrowthEvents;
 import dev.goddessrpg.inquiry.InquiryPayloads;
 import dev.goddessrpg.inquiry.InquiryService;
 import dev.goddessrpg.item.RpgItems;
@@ -24,6 +25,7 @@ public class GoddessRpg {
         InquiryPayloads.register(modBus);
         InquiryService.register();
         EfSkillPolicy.register();
+        GrowthEvents.register();
         RpgItems.register(modBus);
         NeoForge.EVENT_BUS.addListener((AddReloadListenerEvent e) -> e.addListener(new RpgDataLoader()));
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> RpgCommand.register(e.getDispatcher()));

@@ -77,5 +77,12 @@
   "goddessrpg.reroll.denied": "Only administrators can use this.",
   "item.goddessrpg.goddess_tome": "Goddess Tome",
   "item.goddessrpg.goddess_reroll": "Feather of Re-Inquiry",
-  "goddessrpg.skillbook.blocked": "Skills outside the Goddess's blessing cannot be learned."
+  "goddessrpg.skillbook.blocked": "Skills outside the Goddess's blessing cannot be learned.",
+  "item.goddessrpg.ancient_tome": "Ancient Tome",
+  "goddessrpg.tome.first_steps": "Record of First Steps",
+  "goddessrpg.tome.old_war_record": "Old War Record",
+  "goddessrpg.tome.unknown": "This book is unreadable.",
+  "goddessrpg.tome.already_read": "You have already read this book.",
+  "goddessrpg.tome.read": "You read %s. Your knowledge grows.",
+  "goddessrpg.growth.levelup": "Your %s proficiency reached level %s"
 }
