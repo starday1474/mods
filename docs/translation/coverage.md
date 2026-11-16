@@ -1,0 +1,64 @@
+# 한국어 번역 현황
+
+`python3 tools/lang_report.py`로 자동 생성. 누락 비율이 높은 모드부터 번역합니다.
+
+| 모드 | 전체 키 | 누락 키 | 누락 비율 |
+|---|---|---|---|
+| abyssal_corrupter | 39 | 39 | 100.0% |
+| apothic_spawners | 89 | 89 | 100.0% |
+| balm | 36 | 36 | 100.0% |
+| betteradvancedtooltips | 5 | 5 | 100.0% |
+| betterdeserttemples | 13 | 13 | 100.0% |
+| betterdungeons | 86 | 86 | 100.0% |
+| betterfortresses | 4 | 4 | 100.0% |
+| betterjungletemples | 11 | 11 | 100.0% |
+| bettermineshafts | 60 | 60 | 100.0% |
+| betteroceanmonuments | 4 | 4 | 100.0% |
+| betterstrongholds | 11 | 11 | 100.0% |
+| betterwitchhuts | 4 | 4 | 100.0% |
+| block_factorys_bosses | 308 | 308 | 100.0% |
+| born_in_chaos_v1 | 1021 | 1021 | 100.0% |
+| boss_ai_tweaks | 6 | 6 | 100.0% |
+| bosses_of_mass_destruction | 151 | 151 | 100.0% |
+| cristellib | 4 | 4 | 100.0% |
+| distanthorizons | 489 | 489 | 100.0% |
+| dnt | 137 | 137 | 100.0% |
+| dungeons_arise | 119 | 119 | 100.0% |
+| entityculling | 27 | 27 | 100.0% |
+| eternal_starlight | 1844 | 1844 | 100.0% |
+| fzzy_config | 287 | 287 | 100.0% |
+| lionfishapi | 4 | 4 | 100.0% |
+| magistuarmory | 1057 | 1057 | 100.0% |
+| mezz_config | 18 | 18 | 100.0% |
+| modernfix | 155 | 155 | 100.0% |
+| multiplayerbosses | 16 | 16 | 100.0% |
+| simplytooltips | 31 | 31 | 100.0% |
+| sodium | 89 | 89 | 100.0% |
+| unusualend | 693 | 693 | 100.0% |
+| yungsapi | 3 | 3 | 100.0% |
+| simplyswords | 2267 | 1840 | 81.2% |
+| jei | 616 | 476 | 77.3% |
+| waystones | 360 | 268 | 74.4% |
+| sophisticatedcore | 321 | 168 | 52.3% |
+| sophisticatedbackpacks | 407 | 178 | 43.7% |
+| deeperdarker | 369 | 159 | 43.1% |
+| epicfight | 676 | 269 | 39.8% |
+| e4mc_minecraft | 8 | 3 | 37.5% |
+| undergarden | 679 | 193 | 28.4% |
+| jade | 410 | 102 | 24.9% |
+| mowziesmobs | 440 | 102 | 23.2% |
+| mutantmonsters | 102 | 22 | 21.6% |
+| curios | 48 | 7 | 14.6% |
+| corpse | 22 | 3 | 13.6% |
+| voicechat | 228 | 23 | 10.1% |
+| apotheosis | 802 | 66 | 8.2% |
+| iris | 73 | 6 | 8.2% |
+| patchouli | 92 | 5 | 5.4% |
+| blueprint | 19 | 1 | 5.3% |
+| cataclysm | 735 | 28 | 3.8% |
+| apothic_attributes | 161 | 6 | 3.7% |
+| apothic_enchanting | 425 | 10 | 2.4% |
+| artifacts | 448 | 7 | 1.6% |
+| cloth-config2 | 49 | 0 | 0.0% |
+| lootr | 249 | 0 | 0.0% |
+| placebo | 6 | 0 | 0.0% |

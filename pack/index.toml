@@ -411,3 +411,11 @@ metafile = true
 file = "mods/yungs-better-witch-huts.pw.toml"
 hash = "9854b699d5a067c46ac99b1dedeeb529bff3fc18dd079e29b438c4cbf9725f68"
 metafile = true
+
+[[files]]
+file = "resourcepacks/rpg-korean/assets/.gitkeep"
+hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+[[files]]
+file = "resourcepacks/rpg-korean/pack.mcmeta"
+hash = "54bcda882e9a39fb64179f2ea40504280c5ed0769fa4cb7d4063e2aef6e3a55b"
