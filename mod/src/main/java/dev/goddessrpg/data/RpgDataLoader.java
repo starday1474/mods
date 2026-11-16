@@ -29,12 +29,13 @@ import org.slf4j.Logger;
  * <li>{@code data/goddessrpg/tuning/growth.json}</li>
  * <li>{@code data/goddessrpg/subtypes/<id>.json} ({@code {"class":..,"available":..}}, id = file name)</li>
  * <li>{@code data/goddessrpg/inquiry/stage1.json}, {@code inquiry/stage2/<class>.json},
- *     {@code inquiry/stage3/<class>.json}: each a JSON array of questions; missing files give empty lists</li>
+ *     {@code inquiry/stage3/<class>.json}: each an object {"questions":[...]}; missing files give empty lists</li>
  * </ul>
  */
 public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataLoader.Snapshot> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Codec<List<Question>> QUESTIONS = Question.CODEC.listOf();
+    private static final Codec<List<Question>> QUESTIONS =
+            Question.CODEC.listOf().fieldOf("questions").codec();
 
     public record Snapshot(GrowthTuning tuning, List<Subtype> subtypes, List<Question> stage1,
                            Map<RpgClass, List<Question>> stage2, Map<RpgClass, List<Question>> stage3) {}
@@ -79,11 +80,15 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
         }
     }
 
-    private static List<Question> readQuestions(ResourceManager rm, String path) {
-        return readJson(rm, id(path)).map(json -> QUESTIONS.parse(JsonOps.INSTANCE, json)
-                        .resultOrPartial(err -> LOGGER.error("Bad inquiry file {}: {}", path, err))
-                        .orElse(List.<Question>of()))
+    /** Parses an inquiry stage file of the form {"questions":[...]}; malformed input gives an empty list. */
+    public static List<Question> parseQuestions(JsonElement json, String what) {
+        return QUESTIONS.parse(JsonOps.INSTANCE, json)
+                .resultOrPartial(err -> LOGGER.error("Bad inquiry file {}: {}", what, err))
                 .orElse(List.of());
+    }
+
+    private static List<Question> readQuestions(ResourceManager rm, String path) {
+        return readJson(rm, id(path)).map(json -> parseQuestions(json, path)).orElse(List.of());
     }
 
     @Override

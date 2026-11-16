@@ -140,4 +140,18 @@ public class PlayerDataGameTest {
         }
         h.succeed();
     }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void inquiryFileIsQuestionsObject(GameTestHelper h) {
+        String obj = "{\"questions\":[{\"id\":\"q1\",\"text\":\"k\",\"answers\":[{\"text\":\"a\",\"scores\":{\"balanced\":2}}]}]}";
+        var parsed = RpgDataLoader.parseQuestions(com.google.gson.JsonParser.parseString(obj), "test");
+        if (parsed.size() != 1 || !parsed.get(0).id().equals("q1") || parsed.get(0).answers().size() != 1) {
+            h.fail("object form not parsed: " + parsed);
+        }
+        if (!RpgDataLoader.parseQuestions(com.google.gson.JsonParser.parseString("[]"), "test").isEmpty()) {
+            h.fail("bare array must not parse");
+        }
+        h.succeed();
+    }
 }
