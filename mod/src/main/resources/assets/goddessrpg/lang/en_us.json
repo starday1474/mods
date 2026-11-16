@@ -84,5 +84,6 @@
   "goddessrpg.tome.unknown": "This book is unreadable.",
   "goddessrpg.tome.already_read": "You have already read this book.",
   "goddessrpg.tome.read": "You read %s. Your knowledge grows.",
-  "goddessrpg.growth.levelup": "Your %s proficiency reached level %s"
+  "goddessrpg.growth.levelup": "Your %s proficiency reached level %s",
+  "item.goddessrpg.training_sword": "Training Sword"
 }

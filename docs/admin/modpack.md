@@ -104,3 +104,43 @@ cd mod
 - `test`: JUnit 단위 테스트
 - `runGameTestServer`: 서버를 띄워 GameTest를 실행하고 끝나면 종료 (실패하면 빌드 실패). 로그에 `All 1 required tests passed`가 나와야 함
 - `build`: `mod/build/libs/goddessrpg-<버전>.jar` 생성
+
+## 전투 동작 만들기
+
+우리 모드의 Epic Fight 공격 동작은 짧은 키프레임 원본(`mod/anim/*.json`)을 도구로 Epic Fight 동작 파일로 바꿔 만듭니다. 첫 동작은 밸런스형 한손검 3연격(`balanced_auto1~3`)이고, 시험용 무기 **수련용 검**(`goddessrpg:training_sword`, 철검 수치, 모델은 임시로 바닐라 철검)에 연결되어 있습니다.
+
+### 원본 형식
+
+```json
+{"length": 0.6, "base": "epicfight:biped/living/idle",
+ "keys": [{"t": 0.0, "rot": {"Arm_R": [-30, 0, 10]}, "translate": {"Root": [0, 0, 0]}}],
+ "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.45}, "trail": [0.15, 0.3]}
+```
+
+- `length`: 동작 길이(초). 키는 `t: 0`에서 시작해 `t: length`에서 끝나야 함 (5~8개 정도면 부드럽게 이어짐, 사이는 Epic Fight가 보간)
+- `base`: 기준 자세. `epicfight:<경로>`는 Epic Fight jar 안 동작(`assets/epicfight/animmodels/animations/<경로>.json`)의 첫 프레임, `rest`는 뼈대 기본 자세. 지금은 `epicfight:biped/living/idle`을 씀 (`hold_sword`는 이 Epic Fight 버전에 없음)
+- `rot`: 관절별 회전(도). 관절 자기 축 기준 X → Y → Z 순서. 적지 않은 관절은 기준 자세 그대로. 자주 쓰는 축: `Arm_R` X=팔을 앞·위로 듦, Z=음수면 바깥으로 벌림 / `Hand_R` X=팔꿈치 굽힘(0~130) / `Tool_R` X=칼끝 위·아래, Y=칼끝 좌우 / `Chest` Y=양수면 왼쪽으로 몸통 비틀기
+- `translate`: 관절 위치 이동. `Root` `[0, 0.3, 0]`은 앞으로 반 걸음 (+Y가 앞, +Z가 위). Epic Fight 공격 동작은 `Root`의 앞뒤 이동을 캐릭터 이동으로 쓰는 것으로 보임 (Epic Fight 검 동작의 `Root`는 앞으로만 나아감). 3타 찌르기는 반 걸음 나갔다가 제자리로 돌아오므로 게임에서 뒤로 밀리는 느낌이 나면 돌아오는 이동을 빼고 다시 빌드
+- `phase`: 공격 판정 시간 (선딜 끝 `antic`, 판정 끝 `contact`, 다음 동작으로 넘어갈 수 있는 `recovery`). Java의 `RpgAnimations`에 같은 값을 적어야 함 (테스트가 확인)
+- `trail`: 칼 궤적 효과 시작·끝 시간 (보통 `antic`~`contact`)
+- 왼팔은 방패를 든 가드 자세(`Shoulder_L`, `Arm_L`, `Hand_L`)를 모든 키에 같은 값으로 넣어 유지
+
+### 빌드와 미리보기
+
+저장소 루트에서:
+
+```
+python3 tools/anim/build_anims.py mod/anim mod/src/main/resources/assets/goddessrpg/animmodels/animations/biped/combat --preview build/anim-preview
+```
+
+- 원본마다 동작 파일 `<이름>.json`과 궤적 파일 `data/<이름>.json`을 씀 (생성물도 커밋)
+- `--preview build/anim-preview`: `<이름>.gif`(옆·앞 화면)와 `<이름>_sheet.png`(장면 모음)를 만듦. 관절이 뒤틀리지 않는지, 칼끝(검은 막대)이 의도한 궤적을 그리는지, 처음과 끝이 기준 자세로 이어지는지 확인
+- `--check`: 생성물이 원본과 다르면 종료 코드 1 (테스트에서도 확인). 원본을 고친 뒤 빌드를 잊지 말 것
+- Epic Fight 동작을 미리 보려면 `python3 tools/anim/preview.py jar:assets/epicfight/animmodels/animations/biped/combat/sword_auto1.json build/anim-preview/sword_auto1.gif`
+
+### 등록
+
+- 동작: `mod/src/main/java/dev/goddessrpg/compat/epicfight/RpgAnimations.java`의 `build()`에 `builder.nextAccessor("biped/combat/<이름>", ...)`를 추가 (Epic Fight 검 동작처럼 `ComboAttackAnimation`, 판정 관절 `toolR`, 공격 속도 기준 1.6)
+- 무기 종류: `RpgWeaponTypes.java`. `goddessrpg:balanced_sword`는 Epic Fight `sword`와 같고 한손 콤보만 `balanced_auto1~3` + Epic Fight 대시·공중 베기로 바꾼 것 (Epic Fight 1.21 버전은 콤보를 "무브셋"으로 관리하므로 무브셋 `goddessrpg:balanced_1h`를 함께 등록)
+- 무기 연결: `data/<모드ID>/capabilities/weapons/<아이템>.json`에 `{"type": "goddessrpg:balanced_sword"}` (모드팩 쪽은 위 "Epic Fight 무기 연결 추가"와 같은 방법, `EF_WEAPON_TYPES`에 이미 들어 있음)
+- 확인: `cd mod && ./gradlew runGameTestServer` (`AnimationGameTest`가 동작 등록과 수련용 검 연결을 확인)

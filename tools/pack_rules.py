@@ -77,3 +77,5 @@ EF_WEAPON_TYPES: set[str] = {
         "trident", "uchigatana",
     )
 }
+# 우리 모드(goddessrpg, RpgWeaponTypes)가 추가하는 무기 종류. 다른 무기를 연결할 때도 "type"에 쓸 수 있다.
+EF_WEAPON_TYPES |= {"goddessrpg:balanced_sword"}

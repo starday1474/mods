@@ -30,12 +30,18 @@ public final class RpgItems {
     public static final DeferredItem<AncientTomeItem> ANCIENT_TOME =
             ITEMS.register("ancient_tome", () -> new AncientTomeItem(new Item.Properties().stacksTo(16)));
 
+    public static final DeferredItem<TrainingSwordItem> TRAINING_SWORD =
+            ITEMS.register("training_sword", () -> new TrainingSwordItem(new Item.Properties()));
+
     private RpgItems() {}
 
     public static void register(IEventBus modBus) {
         COMPONENTS.register(modBus);
         ITEMS.register(modBus);
         modBus.addListener((BuildCreativeModeTabContentsEvent e) -> {
+            if (e.getTabKey() == CreativeModeTabs.COMBAT) {
+                e.accept(TRAINING_SWORD.get());
+            }
             if (e.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
                 e.accept(REROLL.get());
                 for (String id : new String[] {"first_steps", "old_war_record"}) {

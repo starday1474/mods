@@ -2,6 +2,8 @@ package dev.goddessrpg;
 
 import dev.goddessrpg.command.RpgCommand;
 import dev.goddessrpg.compat.epicfight.EfSkillPolicy;
+import dev.goddessrpg.compat.epicfight.RpgAnimations;
+import dev.goddessrpg.compat.epicfight.RpgWeaponTypes;
 import dev.goddessrpg.data.RpgDataLoader;
 import dev.goddessrpg.growth.GrowthEvents;
 import dev.goddessrpg.inquiry.InquiryPayloads;
@@ -27,6 +29,8 @@ public class GoddessRpg {
         EfSkillPolicy.register();
         GrowthEvents.register();
         RpgItems.register(modBus);
+        RpgAnimations.register(modBus);
+        RpgWeaponTypes.register(modBus);
         NeoForge.EVENT_BUS.addListener((AddReloadListenerEvent e) -> e.addListener(new RpgDataLoader()));
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> RpgCommand.register(e.getDispatcher()));
     }

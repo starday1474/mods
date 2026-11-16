@@ -84,5 +84,6 @@
   "goddessrpg.tome.unknown": "알 수 없는 책입니다.",
   "goddessrpg.tome.already_read": "이미 읽은 책입니다",
   "goddessrpg.tome.read": "%s을(를) 읽었습니다. 지식이 쌓였습니다.",
-  "goddessrpg.growth.levelup": "%s 숙련도가 %s레벨이 되었습니다"
+  "goddessrpg.growth.levelup": "%s 숙련도가 %s레벨이 되었습니다",
+  "item.goddessrpg.training_sword": "수련용 검"
 }
