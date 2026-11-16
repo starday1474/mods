@@ -120,7 +120,9 @@ def test_preview_writes_gif_and_sheet(tmp_path):
 
 @needs_jar
 def test_repo_assets_up_to_date():
-    assert sorted(p.stem for p in SRC.glob("*.json")) == ["balanced_auto1", "balanced_auto2", "balanced_auto3"]
+    stems = sorted(p.stem for p in SRC.glob("*.json"))
+    assert {"balanced_auto1", "balanced_auto2", "balanced_auto3"} <= set(stems)
+    assert stems == sorted(p.stem for p in OUT.glob("*.json"))
     assert build_anims.main([str(SRC), str(OUT), "--check"]) == 0
 
 
