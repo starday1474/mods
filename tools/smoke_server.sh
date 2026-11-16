@@ -52,7 +52,7 @@ echo "-Xmx6G" > user_jvm_args.txt
 if [ ! -f server.properties ]; then
   printf 'online-mode=false\nlevel-seed=rpgsmoke\n' > server.properties
 fi
-rm -rf crash-reports
+rm -rf crash-reports world  # 매번 새 월드: 월드 생성 중 크래시도 잡기 위해
 
 # 4. 실행
 : > "$LOG"

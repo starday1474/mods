@@ -29,7 +29,6 @@
 | Cupboard | `cupboard` | CurseForge | `cupboard-1.21.1-4.2.jar` | both |
 | Curios API | `curios` | Modrinth | `curios-neoforge-9.5.1+1.21.1.jar` | both |
 | Deeper and Darker | `deeperdarker` | Modrinth | `deeperdarker-neoforge-1.21.1-1.4.1.jar` | both |
-| Distant Horizons | `distanthorizons` | Modrinth | `DistantHorizons-3.3.3-1.21.1-fabric-neoforge.jar` | client |
 | Dungeons and Taverns | `dungeons-and-taverns` | Modrinth | `dungeons-and-taverns-v4.4.4.jar` | both |
 | e4mc | `e4mc` | Modrinth | `e4mc-neoforge-6.2.3.jar` | client |
 | Entity Culling | `entityculling` | Modrinth | `entityculling-neoforge-1.12.1-mc1.21.1.jar` | client |
@@ -95,12 +94,12 @@
 | True Ending (드래곤 강화) | **Savage Ender Dragon으로 대체** | CurseForge에 1.21.1 NeoForge 파일 없음 (Modrinth에도 없음) |
 | Brutal Bosses | 제외 | Modrinth·CurseForge 모두 1.21.1 NeoForge 버전을 찾지 못함 |
 | Mo'Bosses | 보류 (넣지 않음) | 설계상 안정성 테스트 후 결정 |
+| Distant Horizons | **제외** | Chunky와 함께 쓰면 새 월드 생성 시 크래시("Chunky is not loaded", DH 3.3.3 + Chunky 1.4.23). 월드 미리 생성(Chunky)이 더 중요해서 DH를 뺌 |
 | Noisiumed | 보류 (넣지 않음) | 설계상 테스트 후 결정 |
 | Async Locator | 보류 (넣지 않음) | 설계상 1.21.1 빌드 확인 후 결정 |
 | Alex's Caves | 보류 (넣지 않음) | 공식 1.21.1 없음, 비공식 포팅만 존재 |
 
 ## 메모
 
-- Distant Horizons는 서버 쪽 LOD 생성을 쓰지 않도록 `side = "client"`로 지정했습니다 (월드 여는 PC 부담 감소).
-- 현재 모드 수는 라이브러리 포함 81개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
+- 현재 모드 수는 라이브러리 포함 80개로 목표(130~150) 아래입니다. 우리 모드와 방어구 모드 등이 이후 추가됩니다.
 - Kotlin for Forge는 Fzzy Config(다른 모드의 의존)가 요구해서 서버 로딩 테스트 중 추가했습니다.

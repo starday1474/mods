@@ -1,10 +1,6 @@
 hash-format = "sha256"
 
 [[files]]
-file = "config/yosbr/config/DistantHorizons.toml"
-hash = "95d08f2e6a2e4a920722a7262a3d00ef457872efc654fc3bef85ac55a4b0a9ab"
-
-[[files]]
 file = "config/yosbr/config/iris.properties"
 hash = "eb4c72f6737a9c80e57445045729a969bb0bed4f4261c14ac07eebfd473a25f7"
 
@@ -125,11 +121,6 @@ metafile = true
 [[files]]
 file = "mods/deeperdarker.pw.toml"
 hash = "a9ecc4476d26e707189e9f988c19f22961c33dfd5e5b4db1dfd6f87c6a81c545"
-metafile = true
-
-[[files]]
-file = "mods/distanthorizons.pw.toml"
-hash = "6d37de7b436e094a7834d51b5d9d803653ab445e1041853f32a61599b054c7bf"
 metafile = true
 
 [[files]]

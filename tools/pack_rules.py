@@ -27,6 +27,7 @@ DENIED: dict[str, str] = {
     "xaerosworldmap": "지도 모드 사용 안 함",
     "journeymap": "지도 모드 사용 안 함",
     "ftbchunks": "지도 모드 사용 안 함",
+    "distanthorizons": "Chunky와 함께 쓰면 새 월드 생성 시 크래시 (DH 3.3.3 + Chunky 1.4.23)",
 }
 
 REQUIRED: set[str] = {
@@ -48,7 +49,6 @@ CLIENT_ONLY: set[str] = {
     "iris",
     "immediatelyfast",
     "entityculling",
-    "distanthorizons",
 }
 
 # 첫 실행 기본 설정 (config/yosbr/ 아래, 처음 한 번만 적용)

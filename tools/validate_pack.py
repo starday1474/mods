@@ -54,7 +54,6 @@ def check_defaults(pack_dir: Path) -> list[str]:
     files = {
         "options.txt": ydir / "options.txt",
         "iris.properties": ydir / "config" / "iris.properties",
-        "DistantHorizons.toml": ydir / "config" / "DistantHorizons.toml",
     }
     for label, path in files.items():
         if not path.exists():
@@ -71,8 +70,6 @@ def check_defaults(pack_dir: Path) -> list[str]:
 
     if _read_kv(files["iris.properties"], "=").get("enableShaders") != "false":
         errors.append("iris.properties enableShaders=false 아님")
-    if _read_kv(files["DistantHorizons.toml"], "=").get("quickEnableRendering") != "false":
-        errors.append("DistantHorizons.toml quickEnableRendering = false 아님")
     return errors
 
 

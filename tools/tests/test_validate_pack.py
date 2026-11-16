@@ -121,13 +121,11 @@ GOOD_OPTIONS = (
 )
 
 
-def make_defaults(pack: Path, options: str = GOOD_OPTIONS, iris: str = "enableShaders=false\n",
-                  dh: str = "[client]\nquickEnableRendering = false\n") -> Path:
+def make_defaults(pack: Path, options: str = GOOD_OPTIONS, iris: str = "enableShaders=false\n") -> Path:
     y = pack / "config" / "yosbr"
     (y / "config").mkdir(parents=True, exist_ok=True)
     (y / "options.txt").write_text(options, encoding="utf-8")
     (y / "config" / "iris.properties").write_text(iris, encoding="utf-8")
-    (y / "config" / "DistantHorizons.toml").write_text(dh, encoding="utf-8")
     return pack
 
 
@@ -158,10 +156,11 @@ def test_iris_disabled(tmp_path):
     assert any("enableShaders" in e for e in check_defaults(pack))
 
 
-def test_dh_disabled(tmp_path):
-    pack = make_defaults(make_pack(tmp_path, required_mods()),
-                         dh="[client]\nquickEnableRendering = true\n")
-    assert any("quickEnableRendering" in e for e in check_defaults(pack))
+def test_distant_horizons_denied(tmp_path):
+    # DH 3.3.3 + Chunky 1.4.23: 새 월드 생성 시 "Chunky is not loaded" 크래시
+    mods = required_mods() | {"distanthorizons": {"side": "client"}}
+    report = validate(make_pack(tmp_path, mods), check_defaults_files=False)
+    assert any("distanthorizons" in e for e in report.errors)
 
 
 def test_no_root_options_txt(tmp_path):
