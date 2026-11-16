@@ -49,3 +49,13 @@ CLIENT_ONLY: set[str] = {
     "entityculling",
     "distanthorizons",
 }
+
+# 첫 실행 기본 설정 (config/yosbr/ 아래, 처음 한 번만 적용)
+DEFAULT_OPTIONS: dict[str, str] = {
+    "renderDistance": "10",
+    "simulationDistance": "6",
+    "entityDistanceScaling": "0.75",
+    "particles": "1",  # 0=전부, 1=줄임, 2=최소
+    "lang": "ko_kr",
+}
+KOREAN_RESOURCE_PACK = "file/rpg-korean"

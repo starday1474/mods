@@ -1,6 +1,18 @@
 hash-format = "sha256"
 
 [[files]]
+file = "config/yosbr/config/DistantHorizons.toml"
+hash = "95d08f2e6a2e4a920722a7262a3d00ef457872efc654fc3bef85ac55a4b0a9ab"
+
+[[files]]
+file = "config/yosbr/config/iris.properties"
+hash = "eb4c72f6737a9c80e57445045729a969bb0bed4f4261c14ac07eebfd473a25f7"
+
+[[files]]
+file = "config/yosbr/options.txt"
+hash = "737e9ea6878c44573a2e87ac155838b9a22661857a2e287d0b5149a2dee7df6a"
+
+[[files]]
 file = "mods/abyssal-corrupter.pw.toml"
 hash = "b0c34e110001cada519ef6b269044023658914ae9c5c5c43d8a6b3662d6002ac"
 metafile = true

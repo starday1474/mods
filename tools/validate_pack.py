@@ -29,8 +29,43 @@ def _mod_names(stem: str, data: dict) -> set[str]:
     return {normalize(stem), normalize(data.get("name", ""))} - {""}
 
 
+def _read_kv(path: Path, sep: str) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if sep in line and not line.lstrip().startswith(("#", "[")):
+            k, v = line.split(sep, 1)
+            out[k.strip()] = v.strip()
+    return out
+
+
 def check_defaults(pack_dir: Path) -> list[str]:
-    return []
+    errors: list[str] = []
+    if (pack_dir / "options.txt").exists():
+        errors.append("팩 루트에 options.txt가 있음 — 친구 설정을 덮어씀. config/yosbr/options.txt만 사용")
+    ydir = pack_dir / "config" / "yosbr"
+    files = {
+        "options.txt": ydir / "options.txt",
+        "iris.properties": ydir / "config" / "iris.properties",
+        "DistantHorizons.toml": ydir / "config" / "DistantHorizons.toml",
+    }
+    for label, path in files.items():
+        if not path.exists():
+            errors.append(f"기본 설정 파일 없음: config/yosbr/{label}")
+    if errors:
+        return errors
+
+    opts = _read_kv(files["options.txt"], ":")
+    for key, want in pack_rules.DEFAULT_OPTIONS.items():
+        if opts.get(key) != want:
+            errors.append(f"options.txt {key}={opts.get(key)} (기대값 {want})")
+    if f'"{pack_rules.KOREAN_RESOURCE_PACK}"' not in opts.get("resourcePacks", ""):
+        errors.append(f"options.txt resourcePacks에 {pack_rules.KOREAN_RESOURCE_PACK} 없음 (rpg-korean)")
+
+    if _read_kv(files["iris.properties"], "=").get("enableShaders") != "false":
+        errors.append("iris.properties enableShaders=false 아님")
+    if _read_kv(files["DistantHorizons.toml"], "=").get("quickEnableRendering") != "false":
+        errors.append("DistantHorizons.toml quickEnableRendering = false 아님")
+    return errors
 
 
 def validate(

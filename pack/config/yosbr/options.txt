@@ -1,0 +1,6 @@
+renderDistance:10
+simulationDistance:6
+entityDistanceScaling:0.75
+particles:1
+lang:ko_kr
+resourcePacks:["vanilla","mod_resources","file/rpg-korean"]

@@ -110,3 +110,66 @@ def test_cli_exit_codes(tmp_path):
     bad = make_pack(tmp_path / "b", required_mods() | {"journeymap": {}})
     assert main([str(good), "--skip-defaults"]) == 0
     assert main([str(bad), "--skip-defaults"]) == 1
+
+
+# --- Task 5: first-launch defaults ---
+from validate_pack import check_defaults
+
+GOOD_OPTIONS = (
+    "renderDistance:10\nsimulationDistance:6\nentityDistanceScaling:0.75\nparticles:1\n"
+    "lang:ko_kr\nresourcePacks:[\"vanilla\",\"mod_resources\",\"file/rpg-korean\"]\n"
+)
+
+
+def make_defaults(pack: Path, options: str = GOOD_OPTIONS, iris: str = "enableShaders=false\n",
+                  dh: str = "[client]\nquickEnableRendering = false\n") -> Path:
+    y = pack / "config" / "yosbr"
+    (y / "config").mkdir(parents=True, exist_ok=True)
+    (y / "options.txt").write_text(options, encoding="utf-8")
+    (y / "config" / "iris.properties").write_text(iris, encoding="utf-8")
+    (y / "config" / "DistantHorizons.toml").write_text(dh, encoding="utf-8")
+    return pack
+
+
+def test_defaults_present_and_correct(tmp_path):
+    pack = make_defaults(make_pack(tmp_path, required_mods()))
+    assert check_defaults(pack) == []
+
+
+def test_defaults_missing_files(tmp_path):
+    pack = make_pack(tmp_path, required_mods())
+    assert any("options.txt" in e for e in check_defaults(pack))
+
+
+def test_defaults_wrong_value(tmp_path):
+    pack = make_defaults(make_pack(tmp_path, required_mods()),
+                         options=GOOD_OPTIONS.replace("renderDistance:10", "renderDistance:12"))
+    assert any("renderDistance" in e for e in check_defaults(pack))
+
+
+def test_defaults_resource_pack_enabled(tmp_path):
+    pack = make_defaults(make_pack(tmp_path, required_mods()),
+                         options=GOOD_OPTIONS.replace(',"file/rpg-korean"', ""))
+    assert any("rpg-korean" in e for e in check_defaults(pack))
+
+
+def test_iris_disabled(tmp_path):
+    pack = make_defaults(make_pack(tmp_path, required_mods()), iris="enableShaders=true\n")
+    assert any("enableShaders" in e for e in check_defaults(pack))
+
+
+def test_dh_disabled(tmp_path):
+    pack = make_defaults(make_pack(tmp_path, required_mods()),
+                         dh="[client]\nquickEnableRendering = true\n")
+    assert any("quickEnableRendering" in e for e in check_defaults(pack))
+
+
+def test_no_root_options_txt(tmp_path):
+    pack = make_defaults(make_pack(tmp_path, required_mods()))
+    (pack / "options.txt").write_text("renderDistance:10\n", encoding="utf-8")
+    assert any("options.txt" in e for e in check_defaults(pack))
+
+
+def test_validate_runs_defaults_check(tmp_path):
+    report = validate(make_pack(tmp_path, required_mods()))
+    assert any("options.txt" in e for e in report.errors)
