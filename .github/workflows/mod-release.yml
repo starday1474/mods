@@ -1,0 +1,53 @@
+name: mod-release
+
+on:
+  push:
+    paths:
+      - mod/version.txt
+      - .github/workflows/mod-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+          cache-dependency-path: |
+            mod/*.gradle
+            mod/gradle.properties
+            mod/gradle/wrapper/gradle-wrapper.properties
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Python dependencies
+        run: pip install -r tools/requirements-dev.txt
+      - name: Fetch pack jars (Epic Fight etc.)
+        run: python3 tools/fetch_jars.py pack .cache/jars
+      - name: Animation tool tests
+        run: python3 -m pytest tools/anim
+      - name: Animation check
+        run: python3 tools/anim/build_anims.py mod/anim mod/src/main/resources/assets/goddessrpg/animmodels/animations/biped/combat --check
+      - name: Build and test mod
+        working-directory: mod
+        run: ./gradlew test runGameTestServer build
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER="$(tr -d '[:space:]' < mod/version.txt)"
+          TAG="mod-v${VER}"
+          JAR="mod/build/libs/goddessrpg-${VER}.jar"
+          test -f "$JAR" || { echo "missing $JAR"; exit 1; }
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::release $TAG already exists; bump mod/version.txt"
+            exit 1
+          fi
+          gh release create "$TAG" "$JAR" --target "${{ github.sha }}" --title "goddessrpg ${VER}" --notes "goddessrpg ${VER}"
