@@ -65,5 +65,16 @@
   "goddessrpg.inquiry.stage3.vanguard.journey_end": "At the end of a long road, you will meet yourself. Who do you hope to find there?",
   "goddessrpg.inquiry.stage3.vanguard.journey_end.a1": "Someone who draws their blade without hesitation before any foe. I will leave the guarding to others.",
   "goddessrpg.inquiry.stage3.vanguard.journey_end.a2": "My edge can be dull. I want to be someone who never loses anyone standing behind me.",
-  "goddessrpg.inquiry.stage3.vanguard.journey_end.a3": "Someone not so different from who I am now. There is no need to hurry; that is enough."
+  "goddessrpg.inquiry.stage3.vanguard.journey_end.a3": "Someone not so different from who I am now. There is no need to hurry; that is enough.",
+  "goddessrpg.goddess.name": "The Goddess",
+  "goddessrpg.inquiry.greeting": "Welcome, traveler of long roads. I am the goddess who lights the paths of this land. I would like to ask you a few things about who you are. There are no right answers, so answer as your heart leads.",
+  "goddessrpg.inquiry.continue": "Yes, my Goddess.",
+  "goddessrpg.inquiry.outro": "[Goddess] Thank you. I have heard your heart. Your path is written in this tome; open it whenever you wish. May you walk in peace.",
+  "goddessrpg.stats.title": "Goddess Tome",
+  "goddessrpg.stats.field": "%s  Lv.%s/%s  Talent %s  Aptitude %s",
+  "goddessrpg.stats.off_field": "%s  Lv.%s",
+  "goddessrpg.stats.knowledge": "Knowledge +%s%% (%s tomes)",
+  "goddessrpg.reroll.denied": "Only administrators can use this.",
+  "item.goddessrpg.goddess_tome": "Goddess Tome",
+  "item.goddessrpg.goddess_reroll": "Feather of Re-Inquiry"
 }

@@ -65,5 +65,16 @@
   "goddessrpg.inquiry.stage3.vanguard.journey_end": "먼 길의 끝에서 마주할 그대 자신은, 어떤 모습이기를 바라시나요?",
   "goddessrpg.inquiry.stage3.vanguard.journey_end.a1": "어떤 강적 앞에서도 망설임 없이 칼을 뽑는 사람이요. 지키는 일은 다른 이에게 맡기겠습니다.",
   "goddessrpg.inquiry.stage3.vanguard.journey_end.a2": "칼끝이 무뎌도 괜찮습니다. 등 뒤의 누구도 잃지 않는 사람이고 싶습니다.",
-  "goddessrpg.inquiry.stage3.vanguard.journey_end.a3": "지금의 저와 크게 다르지 않았으면 합니다. 서두르지 않아도, 그걸로 족하니까요."
+  "goddessrpg.inquiry.stage3.vanguard.journey_end.a3": "지금의 저와 크게 다르지 않았으면 합니다. 서두르지 않아도, 그걸로 족하니까요.",
+  "goddessrpg.goddess.name": "여신",
+  "goddessrpg.inquiry.greeting": "어서 오세요, 먼 길을 걸어온 분. 저는 이 땅의 길을 비추는 여신입니다. 그대가 어떤 사람인지, 몇 가지만 여쭙고 싶습니다. 정답은 없으니, 마음 가는 대로 답해 주세요.",
+  "goddessrpg.inquiry.continue": "네, 여신님.",
+  "goddessrpg.inquiry.outro": "[여신] 고맙습니다. 그대의 마음, 잘 들었어요. 이 서에 그대의 길을 적어 두었으니 언제든 펼쳐 보세요. 부디 평안하기를.",
+  "goddessrpg.stats.title": "여신의 서",
+  "goddessrpg.stats.field": "%s  Lv.%s/%s  재능 %s  적성 %s",
+  "goddessrpg.stats.off_field": "%s  Lv.%s",
+  "goddessrpg.stats.knowledge": "지식 +%s%% (고서 %s권)",
+  "goddessrpg.reroll.denied": "관리자만 사용할 수 있습니다.",
+  "item.goddessrpg.goddess_tome": "여신의 서",
+  "item.goddessrpg.goddess_reroll": "여신의 재질의 깃털"
 }
