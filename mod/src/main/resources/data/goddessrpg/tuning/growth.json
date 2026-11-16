@@ -1,0 +1,13 @@
+{
+  "talent_start_level": { "1": 0, "2": 2, "3": 4, "4": 6, "5": 8 },
+  "aptitude_multiplier": { "1": 0.6, "2": 0.8, "3": 1.0, "4": 1.25, "5": 1.5 },
+  "knowledge_per_tome": 0.05,
+  "knowledge_cap": 0.5,
+  "xp_base": 40.0,
+  "xp_exponent": 1.6,
+  "max_level": 50,
+  "hit_xp": 3.0,
+  "guard_xp_base": 2.0,
+  "guard_xp_cap": 10.0,
+  "off_class_multiplier": 0.3
+}

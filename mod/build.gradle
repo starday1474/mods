@@ -33,6 +33,10 @@ neoForge {
     version = '21.1.266'
 
     runs {
+        server {
+            server()
+            programArgument '--nogui'
+        }
         gameTestServer {
             type = 'gameTestServer'
             systemProperty 'neoforge.enabledGameTestNamespaces', 'goddessrpg'
