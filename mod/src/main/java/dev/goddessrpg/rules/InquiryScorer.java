@@ -29,7 +29,7 @@ public final class InquiryScorer {
         return out;
     }
 
-    /** Sums scores; key order is first appearance in the data, used for tie-breaking. */
+    /** Sums scores per key. */
     private static Map<String, Integer> sum(List<Answer> answers) {
         Map<String, Integer> totals = new LinkedHashMap<>();
         for (Answer a : answers) {
@@ -49,23 +49,9 @@ public final class InquiryScorer {
         if (candidates.isEmpty()) {
             throw new IllegalArgumentException("no available subtype in any class");
         }
-        // Order: first appearance in score data, then enum order for the rest.
-        List<RpgClass> ordered = new ArrayList<>();
-        for (String key : totals.keySet()) {
-            for (RpgClass c : candidates) {
-                if (c.id().equals(key) && !ordered.contains(c)) {
-                    ordered.add(c);
-                }
-            }
-        }
-        for (RpgClass c : candidates) {
-            if (!ordered.contains(c)) {
-                ordered.add(c);
-            }
-        }
         RpgClass best = null;
         int bestScore = Integer.MIN_VALUE;
-        for (RpgClass c : ordered) {
+        for (RpgClass c : candidates) {
             int s = totals.getOrDefault(c.id(), 0);
             if (s > bestScore) {
                 best = c;

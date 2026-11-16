@@ -35,16 +35,19 @@ class InquiryScorerTest {
 
     @Test
     void tiePicksFirstDeclared() {
-        Question q = new Question("q1", "t", List.of(
-                score(new java.util.LinkedHashMap<>(Map.of("rear_supporter", 2))),
-                score(Map.of("vanguard", 2))));
-        // both a single answer each; build an explicit tie within one answer with ordered map
-        java.util.LinkedHashMap<String, Integer> ordered = new java.util.LinkedHashMap<>();
-        ordered.put("rear_dealer", 1);
-        ordered.put("vanguard", 1);
-        Question q2 = new Question("q2", "t", List.of(score(ordered)));
-        assertEquals(RpgClass.REAR_DEALER, InquiryScorer.pickClass(List.of(q2), List.of(0), SUBS));
-        assertEquals(RpgClass.REAR_SUPPORTER, InquiryScorer.pickClass(List.of(q), List.of(0), SUBS));
+        java.util.LinkedHashMap<String, Integer> all = new java.util.LinkedHashMap<>();
+        all.put("rear_supporter", 2);
+        all.put("rear_dealer", 2);
+        all.put("vanguard", 2);
+        Question threeWay = new Question("q1", "t", List.of(score(all)));
+        assertEquals(RpgClass.VANGUARD, InquiryScorer.pickClass(List.of(threeWay), List.of(0), SUBS));
+
+        java.util.LinkedHashMap<String, Integer> two = new java.util.LinkedHashMap<>();
+        two.put("rear_supporter", 2);
+        two.put("rear_dealer", 2);
+        two.put("vanguard", 1);
+        Question twoWay = new Question("q2", "t", List.of(score(two)));
+        assertEquals(RpgClass.REAR_DEALER, InquiryScorer.pickClass(List.of(twoWay), List.of(0), SUBS));
     }
 
     @Test
