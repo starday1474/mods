@@ -76,5 +76,6 @@
   "goddessrpg.stats.knowledge": "Knowledge +%s%% (%s tomes)",
   "goddessrpg.reroll.denied": "Only administrators can use this.",
   "item.goddessrpg.goddess_tome": "Goddess Tome",
-  "item.goddessrpg.goddess_reroll": "Feather of Re-Inquiry"
+  "item.goddessrpg.goddess_reroll": "Feather of Re-Inquiry",
+  "goddessrpg.skillbook.blocked": "Skills outside the Goddess's blessing cannot be learned."
 }

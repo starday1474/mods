@@ -76,5 +76,6 @@
   "goddessrpg.stats.knowledge": "지식 +%s%% (고서 %s권)",
   "goddessrpg.reroll.denied": "관리자만 사용할 수 있습니다.",
   "item.goddessrpg.goddess_tome": "여신의 서",
-  "item.goddessrpg.goddess_reroll": "여신의 재질의 깃털"
+  "item.goddessrpg.goddess_reroll": "여신의 재질의 깃털",
+  "goddessrpg.skillbook.blocked": "여신의 가호 밖의 기술은 배울 수 없습니다."
 }
