@@ -59,11 +59,11 @@ python3 prism/build_instance.py build/RPG-modpack-test.zip --pack-url https://ra
 
 클라우드 환경에서는 게임 화면을 띄울 수 없어서, 아래 항목은 직접 게임에서 확인해야 합니다.
 
-- [ ] Prism으로 가져오기 → 첫 실행 시 모드 자동 다운로드 (CurseForge 모드 Savage Ender Dragon, FTB Quests 포함)
-- [ ] 첫 실행 기본 설정: 한국어, 한글 리소스팩 켜짐, 렌더 거리 10, 쉐이더 꺼짐
+- [x] (2026-11-16 확인) Prism으로 가져오기 → 첫 실행 시 모드 자동 다운로드 (CurseForge 모드 Savage Ender Dragon, FTB Quests 포함)
+- [x] (2026-11-16 확인) 첫 실행 기본 설정: 한국어, 한글 리소스팩 켜짐, 렌더 거리 10, 쉐이더 꺼짐
 - [ ] 설정을 바꾼 뒤 다시 켜도 바뀐 설정이 유지되는지 (덮어쓰지 않는지)
 - [ ] Epic Fight 전투 + Iris 쉐이더를 켰을 때 화면이 깨지지 않는지
 - [ ] Essential로 월드 열기 → 친구 1명 이상 접속 (모드 불일치 오류 없는지)
 - [ ] Essential 코스튬이 Epic Fight 전투 중에 어떻게 보이는지
 - [ ] 16GB PC에서 월드를 열고 친구가 접속했을 때 프레임·메모리 (F3 화면의 메모리 수치)
-- [ ] 보스 몇 개를 Epic Fight로 실제로 잡아 보기 (경직, 피격 판정)
+- [ ] 보스 몇 개를 Epic Fight로 실제로 잡아 보기 (경직, 피격 판정) — 계획 3 보스 재조정 때 함께 확인
