@@ -286,11 +286,11 @@
  {
   "name": "mage_cast_instant",
   "kind": "attack",
-  "length": 0.5,
+  "length": 0.6,
   "phase": {
-   "antic": 0.08,
-   "contact": 0.18,
-   "recovery": 0.32
+   "antic": 0.1667,
+   "contact": 0.2667,
+   "recovery": 0.4333
   }
  },
  {
@@ -302,11 +302,11 @@
  {
   "name": "mage_cast_long_release",
   "kind": "attack",
-  "length": 0.7,
+  "length": 0.8,
   "phase": {
-   "antic": 0.1,
-   "contact": 0.22,
-   "recovery": 0.4
+   "antic": 0.1667,
+   "contact": 0.3,
+   "recovery": 0.5333
   }
  },
  {
@@ -330,47 +330,47 @@
  {
   "name": "mage_charge_release",
   "kind": "attack",
-  "length": 0.55,
+  "length": 0.6,
   "phase": {
-   "antic": 0.06,
-   "contact": 0.14,
-   "recovery": 0.3
+   "antic": 0.0667,
+   "contact": 0.2,
+   "recovery": 0.3667
   }
  },
  {
   "name": "mage_circle_raise",
   "kind": "attack",
-  "length": 1.15,
+  "length": 1.2,
   "phase": {
-   "antic": 0.35,
-   "contact": 0.8,
-   "recovery": 0.9
+   "antic": 0.4,
+   "contact": 0.6667,
+   "recovery": 0.9667
   }
  },
  {
   "name": "mage_idle",
   "kind": "loop",
-  "length": 1.6,
+  "length": 2.4,
   "phase": null
  },
  {
   "name": "mage_staff_auto1",
   "kind": "attack",
-  "length": 0.55,
+  "length": 0.6,
   "phase": {
-   "antic": 0.12,
-   "contact": 0.28,
-   "recovery": 0.4
+   "antic": 0.1333,
+   "contact": 0.2667,
+   "recovery": 0.4333
   }
  },
  {
   "name": "mage_staff_auto2",
   "kind": "attack",
-  "length": 0.55,
+  "length": 0.7,
   "phase": {
-   "antic": 0.12,
-   "contact": 0.22,
-   "recovery": 0.36
+   "antic": 0.1333,
+   "contact": 0.2667,
+   "recovery": 0.4667
   }
  },
  {
