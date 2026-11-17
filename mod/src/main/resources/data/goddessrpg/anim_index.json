@@ -1,0 +1,516 @@
+[
+ {
+  "name": "archer_arc_shot",
+  "kind": "attack",
+  "length": 0.8,
+  "phase": {
+   "antic": 0.3333,
+   "contact": 0.4,
+   "recovery": 0.5667
+  }
+ },
+ {
+  "name": "archer_backstep_shot",
+  "kind": "attack",
+  "length": 0.75,
+  "phase": {
+   "antic": 0.2667,
+   "contact": 0.3333,
+   "recovery": 0.4667
+  }
+ },
+ {
+  "name": "archer_charge_shot",
+  "kind": "attack",
+  "length": 0.6,
+  "phase": {
+   "antic": 0.1333,
+   "contact": 0.2,
+   "recovery": 0.3667
+  }
+ },
+ {
+  "name": "archer_charge_step",
+  "kind": "action",
+  "length": 0.5,
+  "phase": null
+ },
+ {
+  "name": "archer_draw",
+  "kind": "loop",
+  "length": 1.6,
+  "phase": null
+ },
+ {
+  "name": "archer_follow_shot",
+  "kind": "attack",
+  "length": 0.6,
+  "phase": {
+   "antic": 0.1667,
+   "contact": 0.2333,
+   "recovery": 0.4
+  }
+ },
+ {
+  "name": "archer_pierce_stance",
+  "kind": "attack",
+  "length": 1.4,
+  "phase": {
+   "antic": 0.7333,
+   "contact": 0.8,
+   "recovery": 1.0
+  }
+ },
+ {
+  "name": "archer_power_shot",
+  "kind": "attack",
+  "length": 1.2,
+  "phase": {
+   "antic": 0.6667,
+   "contact": 0.7333,
+   "recovery": 0.8667
+  }
+ },
+ {
+  "name": "archer_quick_shot",
+  "kind": "attack",
+  "length": 0.4,
+  "phase": {
+   "antic": 0.1,
+   "contact": 0.1667,
+   "recovery": 0.2667
+  }
+ },
+ {
+  "name": "balanced_auto1",
+  "kind": "attack",
+  "length": 0.6,
+  "phase": {
+   "antic": 0.15,
+   "contact": 0.3,
+   "recovery": 0.45
+  }
+ },
+ {
+  "name": "balanced_auto2",
+  "kind": "attack",
+  "length": 0.6,
+  "phase": {
+   "antic": 0.15,
+   "contact": 0.3,
+   "recovery": 0.4
+  }
+ },
+ {
+  "name": "balanced_auto3",
+  "kind": "attack",
+  "length": 0.7,
+  "phase": {
+   "antic": 0.2,
+   "contact": 0.35,
+   "recovery": 0.5
+  }
+ },
+ {
+  "name": "balanced_counter",
+  "kind": "attack",
+  "length": 0.9,
+  "phase": {
+   "antic": 0.37,
+   "contact": 0.5,
+   "recovery": 0.62
+  }
+ },
+ {
+  "name": "balanced_dash",
+  "kind": "attack",
+  "length": 0.8,
+  "phase": {
+   "antic": 0.3,
+   "contact": 0.5,
+   "recovery": 0.65
+  }
+ },
+ {
+  "name": "balanced_idle",
+  "kind": "loop",
+  "length": 1.6,
+  "phase": null
+ },
+ {
+  "name": "balanced_shield_bash",
+  "kind": "attack",
+  "length": 0.65,
+  "phase": {
+   "antic": 0.17,
+   "contact": 0.3,
+   "recovery": 0.45
+  }
+ },
+ {
+  "name": "healer_blessing",
+  "kind": "attack",
+  "length": 1.1,
+  "phase": {
+   "antic": 0.45,
+   "contact": 0.62,
+   "recovery": 0.8
+  }
+ },
+ {
+  "name": "healer_heal_area",
+  "kind": "attack",
+  "length": 0.95,
+  "phase": {
+   "antic": 0.18,
+   "contact": 0.38,
+   "recovery": 0.62
+  }
+ },
+ {
+  "name": "healer_heal_single",
+  "kind": "attack",
+  "length": 0.75,
+  "phase": {
+   "antic": 0.15,
+   "contact": 0.32,
+   "recovery": 0.5
+  }
+ },
+ {
+  "name": "healer_idle",
+  "kind": "loop",
+  "length": 2.0,
+  "phase": null
+ },
+ {
+  "name": "healer_spirit_call",
+  "kind": "attack",
+  "length": 1.05,
+  "phase": {
+   "antic": 0.42,
+   "contact": 0.56,
+   "recovery": 0.8
+  }
+ },
+ {
+  "name": "infight_dual_auto1",
+  "kind": "attack",
+  "length": 0.45,
+  "phase": {
+   "antic": 0.1,
+   "contact": 0.27,
+   "recovery": 0.35
+  }
+ },
+ {
+  "name": "infight_dual_auto2",
+  "kind": "attack",
+  "length": 0.45,
+  "phase": {
+   "antic": 0.1,
+   "contact": 0.27,
+   "recovery": 0.35
+  }
+ },
+ {
+  "name": "infight_dual_auto3",
+  "kind": "attack",
+  "length": 0.5,
+  "phase": {
+   "antic": 0.12,
+   "contact": 0.3,
+   "recovery": 0.38
+  }
+ },
+ {
+  "name": "infight_dual_auto4",
+  "kind": "attack",
+  "length": 0.7,
+  "phase": {
+   "antic": 0.2,
+   "contact": 0.4,
+   "recovery": 0.52
+  }
+ },
+ {
+  "name": "infight_gs_auto1",
+  "kind": "attack",
+  "length": 0.9,
+  "phase": {
+   "antic": 0.3,
+   "contact": 0.5,
+   "recovery": 0.65
+  }
+ },
+ {
+  "name": "infight_gs_auto2",
+  "kind": "attack",
+  "length": 0.9,
+  "phase": {
+   "antic": 0.3,
+   "contact": 0.5,
+   "recovery": 0.65
+  }
+ },
+ {
+  "name": "infight_gs_auto3",
+  "kind": "attack",
+  "length": 1.1,
+  "phase": {
+   "antic": 0.42,
+   "contact": 0.62,
+   "recovery": 0.8
+  }
+ },
+ {
+  "name": "infight_leap_slam",
+  "kind": "attack",
+  "length": 1.1,
+  "phase": {
+   "antic": 0.45,
+   "contact": 0.68,
+   "recovery": 0.85
+  }
+ },
+ {
+  "name": "infight_whirlwind",
+  "kind": "attack",
+  "length": 1.0,
+  "phase": {
+   "antic": 0.2,
+   "contact": 0.72,
+   "recovery": 0.85
+  }
+ },
+ {
+  "name": "mage_cast_instant",
+  "kind": "attack",
+  "length": 0.5,
+  "phase": {
+   "antic": 0.08,
+   "contact": 0.18,
+   "recovery": 0.32
+  }
+ },
+ {
+  "name": "mage_cast_long_loop",
+  "kind": "loop",
+  "length": 1.2,
+  "phase": null
+ },
+ {
+  "name": "mage_cast_long_release",
+  "kind": "attack",
+  "length": 0.7,
+  "phase": {
+   "antic": 0.1,
+   "contact": 0.22,
+   "recovery": 0.4
+  }
+ },
+ {
+  "name": "mage_cast_long_start",
+  "kind": "action",
+  "length": 0.6,
+  "phase": null
+ },
+ {
+  "name": "mage_channel_loop",
+  "kind": "loop",
+  "length": 1.2,
+  "phase": null
+ },
+ {
+  "name": "mage_charge_hold",
+  "kind": "loop",
+  "length": 1.0,
+  "phase": null
+ },
+ {
+  "name": "mage_charge_release",
+  "kind": "attack",
+  "length": 0.55,
+  "phase": {
+   "antic": 0.06,
+   "contact": 0.14,
+   "recovery": 0.3
+  }
+ },
+ {
+  "name": "mage_circle_raise",
+  "kind": "attack",
+  "length": 1.15,
+  "phase": {
+   "antic": 0.35,
+   "contact": 0.8,
+   "recovery": 0.9
+  }
+ },
+ {
+  "name": "mage_idle",
+  "kind": "loop",
+  "length": 1.6,
+  "phase": null
+ },
+ {
+  "name": "mage_staff_auto1",
+  "kind": "attack",
+  "length": 0.55,
+  "phase": {
+   "antic": 0.12,
+   "contact": 0.28,
+   "recovery": 0.4
+  }
+ },
+ {
+  "name": "mage_staff_auto2",
+  "kind": "attack",
+  "length": 0.55,
+  "phase": {
+   "antic": 0.12,
+   "contact": 0.22,
+   "recovery": 0.36
+  }
+ },
+ {
+  "name": "relic_activate",
+  "kind": "attack",
+  "length": 1.15,
+  "phase": {
+   "antic": 0.48,
+   "contact": 0.66,
+   "recovery": 0.85
+  }
+ },
+ {
+  "name": "relic_idle",
+  "kind": "loop",
+  "length": 1.6,
+  "phase": null
+ },
+ {
+  "name": "relic_needle_flick",
+  "kind": "attack",
+  "length": 0.5,
+  "phase": {
+   "antic": 0.1,
+   "contact": 0.17,
+   "recovery": 0.28
+  }
+ },
+ {
+  "name": "relic_needle_guard",
+  "kind": "loop",
+  "length": 1.6,
+  "phase": null
+ },
+ {
+  "name": "relic_needle_volley",
+  "kind": "attack",
+  "length": 0.8,
+  "phase": {
+   "antic": 0.18,
+   "contact": 0.3,
+   "recovery": 0.48
+  }
+ },
+ {
+  "name": "relic_ring_flame_sweep",
+  "kind": "attack",
+  "length": 0.9,
+  "phase": {
+   "antic": 0.22,
+   "contact": 0.34,
+   "recovery": 0.6
+  }
+ },
+ {
+  "name": "relic_ring_flame_throw",
+  "kind": "attack",
+  "length": 0.65,
+  "phase": {
+   "antic": 0.16,
+   "contact": 0.26,
+   "recovery": 0.4
+  }
+ },
+ {
+  "name": "summoner_command",
+  "kind": "attack",
+  "length": 0.62,
+  "phase": {
+   "antic": 0.12,
+   "contact": 0.24,
+   "recovery": 0.4
+  }
+ },
+ {
+  "name": "summoner_empower",
+  "kind": "attack",
+  "length": 0.9,
+  "phase": {
+   "antic": 0.2,
+   "contact": 0.38,
+   "recovery": 0.6
+  }
+ },
+ {
+  "name": "summoner_idle",
+  "kind": "loop",
+  "length": 1.6,
+  "phase": null
+ },
+ {
+  "name": "summoner_summon",
+  "kind": "attack",
+  "length": 1.0,
+  "phase": {
+   "antic": 0.18,
+   "contact": 0.34,
+   "recovery": 0.66
+  }
+ },
+ {
+  "name": "tank_auto1",
+  "kind": "attack",
+  "length": 0.55,
+  "phase": {
+   "antic": 0.14,
+   "contact": 0.3,
+   "recovery": 0.42
+  }
+ },
+ {
+  "name": "tank_auto2",
+  "kind": "attack",
+  "length": 0.6,
+  "phase": {
+   "antic": 0.15,
+   "contact": 0.34,
+   "recovery": 0.46
+  }
+ },
+ {
+  "name": "tank_fortress",
+  "kind": "loop",
+  "length": 1.6,
+  "phase": null
+ },
+ {
+  "name": "tank_shield_slam",
+  "kind": "attack",
+  "length": 0.9,
+  "phase": {
+   "antic": 0.24,
+   "contact": 0.36,
+   "recovery": 0.6
+  }
+ },
+ {
+  "name": "tank_taunt",
+  "kind": "action",
+  "length": 1.0,
+  "phase": null
+ }
+]

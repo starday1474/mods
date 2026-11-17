@@ -1,13 +1,16 @@
 package dev.goddessrpg.compat.epicfight;
 
 import dev.goddessrpg.GoddessRpg;
+import java.util.Set;
 import net.neoforged.bus.api.IEventBus;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackAnimationProperty;
+import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.ComboAttackAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
 
@@ -40,6 +43,29 @@ public final class RpgAnimations {
                 acc -> combo(new ComboAttackAnimation(0.1F, 0.15F, 0.3F, 0.4F, null, toolR(), acc, Armatures.BIPED)));
         BALANCED_AUTO3 = builder.nextAccessor("biped/combat/balanced_auto3",
                 acc -> combo(new ComboAttackAnimation(0.1F, 0.2F, 0.35F, 0.5F, null, toolR(), acc, Armatures.BIPED)));
+        registerIndexed(builder);
+    }
+
+    /** Hand-registered above; their timings are checked against mod/anim by a Python test. */
+    private static final Set<String> HAND_REGISTERED = Set.of("balanced_auto1", "balanced_auto2", "balanced_auto3");
+
+    /**
+     * Every other entry of {@link AnimIndex} (anim_index.json): attack -> ComboAttackAnimation(convertTime 0.1, antic, contact,
+     * recovery, null collider = weapon's, toolR); loop -> StaticAnimation(convertTime 0.1, repeat=true);
+     * action -> ActionAnimation(convertTime 0.1; non-repeating, Root motion applies).
+     */
+    private static void registerIndexed(AnimationBuilder builder) {
+        for (AnimIndex.Entry e : AnimIndex.entries()) {
+            if (HAND_REGISTERED.contains(e.name())) {
+                continue;
+            }
+            switch (e.kind()) {
+                case ATTACK -> builder.<ComboAttackAnimation>nextAccessor(e.path(), acc -> combo(new ComboAttackAnimation(
+                        0.1F, e.phase().antic(), e.phase().contact(), e.phase().recovery(), null, toolR(), acc, Armatures.BIPED)));
+                case LOOP -> builder.<StaticAnimation>nextAccessor(e.path(), acc -> new StaticAnimation(0.1F, true, acc, Armatures.BIPED));
+                case ACTION -> builder.<ActionAnimation>nextAccessor(e.path(), acc -> new ActionAnimation(0.1F, acc, Armatures.BIPED));
+            }
+        }
     }
 
     private static Joint toolR() {

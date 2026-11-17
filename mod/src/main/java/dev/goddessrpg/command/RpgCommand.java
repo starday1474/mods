@@ -13,7 +13,11 @@ import dev.goddessrpg.rules.Field;
 import dev.goddessrpg.rules.LevelProgress;
 import dev.goddessrpg.rules.ProficiencyRules;
 import dev.goddessrpg.rules.RpgClass;
+import dev.goddessrpg.compat.epicfight.AnimIndex;
+import dev.goddessrpg.compat.epicfight.AnimPlayer;
 import java.util.Arrays;
+import java.util.Locale;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -39,6 +43,13 @@ public final class RpgCommand {
                                         Arrays.stream(Field.values()).map(f -> f.name().toLowerCase()), b))
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0))
                                         .executes(RpgCommand::xp))))
+                .then(Commands.literal("anim")
+                        .then(Commands.literal("list").executes(RpgCommand::animList))
+                        .then(Commands.literal("play")
+                                .then(Commands.argument("name", StringArgumentType.word())
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(
+                                                AnimIndex.entries().stream().map(AnimIndex.Entry::name), b))
+                                        .executes(RpgCommand::animPlay))))
                 .then(Commands.literal("reset")
                         .executes(c -> reset(c, c.getSource().getPlayerOrException()))
                         .then(Commands.argument("player", EntityArgument.player())
@@ -93,6 +104,32 @@ public final class RpgCommand {
         RpgAttachments.set(p, data.withXp(f, lp));
         c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.xp",
                 Component.translatable("goddessrpg.field." + f.name().toLowerCase()), lp.level()), true);
+        return 1;
+    }
+
+    private static int animList(CommandContext<CommandSourceStack> c) {
+        CommandSourceStack src = c.getSource();
+        var entries = AnimIndex.entries();
+        src.sendSuccess(() -> Component.translatable("goddessrpg.anim.list.header", entries.size()), false);
+        for (AnimIndex.Entry e : entries) {
+            Component name = Component.literal(e.name()).withStyle(st -> st
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/goddessrpg anim play " + e.name())));
+            src.sendSuccess(() -> Component.translatable("goddessrpg.anim.list.entry", name,
+                    Component.translatable("goddessrpg.anim.kind." + e.kind().name().toLowerCase(Locale.ROOT)),
+                    String.format(Locale.ROOT, "%.2f", e.length())), false);
+        }
+        return entries.size();
+    }
+
+    private static int animPlay(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        String name = StringArgumentType.getString(c, "name");
+        ServerPlayer p = c.getSource().getPlayerOrException();
+        switch (AnimPlayer.play(p, name)) {
+            case UNKNOWN -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.unknown", name)).create();
+            case NOT_REGISTERED -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.not_registered", name)).create();
+            case NO_PATCH -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.no_patch")).create();
+            case OK -> c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.anim.played", name), false);
+        }
         return 1;
     }
 

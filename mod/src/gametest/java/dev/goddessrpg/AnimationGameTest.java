@@ -1,9 +1,15 @@
 package dev.goddessrpg;
 
+import com.mojang.authlib.GameProfile;
+import dev.goddessrpg.compat.epicfight.AnimIndex;
+import dev.goddessrpg.compat.epicfight.AnimPlayer;
 import dev.goddessrpg.compat.epicfight.RpgAnimations;
 import dev.goddessrpg.compat.epicfight.RpgWeaponTypes;
 import dev.goddessrpg.item.RpgItems;
 import java.util.List;
+import java.util.UUID;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
@@ -79,6 +85,68 @@ public class AnimationGameTest {
                 h.fail("combo[" + i + "] = " + combo.get(i).registryName() + ", want " + want.get(i).registryName());
                 return;
             }
+        }
+        h.succeed();
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void everyIndexedAnimationRegistered(GameTestHelper h) {
+        List<AnimIndex.Entry> entries = AnimIndex.entries();
+        if (entries.size() < 57) {
+            h.fail("anim index has only " + entries.size() + " entries");
+            return;
+        }
+        for (AnimIndex.Entry e : entries) {
+            AnimationAccessor<StaticAnimation> acc = AnimationManager.byKey(e.key());
+            if (acc == null || acc.get() == null) {
+                h.fail("not registered: " + e.key());
+                return;
+            }
+            StaticAnimation anim = acc.get();
+            boolean isAttack = anim instanceof AttackAnimation;
+            if (isAttack != (e.kind() == AnimIndex.Kind.ATTACK)) {
+                h.fail(e.key() + " kind " + e.kind() + " but class " + anim.getClass().getSimpleName());
+                return;
+            }
+            if (e.kind() == AnimIndex.Kind.LOOP && !anim.isRepeat()) {
+                h.fail(e.key() + " is a loop but not repeating");
+                return;
+            }
+            if (e.kind() != AnimIndex.Kind.LOOP && anim.isRepeat()) {
+                h.fail(e.key() + " repeats but is " + e.kind());
+                return;
+            }
+        }
+        h.succeed();
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void animPlayUnknownNameFailsGracefully(GameTestHelper h) {
+        ServerPlayer p = new ServerPlayer(h.getLevel().getServer(), h.getLevel(),
+                new GameProfile(UUID.randomUUID(), "anim-fake"), ClientInformation.createDefault());
+        if (AnimPlayer.play(p, "no_such_animation") != AnimPlayer.Result.UNKNOWN) {
+            h.fail("unknown name should give UNKNOWN");
+            return;
+        }
+        try {
+            int r = h.getLevel().getServer().getCommands().getDispatcher()
+                    .execute("goddessrpg anim play no_such_animation", p.createCommandSourceStack().withPermission(2));
+            h.fail("command should fail for an unknown name, returned " + r);
+            return;
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) {
+            if (!expected.getRawMessage().getString().contains("goddessrpg.anim.unknown")
+                    && !expected.getMessage().contains("no_such_animation")) {
+                h.fail("unexpected message " + expected.getMessage());
+                return;
+            }
+        }
+        // a real name must not throw either, even if the fake player has no connection
+        AnimPlayer.Result known = AnimPlayer.play(p, AnimIndex.entries().get(0).name());
+        if (known == AnimPlayer.Result.UNKNOWN || known == AnimPlayer.Result.NOT_REGISTERED) {
+            h.fail("known animation rejected: " + known);
+            return;
         }
         h.succeed();
     }

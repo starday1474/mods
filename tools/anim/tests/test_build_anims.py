@@ -452,3 +452,43 @@ def test_bake_ease_validation():
     with pytest.raises(ValueError, match="x.*ease.*bake"):
         build_anims.validate_source("x", s)
     build_anims.validate_source("x", _bake_src(bake=30, ease="back"))
+
+
+INDEX = REPO / "mod/src/main/resources/data/goddessrpg/anim_index.json"
+
+
+@needs_jar
+def test_index_written_and_classified(tmp_path):
+    d = tmp_path / "src"
+    d.mkdir()
+    atk = _src(0.6, "rest", 90)
+    loop = _src(0.6, "rest", 90)
+    del loop["phase"], loop["trail"]
+    loop["loop"] = True
+    loop["keys"][-1] = {"t": 0.6}
+    loop["keys"][1].pop("translate")
+    act = _src(0.6, "rest", 90)
+    del act["phase"], act["trail"]
+    for n, s in (("a_atk", atk), ("b_loop", loop), ("c_act", act)):
+        (d / f"{n}.json").write_text(json.dumps(s))
+    out, idx = tmp_path / "out", tmp_path / "idx" / "anim_index.json"
+    assert build_anims.main([str(d), str(out), "--index", str(idx)]) == 0
+    assert json.loads(idx.read_text()) == [
+        {"name": "a_atk", "kind": "attack", "length": 0.6, "phase": {"antic": 0.1, "contact": 0.2, "recovery": 0.4}},
+        {"name": "b_loop", "kind": "loop", "length": 0.6, "phase": None},
+        {"name": "c_act", "kind": "action", "length": 0.6, "phase": None},
+    ]
+    assert build_anims.main([str(d), str(out), "--index", str(idx), "--check"]) == 0
+    idx.write_text("[]\n")
+    assert build_anims.main([str(d), str(out), "--index", str(idx), "--check"]) == 1
+
+
+def test_repo_index_matches_sources():
+    idx = json.loads(INDEX.read_text())
+    assert [e["name"] for e in idx] == sorted(p.stem for p in SRC.glob("*.json"))
+    for e in idx:
+        src = json.loads((SRC / f"{e['name']}.json").read_text())
+        assert e["kind"] == ("attack" if "phase" in src else "loop" if src.get("loop") else "action")
+        assert e["length"] == pytest.approx(src["length"])
+        assert (e["phase"] is not None) == (e["kind"] == "attack")
+    assert INDEX.read_text() == build_anims.build_index(SRC)

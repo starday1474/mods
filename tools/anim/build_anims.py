@@ -1,7 +1,13 @@
 """Build Epic Fight animation JSON from small keyframe sources.
 
 Usage:
-  python3 tools/anim/build_anims.py SRC_DIR OUT_DIR [--preview DIR] [--check] [--jar PATH]
+  python3 tools/anim/build_anims.py SRC_DIR OUT_DIR [--preview DIR] [--check] [--jar PATH] [--index PATH]
+
+Also writes the animation index (``--index``; default ``mod/src/main/resources/data/goddessrpg/anim_index.json``
+when OUT_DIR is the repo's generated folder, otherwise none): ``[{"name", "kind": "attack"|"loop"|"action",
+"length", "phase": {...}|null}]`` sorted by name (``phase`` present -> attack, else ``loop`` -> loop, else action).
+The mod reads it from the jar at animation-registration time (it lives under ``data/`` so it ships in the jar
+next to the other mod data and is reachable through the mod class loader; ``--check`` covers it too).
 
 Each ``SRC_DIR/<name>.json`` becomes ``OUT_DIR/<name>.json`` (EF animation) and
 ``OUT_DIR/data/<name>.json`` (EF's ``combat/data`` layout: trail effect and/or layer; only when ``trail`` or ``layer`` is set).
@@ -70,6 +76,8 @@ from tools.anim import efanim  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_JAR = REPO / ".cache/jars/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar"
+DEFAULT_OUT = REPO / "mod/src/main/resources/assets/goddessrpg/animmodels/animations/biped/combat"
+DEFAULT_INDEX = REPO / "mod/src/main/resources/data/goddessrpg/anim_index.json"
 OFFHANDS = ("none", "shield", "sword", "bow")
 TRAIL_JOINTS = ("Tool_R", "Tool_L")
 EASES = ("linear", "in", "out", "inout", "back")
@@ -253,6 +261,19 @@ def data_json(src: dict) -> dict | None:
     return out or None
 
 
+def index_entry(name: str, src: dict) -> dict:
+    ph = src.get("phase")
+    kind = "attack" if ph else "loop" if src.get("loop") else "action"
+    phase = {k: float(ph[k]) for k in ("antic", "contact", "recovery")} if ph else None
+    return {"name": name, "kind": kind, "length": float(src["length"]), "phase": phase}
+
+
+def build_index(src_dir: Path) -> str:
+    """Text of anim_index.json for every source in src_dir (sorted by name)."""
+    entries = [index_entry(p.stem, json.loads(p.read_text())) for p in sorted(Path(src_dir).glob("*.json"))]
+    return json.dumps(entries, indent=1, ensure_ascii=False) + "\n"
+
+
 def _contact_sheet(images, out, cols=3, step=2):
     from PIL import Image
     sel = images[::step]
@@ -307,16 +328,23 @@ def main(argv=None) -> int:
     ap.add_argument("--preview", type=Path)
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--jar")
+    ap.add_argument("--index", type=Path, help="anim_index.json path (default: repo path when OUT is the repo folder)")
     a = ap.parse_args(argv)
     out = Path(a.out)
+    index = a.index or (DEFAULT_INDEX if out.resolve() == DEFAULT_OUT.resolve() else None)
     if not a.check:
         files = build_all(Path(a.src), out, a.jar, a.preview)
+        if index:
+            index.parent.mkdir(parents=True, exist_ok=True)
+            index.write_text(build_index(Path(a.src)))
         print(f"built {sum(1 for f in files if f.parent.name != 'data')} animation(s) into {out}")
         return 0
     with tempfile.TemporaryDirectory() as d:
         files = build_all(Path(a.src), Path(d), a.jar, a.preview)
         stale = [str(f) for f in files
                  if not (out / f).is_file() or (out / f).read_bytes() != (Path(d) / f).read_bytes()]
+    if index and (not index.is_file() or index.read_text() != build_index(Path(a.src))):
+        stale.append(str(index))
     if stale:
         print("generated animations are out of date (rerun build_anims.py): " + ", ".join(stale))
         return 1
