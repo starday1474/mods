@@ -27,6 +27,17 @@ import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
 
 @GameTestHolder(GoddessRpg.MODID)
 public class AnimationGameTest {
+    private static java.nio.file.Path findAnimDir() {
+        java.nio.file.Path dir = java.nio.file.Path.of("").toAbsolutePath();
+        for (int i = 0; i < 4 && dir != null; i++, dir = dir.getParent()) {
+            java.nio.file.Path a = dir.resolve("mod/anim");
+            if (java.nio.file.Files.isDirectory(a)) return a;
+            a = dir.resolve("anim");
+            if (java.nio.file.Files.isDirectory(a) && java.nio.file.Files.exists(dir.resolve("build.gradle"))) return a;
+        }
+        return java.nio.file.Path.of("anim");
+    }
+
     @GameTest(template = "empty")
     @PrefixGameTestTemplate(false)
     public static void balancedAnimationsRegistered(GameTestHelper h) {
@@ -93,9 +104,22 @@ public class AnimationGameTest {
     @PrefixGameTestTemplate(false)
     public static void everyIndexedAnimationRegistered(GameTestHelper h) {
         List<AnimIndex.Entry> entries = AnimIndex.entries();
-        if (entries.size() < 57) {
-            h.fail("anim index has only " + entries.size() + " entries");
+        long sources;
+        try (var files = java.nio.file.Files.list(findAnimDir())) {
+            sources = files.filter(f -> f.getFileName().toString().endsWith(".json")).count();
+        } catch (java.io.IOException | RuntimeException ex) {
+            sources = -1; // source dir not reachable from the test run dir; fall back to a non-empty check
+        }
+        if (entries.isEmpty() || (sources > 0 && entries.size() != sources)) {
+            h.fail("anim index has " + entries.size() + " entries, sources " + sources);
             return;
+        }
+        java.util.Set<String> names = new java.util.HashSet<>();
+        for (AnimIndex.Entry e : entries) {
+            if (!names.add(e.name())) {
+                h.fail("duplicate index name " + e.name());
+                return;
+            }
         }
         for (AnimIndex.Entry e : entries) {
             AnimationAccessor<StaticAnimation> acc = AnimationManager.byKey(e.key());
@@ -147,6 +171,24 @@ public class AnimationGameTest {
         if (known == AnimPlayer.Result.UNKNOWN || known == AnimPlayer.Result.NOT_REGISTERED) {
             h.fail("known animation rejected: " + known);
             return;
+        }
+        h.succeed();
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void animStopWithNothingPlayingDoesNotThrow(GameTestHelper h) {
+        ServerPlayer p = new ServerPlayer(h.getLevel().getServer(), h.getLevel(),
+                new GameProfile(UUID.randomUUID(), "anim-stop-fake"), ClientInformation.createDefault());
+        AnimPlayer.stop(p);
+        try {
+            h.getLevel().getServer().getCommands().getDispatcher()
+                    .execute("goddessrpg anim stop", p.createCommandSourceStack().withSource(net.minecraft.commands.CommandSource.NULL).withPermission(2));
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException ex) {
+            if (!ex.getMessage().contains("no_patch_stop")) {
+                h.fail("unexpected failure " + ex.getMessage());
+                return;
+            }
         }
         h.succeed();
     }

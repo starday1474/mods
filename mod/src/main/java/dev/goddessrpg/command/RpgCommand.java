@@ -49,7 +49,8 @@ public final class RpgCommand {
                                 .then(Commands.argument("name", StringArgumentType.word())
                                         .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                                 AnimIndex.entries().stream().map(AnimIndex.Entry::name), b))
-                                        .executes(RpgCommand::animPlay))))
+                                        .executes(RpgCommand::animPlay)))
+                        .then(Commands.literal("stop").executes(RpgCommand::animStop)))
                 .then(Commands.literal("reset")
                         .executes(c -> reset(c, c.getSource().getPlayerOrException()))
                         .then(Commands.argument("player", EntityArgument.player())
@@ -129,6 +130,16 @@ public final class RpgCommand {
             case NOT_REGISTERED -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.not_registered", name)).create();
             case NO_PATCH -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.no_patch")).create();
             case OK -> c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.anim.played", name), false);
+        }
+        return 1;
+    }
+
+    private static int animStop(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        ServerPlayer p = c.getSource().getPlayerOrException();
+        switch (AnimPlayer.stop(p)) {
+            case NO_PATCH -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.no_patch_stop")).create();
+            case NOTHING_PLAYING -> c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.anim.stop.nothing"), false);
+            case STOPPED -> c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.anim.stopped"), false);
         }
         return 1;
     }
