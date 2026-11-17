@@ -26,5 +26,6 @@
   "group": "infight",
   "desc_ko": "양손 검을 좌우로 펼친 채 몸을 오른쪽으로 한 바퀴 크게 돌며 회전 베기",
   "phase": {"antic": 0.2, "contact": 0.72, "recovery": 0.85},
-  "trail": [0.2, 0.72]
+  "trail": [0.2, 0.72],
+  "offhand": "sword"
 }
