@@ -50,7 +50,7 @@
 | FTB Teams (NeoForge) | `ftb-teams-forge` | CurseForge | `ftb-teams-neoforge-2101.1.12.jar` | both |
 | Fzzy Config | `fzzy-config` | Modrinth | `fzzy_config-0.7.7+fix1+1.21+neoforge.jar` | both |
 | Geckolib | `geckolib` | Modrinth | `geckolib-neoforge-1.21.1-4.9.3.jar` | both |
-| Goddess RPG (우리 모드) | `goddessrpg` | GitHub Releases (`starday1474/mods`, 태그 `mod-v0.1.3`, 직접 만든 모드) | `goddessrpg-0.1.3.jar` | both |
+| Goddess RPG (우리 모드) | `goddessrpg` | GitHub Releases (`starday1474/mods`, 태그 `mod-v0.1.4`, 직접 만든 모드) | `goddessrpg-0.1.4.jar` | both |
 | GTBC's Cataclysmic Boss UI | `gtbcs-cataclysmic-boss-ui` | Modrinth | `gtbcs_cataclysmic_uis-1.0.3+1.21.1.jar` | both |
 | ImmediatelyFast | `immediatelyfast` | Modrinth | `ImmediatelyFast-NeoForge-1.6.15+1.21.1.jar` | client |
 | Iris Shaders | `iris` | Modrinth | `iris-neoforge-1.8.14-beta.1+mc1.21.1.jar` | client |
