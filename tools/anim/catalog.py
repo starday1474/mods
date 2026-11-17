@@ -268,15 +268,8 @@ def analyse(anim, arm=None, hz=SAMPLE_HZ) -> dict:
     while ce < len(ts) - 1 and hot[ce + 1]:
         ce += 1
     hits = int(np.sum(np.diff(np.r_[0, hot.astype(int)]) == 1))
-    quiet = speed < 0.15 * peak
-    st = ce
-    for i in range(ce, len(ts)):
-        if not quiet[i:].all():
-            continue
-        st = i
-        break
-    else:
-        st = len(ts) - 1
+    loud = np.nonzero(speed >= 0.15 * peak)[0]  # never empty: includes the peak
+    st = min(max(ce, int(loud[-1]) + 1), len(ts) - 1)  # first sample after which the tip stays quiet
     seg = np.r_[0.0, np.linalg.norm(np.diff(tip, axis=0), axis=1)]
     during = float(seg[cs + 1:ce + 1].sum())
     after = float(seg[ce + 1:].sum())
