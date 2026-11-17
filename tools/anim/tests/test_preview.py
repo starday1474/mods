@@ -67,3 +67,37 @@ def test_offhand_invalid(data, tmp_path):
     arm, mesh, anim = data
     with pytest.raises(ValueError, match="offhand"):
         preview.render_gif(arm, mesh, anim, tmp_path / "x.gif", offhand="axe")
+
+
+def test_bow_drawn_as_longbow_differs_from_sword(data, tmp_path):
+    arm, mesh, anim = data
+    sword = preview.render_gif(arm, mesh, anim, tmp_path / "s.gif", offhand="sword")
+    bow = preview.render_gif(arm, mesh, anim, tmp_path / "b.gif", offhand="bow")
+    diff = np.abs(np.asarray(bow[0], dtype=int) - np.asarray(sword[0], dtype=int))
+    assert diff.max() > 0
+
+
+def test_longbow_geometry_centred_on_grip():
+    tl = np.eye(4)
+    tl[:3, 3] = (0.0, 1.0, 1.4)
+    far = np.eye(4)
+    far[:3, 3] = (2.0, -2.0, 0.0)  # string hand nowhere near the bow: braced string
+    limb, string = preview.longbow(tl, far)
+    tips = limb[0], limb[-1]
+    span = np.linalg.norm(tips[0] - tips[1])
+    assert abs(span - preview.BOW_LENGTH) < 0.05 and 1.6 <= preview.BOW_LENGTH <= 1.8
+    # tips lie along the limb axis (Tool_L local Z), symmetric about the grip
+    mid = (tips[0] + tips[1]) / 2
+    assert abs(mid[2] - 1.4) < 1e-6
+    assert abs(abs(tips[0][2] - tips[1][2]) - span) < 0.01
+    # braced: the string runs tip to tip; the limbs curve toward it (local +Y), the grip is farthest from it
+    assert len(string) == 2 and np.allclose(string[0], tips[0]) and np.allclose(string[-1], tips[-1])
+    assert tips[0][1] > tl[1, 3] and tips[1][1] > tl[1, 3]
+    # string hand drawn back behind the grip (local +Y): the string bends through the hand
+    hand = np.eye(4)
+    hand[:3, 3] = tl[:3, 3] + np.array([0.0, 0.7, 0.0])
+    limb2, string2 = preview.longbow(tl, hand)
+    assert len(string2) == 3 and np.allclose(string2[1], hand[:3, 3])
+    assert preview.nocked_arrow(tl, far) is None
+    arrow = preview.nocked_arrow(tl, hand)
+    assert np.allclose(arrow[0], hand[:3, 3]) and arrow[1][1] < tl[1, 3]  # point passes the grip

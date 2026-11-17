@@ -5,7 +5,8 @@ Usage: python3 tools/anim/preview.py <anim.json|jar:path> <out.gif>
 
 Blade axis: the hand-held tool (Tool_R) is drawn as a 1-block stick along
 ``BLADE_AXIS`` (local axis of the Tool_R joint, sign included).  Chosen from
-sword_auto1: see ``BLADE_AXIS`` comment.
+sword_auto1: see ``BLADE_AXIS`` comment.  ``offhand`` draws the left-hand item on
+Tool_L: a sword stick, a shield plate, or a longbow (:func:`longbow`, ``BOW_*``).
 """
 from __future__ import annotations
 
@@ -124,6 +125,53 @@ SHIELD_W_AXIS, SHIELD_H_AXIS = 1, 2
 SHIELD_FWD = 0.15         # plate centre offset along the face normal from Tool_L
 OFFHANDS = ("none", "shield", "sword", "bow")
 
+# Longbow on Tool_L.  The limb axis is Tool_L local Z: at the end of EF bow_aim_mid (full draw) local -Z
+# points straight up (18 deg forward) and local +Y points back at the archer along the arrow line, so the
+# bow stands vertical in front of the bow hand with its string on the +Y side.
+BOW_LENGTH = 1.7          # blocks, tip to tip (a longbow is about the archer's height)
+BOW_LIMB_AXIS = 2         # Tool_L local Z
+BOW_STRING_AXIS = 1       # Tool_L local +Y = from the grip toward the string / archer
+BOW_BEND = 0.10           # braced: tips sit this far toward the string from the grip
+BOW_DRAW_BEND = 0.12      # extra tip travel toward the string per block of draw
+_BOW_SEGMENTS = 12
+
+
+def _drawn(d):
+    """String hand (Tool_L local coords ``d``) is on the string: behind the grip, near the bow plane."""
+    side = [i for i in range(3) if i not in (BOW_LIMB_AXIS, BOW_STRING_AXIS)][0]
+    return bool(abs(d[side]) < 0.3 and 0.05 < d[BOW_STRING_AXIS] < 1.1 and abs(d[BOW_LIMB_AXIS]) < 0.45)
+
+
+def nocked_arrow(tl, tr):
+    """Arrow (2 world points: nock at the string hand, point 0.15 past the grip) while drawn, else None."""
+    o, hand = tl[:3, 3], tr[:3, 3]
+    if not _drawn(tl[:3, :3].T @ (hand - o)):
+        return None
+    v = o - hand
+    return np.array([hand, o + 0.15 * v / np.linalg.norm(v)])
+
+
+def longbow(tl, tr):
+    """(limb polyline, string polyline) in world space for a longbow held at Tool_L (4x4 world ``tl``).
+
+    The string goes tip -> string hand (Tool_R world ``tr``) -> tip when that hand is behind the grip
+    near the bow plane (a draw), otherwise straight tip to tip.  The limbs bend more as the draw deepens."""
+    rot, o = tl[:3, :3], tl[:3, 3]
+    hand = tr[:3, 3]
+    d = rot.T @ (hand - o)  # string hand in Tool_L local coordinates
+    drawn = _drawn(d)
+    draw = d[BOW_STRING_AXIS] if drawn else 0.0
+    half = BOW_LENGTH / 2
+    limb_dir, string_dir = np.zeros(3), np.zeros(3)
+    limb_dir[BOW_LIMB_AXIS], string_dir[BOW_STRING_AXIS] = -1.0, 1.0
+    bend = BOW_BEND + BOW_DRAW_BEND * draw
+    s = np.linspace(-1.0, 1.0, _BOW_SEGMENTS + 1)
+    # shorten the chord a little as the bend grows so the limb length stays about BOW_LENGTH
+    chord = half * (1 - 0.6 * (bend / half) ** 2)
+    limb = np.array([o + rot @ (limb_dir * chord * u + string_dir * bend * u * u) for u in s])
+    string = [limb[0], hand.copy(), limb[-1]] if drawn else [limb[0], limb[-1]]
+    return limb, np.array(string)
+
 
 def _shield_quad(tm):
     """Corners of the shield plate in world space, oriented by Tool_L's axes."""
@@ -154,11 +202,15 @@ def render_gif(arm, mesh, anim, out_path, fps=30, views=("side", "front"), offha
     allp = np.concatenate([p for p, _, _ in frames_data])
     lo, hi = allp.min(0) - 0.15, allp.max(0) + 0.15
     for _, tm, tl in frames_data:
-        tip = tm[:3, 3] + tm[:3, :3] @ tool_axis
-        lo, hi = np.minimum(lo, tip - .05), np.maximum(hi, tip + .05)
-        if offhand in ("sword", "bow"):
+        if offhand != "bow":
+            tip = tm[:3, 3] + tm[:3, :3] @ tool_axis
+            lo, hi = np.minimum(lo, tip - .05), np.maximum(hi, tip + .05)
+        if offhand == "sword":
             tip = tl[:3, 3] + tl[:3, :3] @ tool_axis
             lo, hi = np.minimum(lo, tip - .05), np.maximum(hi, tip + .05)
+        elif offhand == "bow":
+            limb, _ = longbow(tl, tm)
+            lo, hi = np.minimum(lo, limb.min(0) - .05), np.maximum(hi, limb.max(0) + .05)
         elif offhand == "shield":
             q = _shield_quad(tl)
             lo, hi = np.minimum(lo, q.min(0)), np.maximum(hi, q.max(0))
@@ -179,12 +231,20 @@ def render_gif(arm, mesh, anim, out_path, fps=30, views=("side", "front"), offha
             ax.set_title(vn, fontsize=8)
             pc = Poly3DCollection(pts[tri], facecolors=colors, edgecolors="#222", linewidths=0.3, zorder=1)
             ax.add_collection3d(pc)
-            a = tm[:3, 3]
-            b = a + tm[:3, :3] @ tool_axis
-            ax.plot(*zip(a, b), color="#111", linewidth=3, zorder=10)
-            if offhand in ("sword", "bow"):
+            if offhand != "bow":  # an archer's right hand holds no item: show the nocked arrow instead
+                a = tm[:3, 3]
+                b = a + tm[:3, :3] @ tool_axis
+                ax.plot(*zip(a, b), color="#111", linewidth=3, zorder=10)
+            if offhand == "sword":
                 a = tl[:3, 3]
                 ax.plot(*zip(a, a + tl[:3, :3] @ tool_axis), color="#111", linewidth=3, zorder=10)
+            elif offhand == "bow":
+                limb, string = longbow(tl, tm)
+                ax.plot(*limb.T, color="#6b3f1d", linewidth=3, zorder=10)
+                ax.plot(*string.T, color="#555", linewidth=0.8, zorder=10)
+                arrow = nocked_arrow(tl, tm)
+                if arrow is not None:
+                    ax.plot(*arrow.T, color="#111", linewidth=1.8, zorder=11)
             elif offhand == "shield":
                 ax.add_collection3d(Poly3DCollection([_shield_quad(tl)], facecolors="#9aa4b2",
                                                      edgecolors="#111", linewidths=1.2, alpha=0.9, zorder=9))

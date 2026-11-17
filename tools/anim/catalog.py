@@ -3,7 +3,7 @@
 Usage:
   python3 tools/anim/catalog.py list <jar> [--prefix biped/combat] [--threshold 5]
   python3 tools/anim/catalog.py analyse <jar|ns:path|file.json> [<entry>] [--json]
-  python3 tools/anim/catalog.py render <jar> <entry> <out.gif> [--offhand none|shield|sword] [--fps 30]
+  python3 tools/anim/catalog.py render <jar> <entry> <out.gif> [--offhand none|shield|sword|bow] [--fps 30]
   python3 tools/anim/catalog.py verify <doc.md> [<doc.md> ...]
   python3 tools/anim/catalog.py previews <doc.md> [--out build/ref-preview] [--force]
 

@@ -33,7 +33,7 @@ Source format::
 * ``phase`` is not written to the asset: it documents the ComboAttackAnimation
   timings in RpgAnimations.java (a test keeps them in sync).
 * ``offhand``: optional, ``"none"`` (default) | ``"shield"`` | ``"sword"`` | ``"bow"``; only the
-  preview uses it (draws the left-hand item on Tool_L so poses read correctly; a bow is drawn like the sword stick).
+  preview uses it (draws the left-hand item on Tool_L so poses read correctly; a bow is drawn as a 1.7-block longbow with its string).
 * ``layer``: optional JSON object copied verbatim into ``data/<name>.json`` next to ``trail_effects`` (the
   keys EF reads from ``combat/data``, e.g. ``layer``, ``priority``, ``masks`` as in ``bow_aim_mid``); a data
   file is written if ``trail`` or ``layer`` is set.
