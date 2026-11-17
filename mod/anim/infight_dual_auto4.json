@@ -23,5 +23,6 @@
   "group": "infight",
   "desc_ko": "두 검을 양옆 위로 크게 들었다가 앞으로 내딛으며 X자로 교차해 내려 베기",
   "phase": {"antic": 0.2, "contact": 0.4, "recovery": 0.52},
-  "trail": [0.2, 0.4]
+  "trail": [0.2, 0.4],
+  "offhand": "sword"
 }

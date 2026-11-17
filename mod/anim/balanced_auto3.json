@@ -26,5 +26,6 @@
   "group": "balanced",
   "desc_ko": "반 걸음 내딛으며 찌르기",
   "phase": {"antic": 0.2, "contact": 0.35, "recovery": 0.5},
-  "trail": [0.2, 0.35]
+  "trail": [0.2, 0.35],
+  "offhand": "shield"
 }

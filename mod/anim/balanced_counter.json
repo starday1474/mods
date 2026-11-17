@@ -29,5 +29,6 @@
   "group": "balanced",
   "desc_ko": "방패를 들어 막아 낸 뒤 방패를 젖히고 오른쪽 아래에서 왼쪽 위로 올려 베기",
   "phase": {"antic": 0.45, "contact": 0.62, "recovery": 0.75},
-  "trail": [0.45, 0.62]
+  "trail": [0.45, 0.62],
+  "offhand": "shield"
 }

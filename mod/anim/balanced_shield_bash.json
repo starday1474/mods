@@ -19,5 +19,6 @@
   ],
   "group": "balanced",
   "desc_ko": "왼쪽 어깨를 젖혔다가 앞으로 내딛으며 방패로 밀쳐내기",
-  "phase": {"antic": 0.15, "contact": 0.32, "recovery": 0.45}
+  "phase": {"antic": 0.15, "contact": 0.32, "recovery": 0.45},
+  "offhand": "shield"
 }

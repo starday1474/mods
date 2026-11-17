@@ -50,3 +50,20 @@ def test_gif_written(data, tmp_path):
     im = Image.open(out)
     assert im.n_frames == math.ceil(length * 20) + 1
     assert im.width > im.height
+
+
+@pytest.mark.parametrize("item", ["shield", "sword"])
+def test_offhand_gif_and_pixels_differ(data, tmp_path, item):
+    arm, mesh, anim = data
+    none = preview.render_gif(arm, mesh, anim, tmp_path / "n.gif", offhand="none")
+    out = tmp_path / "o.gif"
+    imgs = preview.render_gif(arm, mesh, anim, out, offhand=item)
+    assert out.stat().st_size > 0 and len(imgs) == len(none)
+    diff = np.abs(np.asarray(imgs[0], dtype=int) - np.asarray(none[0], dtype=int))
+    assert diff.max() > 0
+
+
+def test_offhand_invalid(data, tmp_path):
+    arm, mesh, anim = data
+    with pytest.raises(ValueError, match="offhand"):
+        preview.render_gif(arm, mesh, anim, tmp_path / "x.gif", offhand="axe")

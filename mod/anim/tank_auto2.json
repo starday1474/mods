@@ -24,5 +24,6 @@
   "group": "tank",
   "desc_ko": "검을 오른쪽 뒤로 낮게 당겼다가 반 걸음 나서며 앞으로 올려 베기",
   "phase": {"antic": 0.15, "contact": 0.34, "recovery": 0.46},
-  "trail": [0.15, 0.34]
+  "trail": [0.15, 0.34],
+  "offhand": "shield"
 }

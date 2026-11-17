@@ -20,5 +20,6 @@
   ],
   "group": "tank",
   "desc_ko": "방패를 머리 위로 치켜들었다가 깊게 주저앉으며 앞쪽 땅에 내려찍기",
-  "phase": {"antic": 0.25, "contact": 0.42, "recovery": 0.6}
+  "phase": {"antic": 0.25, "contact": 0.42, "recovery": 0.6},
+  "offhand": "shield"
 }

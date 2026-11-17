@@ -20,5 +20,6 @@
   ],
   "group": "tank",
   "desc_ko": "다리를 넓게 벌려 낮게 주저앉고 방패를 앞세워 버티는 철벽 자세",
-  "loop": true
+  "loop": true,
+  "offhand": "shield"
 }

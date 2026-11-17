@@ -227,3 +227,41 @@ def test_no_phase_no_trail_file(tmp_path):
     assert (out / "idle.json").is_file()
     assert not (out / "data" / "idle.json").exists()
     assert build_anims.main([str(src), str(out), "--check"]) == 0
+
+
+def test_offhand_validation():
+    s = _src(0.5, "rest", 30)
+    for ok in ("none", "shield", "sword"):
+        build_anims.validate_source("t", {**s, "offhand": ok})
+    with pytest.raises(ValueError, match=r"t: offhand.*'bow'"):
+        build_anims.validate_source("t", {**s, "offhand": "bow"})
+
+
+def test_trail_joint_validation():
+    s = _src(0.5, "rest", 30)
+    with pytest.raises(ValueError, match=r"t: trail_joint"):
+        build_anims.validate_source("t", {**s, "trail_joint": "Hand_L"})
+
+
+def test_trail_json_joint():
+    s = _src(0.5, "rest", 30)
+    assert build_anims.trail_json(s)["trail_effects"][0] == {
+        "start_time": 0.1, "end_time": 0.2, "joint": "Tool_R", "item_skin_hand": "main_hand"}
+    t = build_anims.trail_json({**s, "trail_joint": "Tool_L"})["trail_effects"][0]
+    assert t["joint"] == "Tool_L" and t["item_skin_hand"] == "off_hand"
+
+
+@needs_jar
+def test_preview_passes_offhand(tmp_path, monkeypatch):
+    from tools.anim import preview
+    seen = []
+    real = preview.render_gif
+    monkeypatch.setattr(preview, "render_gif",
+                        lambda *a, **k: (seen.append(k.get("offhand")), real(*a, **k))[1])
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "p.json").write_text(json.dumps({**_src(0.2, "rest", 30), "offhand": "shield",
+                                            "phase": {"antic": 0.05, "contact": 0.1, "recovery": 0.15},
+                                            "trail": [0.05, 0.1]}))
+    assert build_anims.main([str(src), str(tmp_path / "o"), "--preview", str(tmp_path / "pv")]) == 0
+    assert seen == ["shield"]

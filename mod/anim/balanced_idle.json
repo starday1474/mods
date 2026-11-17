@@ -20,5 +20,6 @@
   ],
   "group": "balanced",
   "desc_ko": "무릎을 살짝 굽히고 방패를 앞에 둔 채 검을 겨누고 숨 쉬는 대기 자세",
-  "loop": true
+  "loop": true,
+  "offhand": "shield"
 }

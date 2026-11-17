@@ -11,7 +11,8 @@ Source format::
     {"length": 0.6, "base": "epicfight:biped/living/idle",
      "keys": [{"t": 0.0, "rot": {"Arm_R": [-30, 0, 10]}, "translate": {"Root": [0, 0, 0]}}, ...],
      "group": "balanced", "desc_ko": "한 줄 설명", "loop": false, "root_back": false,
-     "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.45}, "trail": [0.2, 0.32]}
+     "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.45}, "trail": [0.2, 0.32],
+     "offhand": "shield", "trail_joint": "Tool_R"}
 
 * ``base``: ``epicfight:<path>`` = first frame of that EF animation
   (``assets/epicfight/animmodels/animations/<path>.json`` in the EF jar), or
@@ -29,6 +30,10 @@ Source format::
   ``data/<name>.json`` is written.
 * ``phase`` is not written to the asset: it documents the ComboAttackAnimation
   timings in RpgAnimations.java (a test keeps them in sync).
+* ``offhand``: optional, ``"none"`` (default) | ``"shield"`` | ``"sword"``; only the
+  preview uses it (draws the left-hand item on Tool_L so poses read correctly).
+* ``trail_joint``: optional, ``"Tool_R"`` (default) | ``"Tool_L"``; the joint the trail
+  follows (``item_skin_hand`` is ``off_hand`` for Tool_L, ``main_hand`` otherwise).
 * ``--check`` builds into a temporary folder and exits 1 if any generated file
   is missing or differs from OUT_DIR.  ``--preview`` also writes ``<name>.gif``
   and ``<name>_sheet.png`` (contact sheet) per animation.
@@ -49,6 +54,8 @@ from tools.anim import efanim  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_JAR = REPO / ".cache/jars/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar"
+OFFHANDS = ("none", "shield", "sword")
+TRAIL_JOINTS = ("Tool_R", "Tool_L")
 ARM_ENTRY = "assets/epicfight/animmodels/entity/biped.json"
 
 
@@ -117,6 +124,10 @@ def validate_source(name: str, src: dict) -> None:
         tr = src["trail"]
         if not (isinstance(tr, list) and len(tr) == 2 and 0 <= tr[0] < tr[1] <= length):
             err("trail must be [start, end] within the animation length")
+    if src.get("offhand", "none") not in OFFHANDS:
+        err(f"offhand {src['offhand']!r} must be one of {', '.join(OFFHANDS)}")
+    if src.get("trail_joint", "Tool_R") not in TRAIL_JOINTS:
+        err(f"trail_joint {src['trail_joint']!r} must be one of {', '.join(TRAIL_JOINTS)}")
     if not src.get("root_back"):
         ys = [(k.get("translate") or {}).get("Root", [0, 0, 0])[1] for k in keys]
         if any(b < a - 1e-9 for a, b in zip(ys, ys[1:])):
@@ -143,8 +154,9 @@ def build_animation(src: dict, arm: efanim.Armature, base: dict) -> efanim.Anima
 
 def trail_json(src: dict) -> dict:
     a, b = src["trail"]
-    return {"trail_effects": [{"start_time": float(a), "end_time": float(b),
-                               "joint": "Tool_R", "item_skin_hand": "main_hand"}]}
+    joint = src.get("trail_joint", "Tool_R")
+    return {"trail_effects": [{"start_time": float(a), "end_time": float(b), "joint": joint,
+                               "item_skin_hand": "off_hand" if joint == "Tool_L" else "main_hand"}]}
 
 
 def _contact_sheet(images, out, cols=3, step=2):
@@ -187,7 +199,8 @@ def build_all(src_dir: Path, out_dir: Path, jar=None, preview_dir: Path | None =
         if preview_dir:
             from tools.anim import preview
             preview_dir.mkdir(parents=True, exist_ok=True)
-            images = preview.render_gif(arm, mesh, anim, preview_dir / f"{p.stem}.gif")
+            images = preview.render_gif(arm, mesh, anim, preview_dir / f"{p.stem}.gif",
+                                        offhand=src.get("offhand", "none"))
             _contact_sheet(images, preview_dir / f"{p.stem}_sheet.png")
     return written
 

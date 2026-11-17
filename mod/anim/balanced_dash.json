@@ -23,5 +23,6 @@
   "group": "balanced",
   "desc_ko": "몸을 낮췄다가 앞으로 돌진하며 오른쪽 위에서 왼쪽 아래로 크게 베기",
   "phase": {"antic": 0.3, "contact": 0.5, "recovery": 0.65},
-  "trail": [0.3, 0.5]
+  "trail": [0.3, 0.5],
+  "offhand": "shield"
 }

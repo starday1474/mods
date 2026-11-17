@@ -20,5 +20,6 @@
   "group": "infight",
   "desc_ko": "오른손 검으로 오른쪽에서 왼쪽으로 빠르게 수평 베기",
   "phase": {"antic": 0.1, "contact": 0.27, "recovery": 0.35},
-  "trail": [0.1, 0.27]
+  "trail": [0.1, 0.27],
+  "offhand": "sword"
 }

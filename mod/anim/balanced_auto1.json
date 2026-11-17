@@ -20,5 +20,6 @@
   "group": "balanced",
   "desc_ko": "오른쪽 위에서 왼쪽 아래로 사선 베기",
   "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.45},
-  "trail": [0.15, 0.3]
+  "trail": [0.15, 0.3],
+  "offhand": "shield"
 }

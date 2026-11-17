@@ -151,7 +151,27 @@ def _faces(mesh):
 VIEWS = {"side": (0, 0), "front": (0, 90)}  # (elev, azim); camera at +Y sees the face (model faces +Y)
 
 
-def render_gif(arm, mesh, anim, out_path, fps=20, views=("side", "front")):
+SHIELD_SIZE = (0.6, 0.7)  # plate width (along SHIELD_W_AXIS) x height (along SHIELD_H_AXIS), blocks
+SHIELD_NORMAL = (0, -1)   # Tool_L local -X faces forward (+Y) in EF shield_offhand (Tool_L cols: X=-Y, Y=-X, Z=-Z)
+SHIELD_W_AXIS, SHIELD_H_AXIS = 1, 2
+SHIELD_FWD = 0.15         # plate centre offset along the face normal from Tool_L
+OFFHANDS = ("none", "shield", "sword")
+
+
+def _shield_quad(tm):
+    """Corners of the shield plate in world space, oriented by Tool_L's axes."""
+    rot, o = tm[:3, :3], tm[:3, 3]
+    n = np.zeros(3); n[SHIELD_NORMAL[0]] = SHIELD_NORMAL[1]
+    w = np.zeros(3); w[SHIELD_W_AXIS] = 1
+    h = np.zeros(3); h[SHIELD_H_AXIS] = 1
+    c = o + rot @ (n * SHIELD_FWD)
+    hw, hh = SHIELD_SIZE[0] / 2, SHIELD_SIZE[1] / 2
+    return np.array([c + rot @ (sw * w * hw + sh * h * hh) for sw, sh in ((-1, -1), (1, -1), (1, 1), (-1, 1))])
+
+
+def render_gif(arm, mesh, anim, out_path, fps=20, views=("side", "front"), offhand="none"):
+    if offhand not in OFFHANDS:
+        raise ValueError(f"offhand {offhand!r} must be one of {', '.join(OFFHANDS)}")
     length = max(tr.times[-1] for tr in anim.tracks.values())
     n = math.ceil(length * fps) + 1
     faces = _faces(mesh)
@@ -163,16 +183,22 @@ def render_gif(arm, mesh, anim, out_path, fps=20, views=("side", "front")):
     frames_data = []
     for i in range(n):
         world = efanim.world_matrices(arm, sample(anim, min(i / fps, length), arm))
-        frames_data.append((skin(arm, mesh, world), world["Tool_R"]))
-    allp = np.concatenate([p for p, _ in frames_data])
+        frames_data.append((skin(arm, mesh, world), world["Tool_R"], world["Tool_L"]))
+    allp = np.concatenate([p for p, _, _ in frames_data])
     lo, hi = allp.min(0) - 0.15, allp.max(0) + 0.15
-    for _, tm in frames_data:
+    for _, tm, tl in frames_data:
         tip = tm[:3, 3] + tm[:3, :3] @ tool_axis
         lo, hi = np.minimum(lo, tip - .05), np.maximum(hi, tip + .05)
+        if offhand == "sword":
+            tip = tl[:3, 3] + tl[:3, :3] @ tool_axis
+            lo, hi = np.minimum(lo, tip - .05), np.maximum(hi, tip + .05)
+        elif offhand == "shield":
+            q = _shield_quad(tl)
+            lo, hi = np.minimum(lo, q.min(0)), np.maximum(hi, q.max(0))
     c, r = (lo + hi) / 2, (hi - lo).max() / 2
 
     images = []
-    for pts, tm in frames_data:
+    for pts, tm, tl in frames_data:
         fig = plt.figure(figsize=(4 * len(views), 4), dpi=80)
         for vi, vn in enumerate(views):
             ax = fig.add_subplot(1, len(views), vi + 1, projection="3d")
@@ -189,6 +215,12 @@ def render_gif(arm, mesh, anim, out_path, fps=20, views=("side", "front")):
             a = tm[:3, 3]
             b = a + tm[:3, :3] @ tool_axis
             ax.plot(*zip(a, b), color="#111", linewidth=3, zorder=10)
+            if offhand == "sword":
+                a = tl[:3, 3]
+                ax.plot(*zip(a, a + tl[:3, :3] @ tool_axis), color="#111", linewidth=3, zorder=10)
+            elif offhand == "shield":
+                ax.add_collection3d(Poly3DCollection([_shield_quad(tl)], facecolors="#9aa4b2",
+                                                     edgecolors="#111", linewidths=1.2, alpha=0.9, zorder=9))
         fig.subplots_adjust(0, 0, 1, 0.95, 0, 0)
         canvas = FigureCanvasAgg(fig)
         canvas.draw()

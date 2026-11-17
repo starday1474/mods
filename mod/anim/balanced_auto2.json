@@ -20,5 +20,6 @@
   "group": "balanced",
   "desc_ko": "되돌려 베는 역사선 베기",
   "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.4},
-  "trail": [0.15, 0.3]
+  "trail": [0.15, 0.3],
+  "offhand": "shield"
 }
