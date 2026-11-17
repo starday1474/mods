@@ -1,4 +1,5 @@
 import json
+import math
 import re
 from pathlib import Path
 
@@ -338,3 +339,116 @@ def test_trail_and_layer_merge_and_check_drift(tmp_path):
 def test_bow_offhand_accepted():
     s = _src(0.6, "rest", 10)
     build_anims.validate_source("x", {**s, "offhand": "bow"})
+
+
+# ---- ease / bake -------------------------------------------------------
+
+def _bake_src(bake=None, ease=None, length=0.6):
+    s = _src(length, "rest", 90)
+    del s["phase"], s["trail"]
+    if bake is not None:
+        s["bake"] = bake
+    if ease is not None:
+        s["keys"][1]["ease"] = ease
+    return s
+
+
+def _build(src, tmp_path, name="b"):
+    d = tmp_path / "s"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{name}.json").write_text(json.dumps(src))
+    out = tmp_path / "o"
+    build_anims.main([str(d), str(out)])
+    return efanim.load_animation(out / f"{name}.json")
+
+
+def _angle(anim, t, joint="Arm_R"):
+    from tools.anim import preview
+    tr = anim.tracks[joint]
+    m = preview._sample_track(tr, t)
+    q0 = efanim.quat_from_matrix(tr.local[0])
+    q = efanim.quat_from_matrix(m)
+    return 2 * math.acos(min(1.0, abs(float(q0 @ q))))
+
+
+@needs_jar
+def test_bake_absent_means_unbaked(tmp_path):
+    anim = _build(_bake_src(), tmp_path)
+    assert len(anim.tracks["Arm_R"].times) == 3
+
+
+@needs_jar
+def test_bake_key_times_and_count(tmp_path):
+    anim = _build(_bake_src(bake=30), tmp_path)
+    ts = anim.tracks["Arm_R"].times
+    assert ts[0] == 0.0 and ts[-1] == pytest.approx(0.6)
+    assert any(abs(t - 0.3) < 1e-9 for t in ts)
+    # 30 Hz grid over 0.6 s: 19 grid points + nothing extra (0.3 is on the grid)
+    assert len(ts) == 19
+    assert all(len(tr.times) == len(ts) for tr in anim.tracks.values())
+    assert all(b > a for a, b in zip(ts, ts[1:]))
+
+
+@needs_jar
+def test_bake_preserves_key_poses(tmp_path):
+    plain = _build(_bake_src(), tmp_path / "a")
+    baked = _build(_bake_src(bake=30, ease="inout"), tmp_path / "b")
+    for j in JOINTS:
+        for t in (0.0, 0.3, 0.6):
+            from tools.anim import preview
+            d = abs(preview._sample_track(plain.tracks[j], t) - preview._sample_track(baked.tracks[j], t)).max()
+            assert d < 1e-5
+
+
+@needs_jar
+def test_ease_in_slower_than_linear_at_midsegment(tmp_path):
+    lin = _build(_bake_src(bake=30), tmp_path / "a")
+    ein = _build(_bake_src(bake=30, ease="in"), tmp_path / "b")
+    assert _angle(ein, 0.15) < _angle(lin, 0.15) - 0.05
+    eout = _build(_bake_src(bake=30, ease="out"), tmp_path / "c")
+    assert _angle(eout, 0.15) > _angle(lin, 0.15) + 0.05
+
+
+@needs_jar
+def test_back_overshoots(tmp_path):
+    lin = _build(_bake_src(bake=30), tmp_path / "a")
+    back = _build(_bake_src(bake=30, ease="back"), tmp_path / "b")
+    target = _angle(lin, 0.3)
+    assert max(_angle(back, t / 100) for t in range(15, 30)) > target * 1.03
+
+
+@needs_jar
+def test_bake_loop_still_closes(tmp_path):
+    s = _bake_src(bake=30, ease="back")
+    s["loop"] = True
+    s["keys"][-1] = {"t": 0.6}
+    s["keys"][1]["translate"] = {}
+    anim = _build(s, tmp_path)
+    for tr in anim.tracks.values():
+        assert abs(tr.local[0] - tr.local[-1]).max() < 1e-6
+
+
+@needs_jar
+def test_back_ease_never_moves_root_backwards(tmp_path):
+    anim = _build(_bake_src(bake=30, ease="back"), tmp_path)
+    ys = [m[1, 3] for m in anim.tracks["Root"].local]
+    assert all(b >= a - 1e-9 for a, b in zip(ys, ys[1:]))
+
+
+def test_bake_ease_validation():
+    s = _bake_src(bake=5)
+    with pytest.raises(ValueError, match="bake"):
+        build_anims.validate_source("x", s)
+    s = _bake_src(bake=61)
+    with pytest.raises(ValueError, match="bake"):
+        build_anims.validate_source("x", s)
+    s = _bake_src(bake=30.5)
+    with pytest.raises(ValueError, match="bake"):
+        build_anims.validate_source("x", s)
+    s = _bake_src(bake=30, ease="bounce")
+    with pytest.raises(ValueError, match="ease"):
+        build_anims.validate_source("x", s)
+    s = _bake_src(ease="in")
+    with pytest.raises(ValueError, match="x.*ease.*bake"):
+        build_anims.validate_source("x", s)
+    build_anims.validate_source("x", _bake_src(bake=30, ease="back"))

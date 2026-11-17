@@ -39,6 +39,14 @@ Source format::
   file is written if ``trail`` or ``layer`` is set.
 * ``trail_joint``: optional, ``"Tool_R"`` (default) | ``"Tool_L"``; the joint the trail
   follows (``item_skin_hand`` is ``off_hand`` for Tool_L, ``main_hand`` otherwise).
+* ``bake``: optional integer keys/sec (10..60, e.g. 30).  Intermediate keys are generated on a uniform
+  grid between source keys (original key times are kept exactly; t=0 and t=length are always keys);
+  rotation = quaternion slerp, translation = lerp, both with the eased parameter.  Phase/trail times
+  are unaffected.  Without ``bake`` the output is unchanged (plain keys, EF interpolates).
+* ``ease`` (per key, needs ``bake``): ``linear`` (default) | ``in`` (cubic ease-in) | ``out`` (cubic
+  ease-out) | ``inout`` (smoothstep) | ``back`` (ease-out with ~10% overshoot, Penner s=1.70158).  It
+  describes the segment ARRIVING at that key (previous key -> this key); the first key's ease is unused.
+  Root translation is clamped to the target (no overshoot) unless ``root_back``.
 * ``--check`` builds into a temporary folder and exits 1 if any generated file
   is missing or differs from OUT_DIR.  ``--preview`` also writes ``<name>.gif``
   and ``<name>_sheet.png`` (contact sheet) per animation.
@@ -47,11 +55,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 import tempfile
 import zipfile
 from pathlib import Path
+
+import numpy as np
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -61,6 +72,9 @@ REPO = Path(__file__).resolve().parents[2]
 DEFAULT_JAR = REPO / ".cache/jars/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar"
 OFFHANDS = ("none", "shield", "sword", "bow")
 TRAIL_JOINTS = ("Tool_R", "Tool_L")
+EASES = ("linear", "in", "out", "inout", "back")
+BAKE_RANGE = (10, 60)
+_BACK_S = 1.70158
 ARM_ENTRY = "assets/epicfight/animmodels/entity/biped.json"
 
 
@@ -131,6 +145,16 @@ def validate_source(name: str, src: dict) -> None:
             err("trail must be [start, end] within the animation length")
     if src.get("offhand", "none") not in OFFHANDS:
         err(f"offhand {src['offhand']!r} must be one of {', '.join(OFFHANDS)}")
+    if "bake" in src:
+        b = src["bake"]
+        if isinstance(b, bool) or not isinstance(b, int) or not BAKE_RANGE[0] <= b <= BAKE_RANGE[1]:
+            err(f"bake must be an integer keys/sec in {BAKE_RANGE[0]}..{BAKE_RANGE[1]}, got {b!r}")
+    for k in keys:
+        if "ease" in k:
+            if k["ease"] not in EASES:
+                err(f"ease {k['ease']!r} at t={k['t']} must be one of {', '.join(EASES)}")
+            if "bake" not in src:
+                err(f"ease at t={k['t']} needs a source-level \"bake\" (easing can't be expressed without baked keys)")
     if "layer" in src and not isinstance(src["layer"], dict):
         err("layer must be a JSON object")
     if src.get("trail_joint", "Tool_R") not in TRAIL_JOINTS:
@@ -149,6 +173,57 @@ def validate_source(name: str, src: dict) -> None:
                 err(f"loop: first and last key differ in {kind} of {', '.join(sorted(bad))}")
 
 
+def ease_value(name: str, u: float) -> float:
+    """Eased progress for u in [0,1]; ``back`` overshoots 1 by ~10% (Penner back-out)."""
+    if name == "in":
+        return u * u * u
+    if name == "out":
+        return 1 - (1 - u) ** 3
+    if name == "inout":
+        return u * u * (3 - 2 * u)
+    if name == "back":
+        c = _BACK_S + 1
+        return 1 + c * (u - 1) ** 3 + _BACK_S * (u - 1) ** 2
+    return u
+
+
+def _blend(a, b, f, f_translate):
+    m = np.eye(4)
+    m[:3, :3] = efanim.quat_to_matrix(efanim.slerp(efanim.quat_from_matrix(a), efanim.quat_from_matrix(b), f))
+    m[:3, 3] = (1 - f_translate) * a[:3, 3] + f_translate * b[:3, 3]
+    return m
+
+
+def _bake(src: dict, times: list, poses: list):
+    """Insert keys on a uniform ``bake`` Hz grid between source keys.
+
+    ``ease`` on key i shapes the segment arriving at it (key i-1 -> key i).  Resolved
+    local matrices are interpolated (slerp / lerp with the eased parameter).  Root
+    translation never overshoots unless ``root_back`` (EF turns Root motion into movement).
+    """
+    hz = int(src["bake"])
+    root_back = bool(src.get("root_back"))
+    out_t, out_p = [times[0]], [poses[0]]
+    for i in range(1, len(times)):
+        t0, t1 = times[i - 1], times[i]
+        ease = src["keys"][i].get("ease", "linear")
+        k = math.floor(t0 * hz + 1e-9) + 1
+        while k / hz < t1 - 1e-9:
+            t = round(k / hz, 6)
+            u = (t - t0) / (t1 - t0)
+            f = ease_value(ease, u)
+            pose = {}
+            for j in poses[i]:
+                ft = f if (root_back or j != "Root") else min(max(f, 0.0), 1.0)
+                pose[j] = _blend(poses[i - 1][j], poses[i][j], f, ft)
+            out_t.append(t)
+            out_p.append(pose)
+            k += 1
+        out_t.append(t1)
+        out_p.append(poses[i])
+    return out_t, out_p
+
+
 def build_animation(src: dict, arm: efanim.Armature, base: dict) -> efanim.Animation:
     times, poses = [], []
     for k in src["keys"]:
@@ -156,6 +231,8 @@ def build_animation(src: dict, arm: efanim.Armature, base: dict) -> efanim.Anima
         tr = {j: tuple(float(x) for x in v) for j, v in (k.get("translate") or {}).items()}
         times.append(float(k["t"]))
         poses.append(efanim.pose_local(arm, base, rot, tr))
+    if "bake" in src:
+        times, poses = _bake(src, times, poses)
     return efanim.Animation({j: efanim.Track(list(times), [p[j] for p in poses]) for j in arm.joints})
 
 

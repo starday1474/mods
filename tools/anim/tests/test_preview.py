@@ -48,7 +48,7 @@ def test_gif_written(data, tmp_path):
     preview.render_gif(arm, mesh, anim, out)
     length = max(t.times[-1] for t in anim.tracks.values())
     im = Image.open(out)
-    assert im.n_frames == math.ceil(length * 20) + 1
+    assert im.n_frames == math.ceil(length * 30) + 1
     assert im.width > im.height
 
 

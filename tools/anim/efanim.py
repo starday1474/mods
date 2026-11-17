@@ -15,6 +15,7 @@ Conventions
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -121,3 +122,39 @@ def pose_local(arm: Armature, base_local: dict, rot_deg: dict, translate: dict) 
             m[:3, 3] += np.asarray(translate[j], dtype=float)
         out[j] = m
     return out
+
+
+def quat_from_matrix(m):
+    r = m[:3, :3]
+    q = np.empty(4)
+    tr = np.trace(r)
+    if tr > 0:
+        s = math.sqrt(tr + 1) * 2
+        q[:] = [s / 4, (r[2, 1] - r[1, 2]) / s, (r[0, 2] - r[2, 0]) / s, (r[1, 0] - r[0, 1]) / s]
+    else:
+        i = int(np.argmax(np.diag(r)))
+        a, b = (i + 1) % 3, (i + 2) % 3
+        s = math.sqrt(1 + r[i, i] - r[a, a] - r[b, b]) * 2
+        q[0] = (r[b, a] - r[a, b]) / s
+        q[1 + i] = s / 4
+        q[1 + a] = (r[a, i] + r[i, a]) / s
+        q[1 + b] = (r[b, i] + r[i, b]) / s
+    return q / np.linalg.norm(q)
+
+
+def quat_to_matrix(q):
+    w, x, y, z = q
+    return np.array([[1 - 2 * (y * y + z * z), 2 * (x * y - w * z), 2 * (x * z + w * y)],
+                     [2 * (x * y + w * z), 1 - 2 * (x * x + z * z), 2 * (y * z - w * x)],
+                     [2 * (x * z - w * y), 2 * (y * z + w * x), 1 - 2 * (x * x + y * y)]])
+
+
+def slerp(a, b, u):
+    d = float(np.dot(a, b))
+    if d < 0:
+        b, d = -b, -d
+    if d > 0.9995:
+        q = a + u * (b - a)
+        return q / np.linalg.norm(q)
+    th = math.acos(min(1.0, d))
+    return (math.sin((1 - u) * th) * a + math.sin(u * th) * b) / math.sin(th)
