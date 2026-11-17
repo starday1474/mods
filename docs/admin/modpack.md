@@ -67,6 +67,7 @@ python3 prism/build_instance.py build/RPG-modpack-test.zip --pack-url https://ra
 - [ ] Essential 코스튬이 Epic Fight 전투 중에 어떻게 보이는지
 - [ ] 16GB PC에서 월드를 열고 친구가 접속했을 때 프레임·메모리 (F3 화면의 메모리 수치)
 - [ ] 보스 몇 개를 Epic Fight로 실제로 잡아 보기 (경직, 피격 판정) — 계획 3 보스 재조정 때 함께 확인
+- [ ] 동작 확인: `/goddessrpg anim list`, `/goddessrpg anim play <이름>`으로 동작 확인
 
 ### 우리 모드 (goddessrpg) 시험
 
