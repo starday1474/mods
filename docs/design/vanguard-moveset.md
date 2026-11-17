@@ -18,6 +18,17 @@
   - **타격**: 무기 끝 속도로 추정한 타격 창(초)이다. 공격이 아닌 자세·피격 반응은 `—`로 둔다. `catalog.py analyse`로 잰다. 우리 무기 종류에 붙일 때 단계 시간(antic/contact/recovery)을 정하는 출발점으로 쓴다. EF-Extra·WOM의 공격 판정 시간은 각 모드의 동작 객체에 이미 들어 있다.
 - 숫자 비교와 다듬기 기준은 `docs/design/motion-reference.md`에 있다.
 
+## 의존성과 확인할 점
+
+- `epicfightx:` 줄을 고르면 그 직업 구성에 **Epic Fight Extra**가 필요해진다. `wom:` 줄을 고르면 **Weapons of Miracles**가 필요해진다. 두 모드는 이미 모드팩에 들어 있다.
+- `epicfight:` 줄만 쓰면 Epic Fight 외에 추가로 필요한 모드가 없다. 각 표의 "대안" 줄이 그 경우를 위한 것이다.
+- ID 검사는 jar 안의 파일과 클래스 상수만 본다. 게임 안에서 ID가 실제로 풀리는지는 확인하지 않았다.
+  - 특히 EF-Extra의 네임스페이스 `epicfightx`는 asset 폴더 이름과 `ExtraAnimations` 클래스의 문자열에서 추정했다.
+  - 무기 종류에 연결할 때 게임 안에서 각 ID가 풀리는지 꼭 확인한다(예: 게임 테스트에서 accessor 조회).
+- 탱킹형 표의 "스킬" 줄 두 개는 스킬 동작이 아니다.
+  - `epicfightx:biped/living/shield`는 가드 유지 자세이고, `epicfight:biped/combat/hit_shield_offhand`는 피격 반응이다. 참고와 보조용으로만 적었다.
+  - 탱킹형 스킬(방패 내려찍기, 도발, 철벽 자세)은 우리 원본 `tank_shield_slam`, `tank_taunt`, `tank_fortress`를 다듬어 쓴다.
+
 ## 밸런스형 (검 + 방패)
 
 검과 방패, 공수 균형. 무기 종류는 `goddessrpg:balanced_sword`(EF 검 복사본)이고 왼손에 방패를 든다.
