@@ -193,7 +193,7 @@ def render_gif(arm, mesh, anim, out_path, fps=30, views=("side", "front"), offha
         canvas.draw()
         images.append(Image.fromarray(np.asarray(canvas.buffer_rgba())[..., :3].copy()))
         plt.close(fig)
-    pal = [im.quantize(256) for im in images]
+    pal = [im.quantize(64, dither=Image.Dither.NONE) for im in images]
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     pal[0].save(out_path, save_all=True, append_images=pal[1:], duration=int(1000 / fps), loop=0)
     return images
