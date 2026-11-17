@@ -4,7 +4,7 @@ Usage:
   python3 tools/anim/build_anims.py SRC_DIR OUT_DIR [--preview DIR] [--check] [--jar PATH]
 
 Each ``SRC_DIR/<name>.json`` becomes ``OUT_DIR/<name>.json`` (EF animation) and
-``OUT_DIR/data/<name>.json`` (trail effect, EF's ``combat/data`` layout; only when ``trail`` is set).
+``OUT_DIR/data/<name>.json`` (EF's ``combat/data`` layout: trail effect and/or layer; only when ``trail`` or ``layer`` is set).
 
 Source format::
 
@@ -12,7 +12,9 @@ Source format::
      "keys": [{"t": 0.0, "rot": {"Arm_R": [-30, 0, 10]}, "translate": {"Root": [0, 0, 0]}}, ...],
      "group": "balanced", "desc_ko": "한 줄 설명", "loop": false, "root_back": false,
      "phase": {"antic": 0.15, "contact": 0.3, "recovery": 0.45}, "trail": [0.2, 0.32],
-     "offhand": "shield", "trail_joint": "Tool_R"}
+     "offhand": "shield", "trail_joint": "Tool_R",
+     "layer": {"layer": "COMPOSITE_LAYER", "priority": "MIDDLE",
+               "masks": [{"livingmotion": "ALL", "type": "root_upper_joints"}]}}
 
 * ``base``: ``epicfight:<path>`` = first frame of that EF animation
   (``assets/epicfight/animmodels/animations/<path>.json`` in the EF jar), or
@@ -26,12 +28,15 @@ Source format::
 * ``loop``: optional; first and last key must resolve to the same pose.
   ``root_back``: optional; without it Root translate y must never decrease
   (EF turns Root movement into player movement).
-* ``phase`` / ``trail`` are optional (attacks only); without ``trail`` no
+* ``phase`` / ``trail`` are optional (attacks only); without ``trail`` (and ``layer``) no
   ``data/<name>.json`` is written.
 * ``phase`` is not written to the asset: it documents the ComboAttackAnimation
   timings in RpgAnimations.java (a test keeps them in sync).
-* ``offhand``: optional, ``"none"`` (default) | ``"shield"`` | ``"sword"``; only the
-  preview uses it (draws the left-hand item on Tool_L so poses read correctly).
+* ``offhand``: optional, ``"none"`` (default) | ``"shield"`` | ``"sword"`` | ``"bow"``; only the
+  preview uses it (draws the left-hand item on Tool_L so poses read correctly; a bow is drawn like the sword stick).
+* ``layer``: optional JSON object copied verbatim into ``data/<name>.json`` next to ``trail_effects`` (the
+  keys EF reads from ``combat/data``, e.g. ``layer``, ``priority``, ``masks`` as in ``bow_aim_mid``); a data
+  file is written if ``trail`` or ``layer`` is set.
 * ``trail_joint``: optional, ``"Tool_R"`` (default) | ``"Tool_L"``; the joint the trail
   follows (``item_skin_hand`` is ``off_hand`` for Tool_L, ``main_hand`` otherwise).
 * ``--check`` builds into a temporary folder and exits 1 if any generated file
@@ -54,7 +59,7 @@ from tools.anim import efanim  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_JAR = REPO / ".cache/jars/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar"
-OFFHANDS = ("none", "shield", "sword")
+OFFHANDS = ("none", "shield", "sword", "bow")
 TRAIL_JOINTS = ("Tool_R", "Tool_L")
 ARM_ENTRY = "assets/epicfight/animmodels/entity/biped.json"
 
@@ -126,6 +131,8 @@ def validate_source(name: str, src: dict) -> None:
             err("trail must be [start, end] within the animation length")
     if src.get("offhand", "none") not in OFFHANDS:
         err(f"offhand {src['offhand']!r} must be one of {', '.join(OFFHANDS)}")
+    if "layer" in src and not isinstance(src["layer"], dict):
+        err("layer must be a JSON object")
     if src.get("trail_joint", "Tool_R") not in TRAIL_JOINTS:
         err(f"trail_joint {src['trail_joint']!r} must be one of {', '.join(TRAIL_JOINTS)}")
     if not src.get("root_back"):
@@ -157,6 +164,16 @@ def trail_json(src: dict) -> dict:
     joint = src.get("trail_joint", "Tool_R")
     return {"trail_effects": [{"start_time": float(a), "end_time": float(b), "joint": joint,
                                "item_skin_hand": "off_hand" if joint == "Tool_L" else "main_hand"}]}
+
+
+def data_json(src: dict) -> dict | None:
+    """Content of ``data/<name>.json`` (trail effects and/or layer), or None if neither is set."""
+    out: dict = {}
+    if "trail" in src:
+        out.update(trail_json(src))
+    if "layer" in src:
+        out.update(src["layer"])
+    return out or None
 
 
 def _contact_sheet(images, out, cols=3, step=2):
@@ -193,8 +210,9 @@ def build_all(src_dir: Path, out_dir: Path, jar=None, preview_dir: Path | None =
         anim = build_animation(src, arm, bases[src["base"]])
         efanim.save_animation(anim, out_dir / f"{p.stem}.json", arm)
         written.append(Path(f"{p.stem}.json"))
-        if "trail" in src:
-            (out_dir / "data" / f"{p.stem}.json").write_text(json.dumps(trail_json(src), indent=2) + "\n")
+        data = data_json(src)
+        if data is not None:
+            (out_dir / "data" / f"{p.stem}.json").write_text(json.dumps(data, indent=2) + "\n")
             written.append(Path("data", f"{p.stem}.json"))
         if preview_dir:
             from tools.anim import preview

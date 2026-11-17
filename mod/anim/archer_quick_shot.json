@@ -22,5 +22,5 @@
   "group": "archer",
   "desc_ko": "차지 없이 시위를 반쯤만 당겨 바로 놓는 빠른 사격, 하체는 그대로라 걸으며 쓸 수 있다",
   "phase": {"antic": 0.07, "contact": 0.11, "recovery": 0.25},
-  "offhand": "sword"
+  "offhand": "bow"
 }

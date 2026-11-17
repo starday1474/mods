@@ -30,5 +30,5 @@
   "desc_ko": "앞다리를 깊게 굽혀 크게 버티고 시위를 길게 끝까지 당겼다가 강한 한 발을 쏘며 반동에 뒤로 살짝 밀린다",
   "phase": {"antic": 0.45, "contact": 0.78, "recovery": 0.95},
   "root_back": true,
-  "offhand": "sword"
+  "offhand": "bow"
 }

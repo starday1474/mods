@@ -155,7 +155,7 @@ SHIELD_SIZE = (0.6, 0.7)  # plate width (along SHIELD_W_AXIS) x height (along SH
 SHIELD_NORMAL = (0, -1)   # Tool_L local -X faces forward (+Y) in EF shield_offhand (Tool_L cols: X=-Y, Y=-X, Z=-Z)
 SHIELD_W_AXIS, SHIELD_H_AXIS = 1, 2
 SHIELD_FWD = 0.15         # plate centre offset along the face normal from Tool_L
-OFFHANDS = ("none", "shield", "sword")
+OFFHANDS = ("none", "shield", "sword", "bow")
 
 
 def _shield_quad(tm):
@@ -189,7 +189,7 @@ def render_gif(arm, mesh, anim, out_path, fps=20, views=("side", "front"), offha
     for _, tm, tl in frames_data:
         tip = tm[:3, 3] + tm[:3, :3] @ tool_axis
         lo, hi = np.minimum(lo, tip - .05), np.maximum(hi, tip + .05)
-        if offhand == "sword":
+        if offhand in ("sword", "bow"):
             tip = tl[:3, 3] + tl[:3, :3] @ tool_axis
             lo, hi = np.minimum(lo, tip - .05), np.maximum(hi, tip + .05)
         elif offhand == "shield":
@@ -215,7 +215,7 @@ def render_gif(arm, mesh, anim, out_path, fps=20, views=("side", "front"), offha
             a = tm[:3, 3]
             b = a + tm[:3, :3] @ tool_axis
             ax.plot(*zip(a, b), color="#111", linewidth=3, zorder=10)
-            if offhand == "sword":
+            if offhand in ("sword", "bow"):
                 a = tl[:3, 3]
                 ax.plot(*zip(a, a + tl[:3, :3] @ tool_axis), color="#111", linewidth=3, zorder=10)
             elif offhand == "shield":

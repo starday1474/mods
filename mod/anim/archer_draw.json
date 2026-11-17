@@ -21,5 +21,5 @@
   "group": "archer",
   "desc_ko": "활을 든 왼팔을 앞으로 뻗고 오른손으로 시위를 뺨까지 당긴 채 조준을 유지하며 천천히 숨 쉬기",
   "loop": true,
-  "offhand": "sword"
+  "offhand": "bow"
 }

@@ -23,5 +23,5 @@
   "group": "archer",
   "desc_ko": "당긴 시위를 한 번 더 조였다가 놓아 쏘고, 오른손이 귀 뒤로 튕긴 뒤 다시 활로 돌아온다",
   "phase": {"antic": 0.08, "contact": 0.12, "recovery": 0.3},
-  "offhand": "sword"
+  "offhand": "bow"
 }

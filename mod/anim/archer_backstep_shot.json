@@ -27,5 +27,5 @@
   "desc_ko": "살짝 웅크렸다가 뒤로 뛰어오르며 공중에서 당겨 쏘고 무릎을 굽혀 착지한다",
   "phase": {"antic": 0.2, "contact": 0.28, "recovery": 0.5},
   "root_back": true,
-  "offhand": "sword"
+  "offhand": "bow"
 }

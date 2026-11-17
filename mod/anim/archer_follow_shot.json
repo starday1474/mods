@@ -25,5 +25,5 @@
   "group": "archer",
   "desc_ko": "빠르게 당겨 쏜 직후 오른손을 곧장 시위로 되돌려 다시 끝까지 당긴다",
   "phase": {"antic": 0.1, "contact": 0.15, "recovery": 0.34},
-  "offhand": "sword"
+  "offhand": "bow"
 }

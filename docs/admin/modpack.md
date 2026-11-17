@@ -141,6 +141,15 @@ cd mod
 - `trail`: 칼 궤적 효과 시작·끝 시간 (보통 `antic`~`contact`)
 - 왼팔은 방패를 든 가드 자세(`Shoulder_L`, `Arm_L`, `Hand_L`)를 모든 키에 같은 값으로 넣어 유지
 
+### 연결 규칙
+
+- **끝 `Root` 위치가 0이 아닌 동작은 반드시 공격·액션 동작(Action/Attack 계열)으로 등록**: 마지막 키의 `Root` x 또는 y가 0이 아니면 대기·반복 같은 일반 동작으로 등록했을 때 끝나면서 제자리로 튕겨 돌아옴. 현재 해당하는 원본은 스크립트로 뽑음:
+  `python3 -c "import json,glob;[print(p) for p in sorted(glob.glob('mod/anim/*.json')) if any(abs(v)>1e-9 for v in (json.load(open(p))['keys'][-1].get('translate') or {}).get('Root',[0,0,0])[:2])]"`
+  (지금은 `archer_backstep_shot`, `archer_charge_step`, `archer_pierce_stance`, `balanced_*`의 `auto3`·`counter`·`dash`·`shield_bash`, `infight_*` 평타·`leap_slam`·`whirlwind`, `mage_charge_release`, `mage_staff_auto1~2`, `relic_needle_volley`, `relic_ring_flame_*`, `summoner_command`, `tank_auto1~2`·`shield_slam` 등 26개)
+- **이동하면서 상체만 쓰는 동작은 `layer` 항목이 필요**: `archer_draw`, `archer_quick_shot`, 걸으며 쓰는 시전 동작처럼 다리는 걷기·달리기를 그대로 두고 상체만 덮어야 하는 동작은 원본에 `layer`(예: `{"layer": "COMPOSITE_LAYER", "priority": "MIDDLE", "masks": [{"livingmotion": "ALL", "type": "root_upper_joints"}]}`, Epic Fight `bow_aim_mid`와 같은 형식)를 넣어야 함. 빌드가 `data/<이름>.json`에 그대로 복사함. 없으면 동작이 다리까지 덮어 이동 중 미끄러짐
+- **빈손·지팡이에 붙는 궤적은 궤적이 있는 아이템 스킨이 필요**: 궤적(`trail`)은 손에 든 아이템 스킨의 궤적 설정을 써서 그려지므로, 맨손이나 지팡이처럼 궤적이 없는 아이템이면 아무것도 보이지 않음. 해당 아이템에 궤적이 있는 스킨을 연결할 것
+- **대기·반복 동작은 `biped/combat` 아래에 둠**: 우리 파일에서는 대기(`*_idle`)와 반복 동작도 공격 동작과 같은 `biped/combat/<이름>` 경로를 쓴다는 이름 규칙일 뿐, 별도 폴더로 나누지 않음
+
 ### 빌드와 미리보기
 
 저장소 루트에서:

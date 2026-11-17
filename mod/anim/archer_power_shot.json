@@ -28,5 +28,5 @@
   "group": "archer",
   "desc_ko": "발을 넓게 벌려 낮게 버티고 활을 비스듬히 눕혀 힘껏 당긴 뒤 여러 발을 한꺼번에 쏘고 반동을 받는다",
   "phase": {"antic": 0.34, "contact": 0.5, "recovery": 0.7},
-  "offhand": "sword"
+  "offhand": "bow"
 }

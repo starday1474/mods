@@ -126,21 +126,39 @@ def test_repo_assets_up_to_date():
     assert build_anims.main([str(SRC), str(OUT), "--check"]) == 0
 
 
+def _java_combo_phases(java, stem):
+    """Numbers of the ComboAttackAnimation registered for biped/combat/<stem>, or None.
+
+    The match stays inside one ``nextAccessor(...)`` statement (no ``;`` crossing).
+    """
+    m = re.search(r'"biped/combat/%s"[^;]*?new ComboAttackAnimation\(\s*([\d.]+)F,\s*([\d.]+)F,\s*([\d.]+)F,\s*([\d.]+)F'
+                  % re.escape(stem), java, re.S)
+    return [float(x) for x in m.groups()[1:]] if m else None
+
+
+def test_java_phase_regex_stays_in_statement():
+    java = (
+        'builder.nextAccessor("biped/combat/foo_idle", a -> new StaticAnimation(true, 0.2F, a, armature));\n'
+        'builder.nextAccessor("biped/combat/foo_hit", a -> new ComboAttackAnimation(0.1F, 0.2F, 0.3F, 0.4F, a));\n'
+    )
+    assert _java_combo_phases(java, "foo_idle") is None
+    assert _java_combo_phases(java, "foo_hit") == [0.2, 0.3, 0.4]
+
+
 def test_java_phases_match_sources():
-    """RpgAnimations.java must use the phase times written in mod/anim (for the sources it references)."""
+    """RpgAnimations.java must use the phase times written in mod/anim (for ComboAttackAnimation registrations)."""
     java = JAVA.read_text()
     checked = 0
     for p in sorted(SRC.glob("*.json")):
-        if '"biped/combat/%s"' % p.stem not in java:
+        got = _java_combo_phases(java, p.stem)
+        if got is None:
             continue
         src = json.loads(p.read_text())
-        assert "phase" in src, p.stem
+        if "phase" not in src:
+            continue
         ph = src["phase"]
         checked += 1
-        m = re.search(r'"biped/combat/%s".*?new ComboAttackAnimation\(\s*([\d.]+)F,\s*([\d.]+)F,\s*([\d.]+)F,\s*([\d.]+)F'
-                      % p.stem, java, re.S)
-        assert m, p.stem
-        assert [float(x) for x in m.groups()[1:]] == pytest.approx([ph["antic"], ph["contact"], ph["recovery"]])
+        assert got == pytest.approx([ph["antic"], ph["contact"], ph["recovery"]]), p.stem
         assert ph["recovery"] <= src["length"]
     assert checked, "RpgAnimations.java references no mod/anim source"
 
@@ -231,10 +249,10 @@ def test_no_phase_no_trail_file(tmp_path):
 
 def test_offhand_validation():
     s = _src(0.5, "rest", 30)
-    for ok in ("none", "shield", "sword"):
+    for ok in ("none", "shield", "sword", "bow"):
         build_anims.validate_source("t", {**s, "offhand": ok})
-    with pytest.raises(ValueError, match=r"t: offhand.*'bow'"):
-        build_anims.validate_source("t", {**s, "offhand": "bow"})
+    with pytest.raises(ValueError, match=r"t: offhand.*'staff'"):
+        build_anims.validate_source("t", {**s, "offhand": "staff"})
 
 
 def test_trail_joint_validation():
@@ -265,3 +283,58 @@ def test_preview_passes_offhand(tmp_path, monkeypatch):
                                             "trail": [0.05, 0.1]}))
     assert build_anims.main([str(src), str(tmp_path / "o"), "--preview", str(tmp_path / "pv")]) == 0
     assert seen == ["shield"]
+
+
+LAYER = {"layer": "COMPOSITE_LAYER", "priority": "MIDDLE",
+         "masks": [{"livingmotion": "ALL", "type": "root_upper_joints"}]}
+
+
+def _one_src(tmp_path, **extra):
+    src = tmp_path / "src"
+    src.mkdir()
+    s = _src(0.6, "rest", 10)
+    for k in extra.pop("drop", ()):
+        s.pop(k)
+    s.update(extra)
+    (src / "x.json").write_text(json.dumps(s))
+    return src
+
+
+def test_layer_must_be_object():
+    s = _src(0.6, "rest", 10)
+    s["layer"] = "COMPOSITE_LAYER"
+    with pytest.raises(ValueError, match="layer"):
+        build_anims.validate_source("x", s)
+
+
+def test_data_json_merges_trail_and_layer():
+    s = _src(0.6, "rest", 10)
+    assert build_anims.data_json({**s, "layer": LAYER}) == {**build_anims.trail_json(s), **LAYER}
+    assert build_anims.data_json({k: v for k, v in s.items() if k != "trail"}) is None
+    only = {k: v for k, v in s.items() if k != "trail"}
+    assert build_anims.data_json({**only, "layer": LAYER}) == LAYER
+
+
+@needs_jar
+def test_layer_only_writes_data_file(tmp_path):
+    src = _one_src(tmp_path, drop=["trail"], layer=LAYER)
+    out = tmp_path / "out"
+    assert build_anims.main([str(src), str(out)]) == 0
+    assert json.loads((out / "data/x.json").read_text()) == LAYER
+
+
+@needs_jar
+def test_trail_and_layer_merge_and_check_drift(tmp_path):
+    src = _one_src(tmp_path, layer=LAYER)
+    out = tmp_path / "out"
+    assert build_anims.main([str(src), str(out)]) == 0
+    data = json.loads((out / "data/x.json").read_text())
+    assert "trail_effects" in data and data["layer"] == "COMPOSITE_LAYER"
+    assert build_anims.main([str(src), str(out), "--check"]) == 0
+    (out / "data/x.json").write_text(json.dumps({"trail_effects": data["trail_effects"]}) + "\n")
+    assert build_anims.main([str(src), str(out), "--check"]) == 1
+
+
+def test_bow_offhand_accepted():
+    s = _src(0.6, "rest", 10)
+    build_anims.validate_source("x", {**s, "offhand": "bow"})

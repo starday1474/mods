@@ -25,5 +25,5 @@
   "group": "archer",
   "desc_ko": "상체를 뒤로 젖혀 활을 하늘 높이 비스듬히 겨누고 당겼다가 위로 쏘아 올린다",
   "phase": {"antic": 0.3, "contact": 0.43, "recovery": 0.6},
-  "offhand": "sword"
+  "offhand": "bow"
 }
