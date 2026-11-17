@@ -52,7 +52,8 @@ public final class RpgAnimations {
     /**
      * Every other entry of {@link AnimIndex} (anim_index.json): attack -> ComboAttackAnimation(convertTime 0.1, antic, contact,
      * recovery, null collider = weapon's, toolR); loop -> StaticAnimation(convertTime 0.1, repeat=true);
-     * action -> ActionAnimation(convertTime 0.1; non-repeating, Root motion applies).
+     * action and cast -> ActionAnimation(convertTime 0.1; non-repeating, Root motion applies, fixed playback speed, no
+     * weapon collider so it never deals melee damage; a cast's phase stays in the index only as event timing).
      */
     private static void registerIndexed(AnimationBuilder builder) {
         for (AnimIndex.Entry e : AnimIndex.entries()) {
@@ -63,7 +64,7 @@ public final class RpgAnimations {
                 case ATTACK -> builder.<ComboAttackAnimation>nextAccessor(e.path(), acc -> combo(new ComboAttackAnimation(
                         0.1F, e.phase().antic(), e.phase().contact(), e.phase().recovery(), null, toolR(), acc, Armatures.BIPED)));
                 case LOOP -> builder.<StaticAnimation>nextAccessor(e.path(), acc -> new StaticAnimation(0.1F, true, acc, Armatures.BIPED));
-                case ACTION -> builder.<ActionAnimation>nextAccessor(e.path(), acc -> new ActionAnimation(0.1F, acc, Armatures.BIPED));
+                case CAST, ACTION -> builder.<ActionAnimation>nextAccessor(e.path(), acc -> new ActionAnimation(0.1F, acc, Armatures.BIPED));
             }
         }
     }

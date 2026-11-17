@@ -4,8 +4,9 @@ Usage:
   python3 tools/anim/build_anims.py SRC_DIR OUT_DIR [--preview DIR] [--check] [--jar PATH] [--index PATH]
 
 Also writes the animation index (``--index``; default ``mod/src/main/resources/data/goddessrpg/anim_index.json``
-when OUT_DIR is the repo's generated folder, otherwise none): ``[{"name", "kind": "attack"|"loop"|"action",
-"length", "phase": {...}|null}]`` sorted by name (``phase`` present -> attack, else ``loop`` -> loop, else action).
+when OUT_DIR is the repo's generated folder, otherwise none): ``[{"name", "kind": "attack"|"cast"|"loop"|"action",
+"length", "phase": {...}|null}]`` sorted by name (kind = the source's explicit ``kind`` if given, else ``loop`` ->
+loop, ``phase`` -> attack, else action; ``phase`` is copied whenever the source has one).
 The mod reads it from the jar at animation-registration time (it lives under ``data/`` so it ships in the jar
 next to the other mod data and is reachable through the mod class loader; ``--check`` covers it too).
 
@@ -34,6 +35,9 @@ Source format::
 * ``loop``: optional; first and last key must resolve to the same pose.
   ``root_back``: optional; without it Root translate y must never decrease
   (EF turns Root movement into player movement).
+* ``kind``: optional, ``"attack"`` | ``"cast"`` | ``"action"`` | ``"loop"``.  Default: loop if ``loop``, attack if
+  ``phase``, else action.  ``cast`` (heals, buffs, spells, shots) is registered as an Epic Fight ActionAnimation
+  (fixed playback speed, no weapon collider, never deals melee damage); its ``phase`` is then only event timing.
 * ``phase`` / ``trail`` are optional (attacks only); without ``trail`` (and ``layer``) no
   ``data/<name>.json`` is written.
 * ``phase`` is not written to the asset: it documents the ComboAttackAnimation
@@ -79,6 +83,7 @@ DEFAULT_JAR = REPO / ".cache/jars/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar"
 DEFAULT_OUT = REPO / "mod/src/main/resources/assets/goddessrpg/animmodels/animations/biped/combat"
 DEFAULT_INDEX = REPO / "mod/src/main/resources/data/goddessrpg/anim_index.json"
 OFFHANDS = ("none", "shield", "sword", "bow")
+KINDS = ("attack", "cast", "action", "loop")
 TRAIL_JOINTS = ("Tool_R", "Tool_L")
 EASES = ("linear", "in", "out", "inout", "back")
 BAKE_RANGE = (10, 60)
@@ -143,6 +148,8 @@ def validate_source(name: str, src: dict) -> None:
     for field in ("group", "desc_ko"):
         if not isinstance(src.get(field), str) or not src[field].strip():
             err(f"missing required field {field!r}")
+    if "kind" in src and src["kind"] not in KINDS:
+        err(f"kind {src['kind']!r} must be one of {', '.join(KINDS)}")
     if "phase" in src:
         ph = src["phase"] or {}
         if not (0 <= ph.get("antic", -1) <= ph.get("contact", -1) <= ph.get("recovery", -1) <= length):
@@ -261,9 +268,13 @@ def data_json(src: dict) -> dict | None:
     return out or None
 
 
+def source_kind(src: dict) -> str:
+    return src.get("kind") or ("loop" if src.get("loop") else "attack" if src.get("phase") else "action")
+
+
 def index_entry(name: str, src: dict) -> dict:
     ph = src.get("phase")
-    kind = "attack" if ph else "loop" if src.get("loop") else "action"
+    kind = source_kind(src)
     phase = {k: float(ph[k]) for k in ("antic", "contact", "recovery")} if ph else None
     return {"name": name, "kind": kind, "length": float(src["length"]), "phase": phase}
 

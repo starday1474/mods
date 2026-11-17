@@ -20,6 +20,7 @@
      "translate": {"Root": [0.0, 0.0, 0.0], "Elbow_R": [0.0, 0.008, 0.0], "Elbow_L": [0.0, 0.047, 0.0]}}
   ],
   "group": "archer",
+  "kind": "cast",
   "desc_ko": "다리는 그대로 둔 채 상체만 틀며 활을 크게 눕혀 시위를 가슴까지만 당겨 바로 놓고, 오른손이 옆 아래로 튕겨 나간다. 걸으며 쓸 수 있다",
   "phase": {"antic": 0.1, "contact": 0.1667, "recovery": 0.2667},
   "offhand": "bow"

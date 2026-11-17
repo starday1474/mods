@@ -488,7 +488,31 @@ def test_repo_index_matches_sources():
     assert [e["name"] for e in idx] == sorted(p.stem for p in SRC.glob("*.json"))
     for e in idx:
         src = json.loads((SRC / f"{e['name']}.json").read_text())
-        assert e["kind"] == ("attack" if "phase" in src else "loop" if src.get("loop") else "action")
+        assert e["kind"] == build_anims.source_kind(src)
         assert e["length"] == pytest.approx(src["length"])
-        assert (e["phase"] is not None) == (e["kind"] == "attack")
+        assert (e["phase"] is not None) == ("phase" in src)
     assert INDEX.read_text() == build_anims.build_index(SRC)
+
+
+def test_explicit_kind_wins_and_cast_keeps_phase(tmp_path):
+    d = tmp_path / "src"
+    d.mkdir()
+    cast = _src(0.6, "rest", 90)
+    cast["kind"] = "cast"
+    del cast["trail"]
+    (d / "a_cast.json").write_text(json.dumps(cast))
+    entry = build_anims.index_entry("a_cast", cast)
+    assert entry["kind"] == "cast"
+    assert entry["phase"] == {"antic": 0.1, "contact": 0.2, "recovery": 0.4}
+    act = _src(0.6, "rest", 90)
+    act["kind"] = "action"
+    assert build_anims.index_entry("x", act)["kind"] == "action"
+    assert build_anims.index_entry("y", _src(0.6, "rest", 90))["kind"] == "attack"
+
+
+def test_invalid_kind_rejected():
+    s = _src(0.5, "rest", 30)
+    for ok in ("attack", "cast", "action", "loop"):
+        build_anims.validate_source("t", {**s, "kind": ok})
+    with pytest.raises(ValueError, match=r"t: kind.*'spell'"):
+        build_anims.validate_source("t", {**s, "kind": "spell"})

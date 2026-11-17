@@ -18,6 +18,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.AttackAnimation;
+import yesman.epicfight.api.animation.types.ComboAttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -133,6 +134,21 @@ public class AnimationGameTest {
                 h.fail(e.key() + " kind " + e.kind() + " but class " + anim.getClass().getSimpleName());
                 return;
             }
+            if (e.kind() == AnimIndex.Kind.CAST && !(anim instanceof yesman.epicfight.api.animation.types.ActionAnimation)) {
+                h.fail(e.key() + " is a cast but class " + anim.getClass().getSimpleName());
+                return;
+            }
+            boolean hasPhase = e.kind() == AnimIndex.Kind.ATTACK || e.kind() == AnimIndex.Kind.CAST;
+            AnimIndex.Phase ph = e.phase();
+            if (hasPhase && (ph == null || !(0 <= ph.antic() && ph.antic() <= ph.contact() && ph.contact() <= ph.recovery()
+                    && ph.recovery() <= e.length() + 1e-4F))) {
+                h.fail(e.key() + " (" + e.kind() + ") has a missing or invalid phase " + ph);
+                return;
+            }
+            if (e.kind() == AnimIndex.Kind.ATTACK && !(anim instanceof ComboAttackAnimation)) {
+                h.fail(e.key() + " is an attack but not a ComboAttackAnimation");
+                return;
+            }
             if (e.kind() == AnimIndex.Kind.LOOP && !anim.isRepeat()) {
                 h.fail(e.key() + " is a loop but not repeating");
                 return;
@@ -141,6 +157,27 @@ public class AnimationGameTest {
                 h.fail(e.key() + " repeats but is " + e.kind());
                 return;
             }
+        }
+        h.succeed();
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void attackSpeedHintOnlyForMismatchedAttacks(GameTestHelper h) {
+        AnimIndex.Entry attack = null;
+        AnimIndex.Entry cast = null;
+        for (AnimIndex.Entry e : AnimIndex.entries()) {
+            if (attack == null && e.kind() == AnimIndex.Kind.ATTACK) attack = e;
+            if (cast == null && e.kind() == AnimIndex.Kind.CAST) cast = e;
+        }
+        if (attack == null || cast == null) {
+            h.fail("index has no attack or no cast entry");
+            return;
+        }
+        if (!AnimPlayer.attackSpeedMismatch(attack, 4.0) || AnimPlayer.attackSpeedMismatch(attack, 1.6)
+                || AnimPlayer.attackSpeedMismatch(attack, 1.62) || AnimPlayer.attackSpeedMismatch(cast, 4.0)) {
+            h.fail("attack speed hint logic wrong");
+            return;
         }
         h.succeed();
     }

@@ -68,6 +68,10 @@ python3 prism/build_instance.py build/RPG-modpack-test.zip --pack-url https://ra
 - [ ] 16GB PC에서 월드를 열고 친구가 접속했을 때 프레임·메모리 (F3 화면의 메모리 수치)
 - [ ] 보스 몇 개를 Epic Fight로 실제로 잡아 보기 (경직, 피격 판정) — 계획 3 보스 재조정 때 함께 확인
 - [ ] 동작 확인: `/goddessrpg anim list`, `/goddessrpg anim play <이름>`으로 동작 확인, `/goddessrpg anim stop`으로 재생 중인 동작이 멈추는지 확인
+  - 명령어는 치트를 켠 월드 또는 OP 2단계에서만 됩니다. 동작은 F5 3인칭으로 봐야 보입니다.
+  - 근접 공격 동작(balanced·tank·infight)은 검(공격 속도 1.6)을 들고 재생해야 원래 속도로 보입니다. 맨손이나 다른 무기면 더 빠르거나 느리게 재생됩니다(재생 시 안내 문구가 나옵니다). 공격 동작은 주변 몬스터를 실제로 때릴 수 있습니다.
+  - 반복(loop) 동작은 움직이거나 `/goddessrpg anim stop`을 할 때까지 계속됩니다. 시전 동작(궁수·마법사·소환사·힐러·유물사)은 속도가 일정하고 피해가 없습니다.
+  - 다듬지 않은 근접 동작 12개(`balanced_dash`, `tank_auto1`, `tank_auto2`, `infight_*` 9개)는 다른 모드의 동작으로 교체할 임시 자리 표시입니다(`docs/design/vanguard-moveset.md` 참고). 이 동작들로 품질을 판단하지 마세요.
 
 ### 우리 모드 (goddessrpg) 시험
 

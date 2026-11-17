@@ -129,7 +129,12 @@ public final class RpgCommand {
             case UNKNOWN -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.unknown", name)).create();
             case NOT_REGISTERED -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.not_registered", name)).create();
             case NO_PATCH -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.anim.no_patch")).create();
-            case OK -> c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.anim.played", name), false);
+            case OK -> {
+                c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.anim.played", name), false);
+                if (AnimPlayer.attackSpeedMismatch(p, name)) {
+                    c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.anim.attack_speed_hint"), false);
+                }
+            }
         }
         return 1;
     }

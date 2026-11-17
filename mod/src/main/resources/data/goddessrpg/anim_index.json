@@ -1,7 +1,7 @@
 [
  {
   "name": "archer_arc_shot",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.8,
   "phase": {
    "antic": 0.3333,
@@ -11,7 +11,7 @@
  },
  {
   "name": "archer_backstep_shot",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.75,
   "phase": {
    "antic": 0.2667,
@@ -21,7 +21,7 @@
  },
  {
   "name": "archer_charge_shot",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.6,
   "phase": {
    "antic": 0.1333,
@@ -43,7 +43,7 @@
  },
  {
   "name": "archer_follow_shot",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.6,
   "phase": {
    "antic": 0.1667,
@@ -53,7 +53,7 @@
  },
  {
   "name": "archer_pierce_stance",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.4,
   "phase": {
    "antic": 0.7333,
@@ -63,7 +63,7 @@
  },
  {
   "name": "archer_power_shot",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.2,
   "phase": {
    "antic": 0.6667,
@@ -73,7 +73,7 @@
  },
  {
   "name": "archer_quick_shot",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.4,
   "phase": {
    "antic": 0.1,
@@ -149,7 +149,7 @@
  },
  {
   "name": "healer_blessing",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.3,
   "phase": {
    "antic": 0.4667,
@@ -159,7 +159,7 @@
  },
  {
   "name": "healer_heal_area",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.1,
   "phase": {
    "antic": 0.2333,
@@ -169,7 +169,7 @@
  },
  {
   "name": "healer_heal_single",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.0,
   "phase": {
    "antic": 0.2,
@@ -185,7 +185,7 @@
  },
  {
   "name": "healer_spirit_call",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.3,
   "phase": {
    "antic": 0.4333,
@@ -285,7 +285,7 @@
  },
  {
   "name": "mage_cast_instant",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.6,
   "phase": {
    "antic": 0.1667,
@@ -301,7 +301,7 @@
  },
  {
   "name": "mage_cast_long_release",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.8,
   "phase": {
    "antic": 0.1667,
@@ -329,7 +329,7 @@
  },
  {
   "name": "mage_charge_release",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.6,
   "phase": {
    "antic": 0.0667,
@@ -339,7 +339,7 @@
  },
  {
   "name": "mage_circle_raise",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.2,
   "phase": {
    "antic": 0.4,
@@ -375,7 +375,7 @@
  },
  {
   "name": "relic_activate",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.3,
   "phase": {
    "antic": 0.4,
@@ -391,7 +391,7 @@
  },
  {
   "name": "relic_needle_flick",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.7,
   "phase": {
    "antic": 0.1667,
@@ -407,7 +407,7 @@
  },
  {
   "name": "relic_needle_volley",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.9,
   "phase": {
    "antic": 0.2333,
@@ -417,7 +417,7 @@
  },
  {
   "name": "relic_ring_flame_sweep",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.0,
   "phase": {
    "antic": 0.2667,
@@ -427,7 +427,7 @@
  },
  {
   "name": "relic_ring_flame_throw",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.9,
   "phase": {
    "antic": 0.1667,
@@ -437,7 +437,7 @@
  },
  {
   "name": "summoner_command",
-  "kind": "attack",
+  "kind": "cast",
   "length": 0.8,
   "phase": {
    "antic": 0.1667,
@@ -447,7 +447,7 @@
  },
  {
   "name": "summoner_empower",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.0,
   "phase": {
    "antic": 0.2,
@@ -463,7 +463,7 @@
  },
  {
   "name": "summoner_summon",
-  "kind": "attack",
+  "kind": "cast",
   "length": 1.1,
   "phase": {
    "antic": 0.2333,

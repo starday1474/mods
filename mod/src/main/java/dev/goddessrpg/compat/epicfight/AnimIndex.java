@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 
 /**
  * {@code data/goddessrpg/anim_index.json}, written by tools/anim/build_anims.py: every generated animation with its
- * kind (attack / loop / action), length and attack phase. It is read straight from the mod jar through the mod's own
+ * kind (attack / cast / loop / action), length and attack phase. It is read straight from the mod jar through the mod's own
  * class loader because animations are registered during mod construction, before any resource manager exists.
  */
 public final class AnimIndex {
@@ -25,7 +25,7 @@ public final class AnimIndex {
     public static final String RESOURCE = "data/" + GoddessRpg.MODID + "/anim_index.json";
     private static final Logger LOG = LogUtils.getLogger();
 
-    public enum Kind { ATTACK, LOOP, ACTION }
+    public enum Kind { ATTACK, CAST, LOOP, ACTION }
 
     public record Phase(float antic, float contact, float recovery) {}
 

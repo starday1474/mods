@@ -22,6 +22,19 @@ public final class AnimPlayer {
 
     public enum StopResult { STOPPED, NOTHING_PLAYING, NO_PATCH }
 
+    /** Attack speed the attack animations are authored for (RpgAnimations BASIS_ATTACK_SPEED, a sword). */
+    public static final double BASIS_ATTACK_SPEED = 1.6;
+
+    /** True when the entry is an attack animation and the player's attack speed (main-hand item included) is not ~1.6. */
+    public static boolean attackSpeedMismatch(AnimIndex.Entry entry, double attackSpeed) {
+        return entry.kind() == AnimIndex.Kind.ATTACK && Math.abs(attackSpeed - BASIS_ATTACK_SPEED) > 0.05;
+    }
+
+    public static boolean attackSpeedMismatch(ServerPlayer player, String name) {
+        AnimIndex.Entry entry = AnimIndex.find(name);
+        return entry != null && attackSpeedMismatch(entry, player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED));
+    }
+
     public static Result play(ServerPlayer player, String name) {
         AnimIndex.Entry entry = AnimIndex.find(name);
         if (entry == null) {
