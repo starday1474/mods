@@ -321,6 +321,26 @@ def build_all(src_dir: Path, out_dir: Path, jar=None, preview_dir: Path | None =
     return written
 
 
+def _approx_equal(a, b, tol=2e-5) -> bool:
+    """Structural JSON equality; floats may differ by build-platform noise (last-digit rounding of 6-decimal values)."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_approx_equal(a[k], b[k], tol) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_approx_equal(x, y, tol) for x, y in zip(a, b))
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)) and not isinstance(a, bool) and not isinstance(b, bool):
+        return abs(a - b) <= tol
+    return a == b
+
+
+def _same_file(a: Path, b: Path) -> bool:
+    if a.read_bytes() == b.read_bytes():
+        return True
+    try:
+        return _approx_equal(json.loads(a.read_text()), json.loads(b.read_text()))
+    except ValueError:
+        return False
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("src")
@@ -342,7 +362,7 @@ def main(argv=None) -> int:
     with tempfile.TemporaryDirectory() as d:
         files = build_all(Path(a.src), Path(d), a.jar, a.preview)
         stale = [str(f) for f in files
-                 if not (out / f).is_file() or (out / f).read_bytes() != (Path(d) / f).read_bytes()]
+                 if not (out / f).is_file() or not _same_file(out / f, Path(d) / f)]
     if index and (not index.is_file() or index.read_text() != build_index(Path(a.src))):
         stale.append(str(index))
     if stale:
