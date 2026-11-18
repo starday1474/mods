@@ -18,12 +18,11 @@ public final class ClientSync {
     private static volatile double manaMax;
 
     public static void applyMana(double mana, double max) {
+        manaMax = max; // not tied to the player; a sync during a dimension transition must not leave it stale
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) {
-            return;
+        if (mc.player != null) {
+            mc.player.setData(dev.goddessrpg.mana.ManaAttachment.MANA, mana);
         }
-        mc.player.setData(dev.goddessrpg.mana.ManaAttachment.MANA, mana);
-        manaMax = max;
     }
 
     public static void resetMana() {
