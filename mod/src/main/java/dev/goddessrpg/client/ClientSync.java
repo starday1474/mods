@@ -19,10 +19,15 @@ public final class ClientSync {
 
     public static void applyMana(double mana, double max) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) {
-            mc.player.setData(dev.goddessrpg.mana.ManaAttachment.MANA, mana);
+        if (mc.player == null) {
+            return;
         }
+        mc.player.setData(dev.goddessrpg.mana.ManaAttachment.MANA, mana);
         manaMax = max;
+    }
+
+    public static void resetMana() {
+        manaMax = 0;
     }
 
     public static double manaMax() {

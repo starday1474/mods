@@ -26,7 +26,7 @@ public final class ManaAttachment {
     private ManaAttachment() {}
 
     public static final DeferredRegister<AttachmentType<?>> REGISTER =
-            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, GoddessRpg.MODID + ".mana");
+            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, GoddessRpg.MODID);
 
     public static final Supplier<AttachmentType<Double>> MANA =
             REGISTER.register("mana", () -> AttachmentType.builder(() -> 0.0).build());
@@ -42,6 +42,7 @@ public final class ManaAttachment {
         double lastSent = Double.NaN;
         double lastMax = Double.NaN;
         int ticksSince;
+        int sendCount;
     }
 
     public static void register(IEventBus modBus) {
@@ -54,6 +55,11 @@ public final class ManaAttachment {
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent e) -> {
             if (e.getEntity() instanceof ServerPlayer sp) {
                 refill(sp);
+            }
+        });
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerChangedDimensionEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp) {
+                resync(sp);
             }
         });
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent e) -> {
@@ -74,7 +80,7 @@ public final class ManaAttachment {
     /** Spends mana if there is enough; otherwise returns false and changes nothing. */
     public static boolean tryConsume(ServerPlayer player, double amount) {
         double cur = get(player);
-        if (cur < amount) {
+        if (Double.isNaN(amount) || amount < 0 || cur < amount) {
             return false;
         }
         player.setData(MANA, cur - amount);
@@ -86,6 +92,19 @@ public final class ManaAttachment {
     public static void refill(ServerPlayer player) {
         player.setData(MANA, max(player));
         sync(player);
+    }
+
+    /** Pushes the current value without changing it (the client rebuilt its player, e.g. on a dimension change). */
+    public static void resync(ServerPlayer player) {
+        SyncState s = player.getData(SYNC_STATE);
+        s.lastSent = Double.NaN;
+        s.lastMax = Double.NaN;
+        sync(player);
+    }
+
+    /** Number of sync attempts so far (server bookkeeping; exposed for tests). */
+    public static int syncCount(ServerPlayer player) {
+        return player.getData(SYNC_STATE).sendCount;
     }
 
     /** Per-tick regen; syncs when the value moved by 0.5+ or a second passed with a change. */
@@ -115,6 +134,7 @@ public final class ManaAttachment {
         s.lastSent = mana;
         s.lastMax = max;
         s.ticksSince = 0;
+        s.sendCount++;
         if (player.connection == null) {
             return; // never placed (tests); login sync covers it
         }

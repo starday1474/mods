@@ -85,6 +85,8 @@ public class ManaGameTest {
         expect(h, !ManaAttachment.tryConsume(p, 10.5), "overdraw accepted");
         expect(h, ManaAttachment.get(p) == 10.0, "mana changed on failure: " + ManaAttachment.get(p));
         expect(h, ManaAttachment.tryConsume(p, 4.0) && ManaAttachment.get(p) == 6.0, "consume: " + ManaAttachment.get(p));
+        expect(h, !ManaAttachment.tryConsume(p, -5.0) && !ManaAttachment.tryConsume(p, Double.NaN)
+                && ManaAttachment.get(p) == 10.0, "negative/NaN amount accepted: " + ManaAttachment.get(p));
         expect(h, ManaAttachment.tryConsume(p, 0.0), "zero cost refused");
         h.succeed();
     }
@@ -108,6 +110,28 @@ public class ManaGameTest {
     public static void manaJsonEqualsDefault(GameTestHelper h) {
         expect(h, RpgDataLoader.manaTuning().equals(ManaRules.ManaTuning.DEFAULT),
                 "mana.json differs from DEFAULT: " + RpgDataLoader.manaTuning());
+        h.succeed();
+    }
+
+    /** A full pool never triggers a throttled sync; a dimension change must still resend it. */
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void dimensionChangeResyncs(GameTestHelper h) {
+        ServerPlayer p = fakePlayer(h);
+        RpgAttachments.set(p, player(RpgClass.REAR_DEALER));
+        ManaAttachment.refill(p);
+        double before = ManaAttachment.get(p);
+        for (int i = 0; i < 60; i++) {
+            ManaAttachment.tick(p);
+        }
+        int count = ManaAttachment.syncCount(p);
+        for (int i = 0; i < 60; i++) {
+            ManaAttachment.tick(p);
+        }
+        expect(h, ManaAttachment.syncCount(p) == count, "full pool kept syncing");
+        ManaAttachment.resync(p);
+        expect(h, ManaAttachment.syncCount(p) == count + 1, "resync did not send");
+        expect(h, ManaAttachment.get(p) == before, "resync changed mana");
         h.succeed();
     }
 }
