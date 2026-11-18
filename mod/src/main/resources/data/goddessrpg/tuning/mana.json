@@ -1,0 +1,5 @@
+{
+  "base_max": { "vanguard": 30.0, "rear_dealer": 100.0, "rear_supporter": 100.0 },
+  "regen_per_sec": { "vanguard": 0.5, "rear_dealer": 2.0, "rear_supporter": 2.0 },
+  "per_second_field_level": 2.0
+}

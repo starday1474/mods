@@ -14,4 +14,18 @@ public final class ClientSync {
             mc.player.setData(RpgAttachments.DATA, data);
         }
     }
+
+    private static volatile double manaMax;
+
+    public static void applyMana(double mana, double max) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            mc.player.setData(dev.goddessrpg.mana.ManaAttachment.MANA, mana);
+        }
+        manaMax = max;
+    }
+
+    public static double manaMax() {
+        return manaMax;
+    }
 }

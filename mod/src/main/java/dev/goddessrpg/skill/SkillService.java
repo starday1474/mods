@@ -45,7 +45,8 @@ public final class SkillService {
         }
         RpgAttachments.set(player, next);
         if (player.connection != null) {
-            player.sendSystemMessage(Component.translatable("goddessrpg.skill.learned", skillName(id)), true);
+            // chat, not actionbar: the level-up actionbar in the same tick would overwrite it
+            player.sendSystemMessage(Component.translatable("goddessrpg.skill.learned", skillName(id)));
         }
         return LearnResult.OK;
     }

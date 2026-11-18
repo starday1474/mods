@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.goddessrpg.GoddessRpg;
 import dev.goddessrpg.rules.GrowthTuning;
+import dev.goddessrpg.rules.ManaRules.ManaTuning;
 import dev.goddessrpg.rules.InquiryData.Question;
 import dev.goddessrpg.rules.InquiryData.Subtype;
 import dev.goddessrpg.rules.RpgClass;
@@ -26,7 +27,7 @@ import org.slf4j.Logger;
 /**
  * Loads tuning, subtypes and inquiry stages from data packs.
  * <ul>
- * <li>{@code data/goddessrpg/tuning/growth.json}</li>
+ * <li>{@code data/goddessrpg/tuning/growth.json}, {@code tuning/mana.json}</li>
  * <li>{@code data/goddessrpg/subtypes/<id>.json} ({@code {"class":..,"available":..}}, id = file name)</li>
  * <li>{@code data/goddessrpg/inquiry/stage1.json}, {@code inquiry/stage2/<class>.json},
  *     {@code inquiry/stage3/<class>.json}: each an object {"questions":[...]}; missing files give empty lists</li>
@@ -38,15 +39,19 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
     private static final Codec<List<Question>> QUESTIONS =
             Question.CODEC.listOf().fieldOf("questions").codec();
 
-    public record Snapshot(GrowthTuning tuning, List<Subtype> subtypes, List<Question> stage1,
+    public record Snapshot(GrowthTuning tuning, ManaTuning mana, List<Subtype> subtypes, List<Question> stage1,
                            Map<RpgClass, List<Question>> stage2, Map<RpgClass, List<Question>> stage3,
                            Map<String, TomeData> tomes) {}
 
-    private static volatile Snapshot current = new Snapshot(GrowthTuning.DEFAULT, List.of(), List.of(),
+    private static volatile Snapshot current = new Snapshot(GrowthTuning.DEFAULT, ManaTuning.DEFAULT, List.of(), List.of(),
             new EnumMap<>(RpgClass.class), new EnumMap<>(RpgClass.class), Map.of());
 
     public static GrowthTuning tuning() {
         return current.tuning();
+    }
+
+    public static ManaTuning manaTuning() {
+        return current.mana();
     }
 
     public static List<Subtype> subtypes() {
@@ -104,6 +109,11 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
                         .resultOrPartial(err -> LOGGER.error("Bad growth.json: {}", err)))
                 .orElse(GrowthTuning.DEFAULT);
 
+        ManaTuning mana = readJson(rm, id("tuning/mana.json"))
+                .flatMap(j -> ManaTuning.CODEC.parse(JsonOps.INSTANCE, j)
+                        .resultOrPartial(err -> LOGGER.error("Bad mana.json: {}", err)))
+                .orElse(ManaTuning.DEFAULT);
+
         List<Subtype> subtypes = new ArrayList<>();
         rm.listResources("subtypes", l -> l.getNamespace().equals(GoddessRpg.MODID) && l.getPath().endsWith(".json"))
                 .forEach((loc, res) -> {
@@ -135,7 +145,7 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
                                     .resultOrPartial(err -> LOGGER.error("Bad tome {}: {}", name, err)))
                             .ifPresent(t -> tomes.put(name, t));
                 });
-        return new Snapshot(tuning, List.copyOf(subtypes), readQuestions(rm, "inquiry/stage1.json"), s2, s3,
+        return new Snapshot(tuning, mana, List.copyOf(subtypes), readQuestions(rm, "inquiry/stage1.json"), s2, s3,
                 Map.copyOf(tomes));
     }
 
