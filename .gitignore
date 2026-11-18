@@ -7,3 +7,4 @@ __pycache__/
 !mod/gradle/wrapper/gradle-wrapper.jar
 .gradle/
 mod/run/
+mod/logs/
