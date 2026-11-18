@@ -1,6 +1,7 @@
 package dev.goddessrpg.skill;
 
 import dev.goddessrpg.compat.epicfight.SkillAnimations;
+import dev.goddessrpg.item.RpgItems;
 import dev.goddessrpg.mana.ManaAttachment;
 import dev.goddessrpg.player.RpgAttachments;
 import dev.goddessrpg.player.RpgPlayerData;
@@ -9,8 +10,10 @@ import dev.goddessrpg.rules.SkillRules;
 import java.util.Optional;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /** Server-side learning and slot handling. All rules are re-checked here; clients are never trusted. */
 public final class SkillService {
@@ -27,6 +30,35 @@ public final class SkillService {
                 grantMetProficiencySkills(sp);
             }
         });
+        // once a second: remember skill books the player holds (any way they got there), for the tome's mind map
+        NeoForge.EVENT_BUS.addListener((PlayerTickEvent.Post e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp && sp.tickCount % 20 == 0) {
+                markSeenBooks(sp);
+            }
+        });
+    }
+
+    /** Adds the skill ids of every skill book in the player's inventory to their seen set (synced only on change). */
+    public static void markSeenBooks(ServerPlayer player) {
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        var inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            ItemStack s = inv.getItem(i);
+            if (s.is(RpgItems.SKILL_BOOK.get())) {
+                String id = s.get(RpgItems.SKILL_ID.get());
+                if (id != null) {
+                    ids.add(id);
+                }
+            }
+        }
+        if (ids.isEmpty()) {
+            return;
+        }
+        RpgPlayerData data = RpgAttachments.get(player);
+        RpgPlayerData next = data.withSeenSkillBooks(ids);
+        if (next != data) {
+            RpgAttachments.set(player, next);
+        }
     }
 
     public static LearnResult learn(ServerPlayer player, String id) {
@@ -57,6 +89,21 @@ public final class SkillService {
             player.sendSystemMessage(Component.translatable("goddessrpg.skill.learned", skillName(id)));
         }
         return LearnResult.OK;
+    }
+
+    /**
+     * Network entry for the tome's slot picker. The client is not trusted: the skill must exist, belong to the player's
+     * class/subtype, be learned and be active, and the index must be 0..3. Shows a short message when refused.
+     */
+    public static boolean onSlotSetRequest(ServerPlayer player, SkillPayloads.SlotSetPayload p) {
+        boolean ok = p.skillId().map(id -> SkillRegistry.get(id)
+                        .filter(def -> SkillRules.canLearn(def, RpgAttachments.get(player))).isPresent())
+                .orElse(true)
+                && setSlot(player, p.slot(), p.skillId());
+        if (!ok && player.connection != null) {
+            player.displayClientMessage(Component.translatable("goddessrpg.tome.slot_refused"), true);
+        }
+        return ok;
     }
 
     public static boolean setSlot(ServerPlayer player, int index, Optional<String> id) {

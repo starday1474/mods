@@ -70,6 +70,10 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
         return current.stage3().getOrDefault(c, List.of());
     }
 
+    public static java.util.Set<String> tomeIds() {
+        return current.tomes().keySet();
+    }
+
     public static Optional<TomeData> tome(String id) {
         return Optional.ofNullable(current.tomes().get(id));
     }

@@ -30,14 +30,15 @@ public record RpgPlayerData(
         double knowledge,
         List<Integer> inquiryAnswers,
         Set<String> learnedSkills,
-        List<Optional<String>> slots) {
+        List<Optional<String>> slots,
+        Set<String> seenSkillBooks) {
 
     public static final int SLOT_COUNT = 4;
     private static final List<Optional<String>> NO_SLOTS = List.of(Optional.empty(), Optional.empty(),
             Optional.empty(), Optional.empty());
 
     public static final RpgPlayerData EMPTY = new RpgPlayerData(
-            false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(), Set.of(), 0.0, List.of(), Set.of(), NO_SLOTS);
+            false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(), Set.of(), 0.0, List.of(), Set.of(), NO_SLOTS, Set.of());
 
     private static final Codec<Map<Field, Integer>> FIELD_INTS = Codec.unboundedMap(Field.CODEC, Codec.INT);
     private static final Codec<Map<Field, Double>> FIELD_DOUBLES = Codec.unboundedMap(Field.CODEC, Codec.DOUBLE);
@@ -60,7 +61,10 @@ public record RpgPlayerData(
             Codec.STRING.listOf().optionalFieldOf("slots", List.of())
                     .xmap(l -> l.stream().map(x -> x.isEmpty() ? Optional.<String>empty() : Optional.of(x)).toList(),
                             l -> l.stream().map(o -> o.orElse("")).toList())
-                    .forGetter(RpgPlayerData::slots)
+                    .forGetter(RpgPlayerData::slots),
+            // skill book ids the player has held at least once (the tome's mind map reveals those book skills)
+            Codec.STRING.listOf().optionalFieldOf("seen_skill_books", List.of()).xmap(Set::copyOf, l -> l.stream().sorted().toList())
+                    .forGetter(RpgPlayerData::seenSkillBooks)
     ).apply(i, RpgPlayerData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RpgPlayerData> STREAM_CODEC =
@@ -79,6 +83,16 @@ public record RpgPlayerData(
             fixed.add(Optional.empty());
         }
         slots = List.copyOf(fixed.subList(0, SLOT_COUNT));
+        seenSkillBooks = Set.copyOf(seenSkillBooks);
+    }
+
+    /** Without seen skill books (kept for callers written before that field existed). */
+    public RpgPlayerData(boolean inquiryDone, Optional<RpgClass> rpgClass, Optional<String> subtype,
+                         Map<Field, Integer> talent, Map<Field, Integer> aptitude, Map<Field, Integer> level,
+                         Map<Field, Double> xp, Set<String> tomesRead, double knowledge, List<Integer> inquiryAnswers,
+                         Set<String> learnedSkills, List<Optional<String>> slots) {
+        this(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge, inquiryAnswers,
+                learnedSkills, slots, Set.of());
     }
 
     public int levelOf(Field f) {
@@ -109,7 +123,7 @@ public record RpgPlayerData(
             xpMap.put(f, 0.0);
         }
         return new RpgPlayerData(true, Optional.of(c), Optional.of(subtype), stars.talent(), stars.aptitude(),
-                lv, xpMap, tomesRead, knowledge, answers, learnedSkills, slots);
+                lv, xpMap, tomesRead, knowledge, answers, learnedSkills, slots, seenSkillBooks);
     }
 
     public RpgPlayerData withXp(Field f, LevelProgress p) {
@@ -120,7 +134,7 @@ public record RpgPlayerData(
         xpMap.putAll(xp);
         xpMap.put(f, p.xp());
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, lv, xpMap, tomesRead, knowledge,
-                inquiryAnswers, learnedSkills, slots);
+                inquiryAnswers, learnedSkills, slots, seenSkillBooks);
     }
 
     public RpgPlayerData withTome(String id, double gain, double cap) {
@@ -130,13 +144,13 @@ public record RpgPlayerData(
         Set<String> tomes = new HashSet<>(tomesRead);
         tomes.add(id);
         double k = Math.min(cap, knowledge + gain);
-        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomes, k, inquiryAnswers, learnedSkills, slots);
+        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomes, k, inquiryAnswers, learnedSkills, slots, seenSkillBooks);
     }
 
-    /** Admin reset: back to a fresh, un-inquired state; tomes and knowledge are kept. */
+    /** Admin reset: back to a fresh, un-inquired state; tomes, knowledge and seen skill books are kept. */
     public RpgPlayerData resetKeepKnowledge() {
         return new RpgPlayerData(false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(),
-                tomesRead, knowledge, List.of(), Set.of(), NO_SLOTS);
+                tomesRead, knowledge, List.of(), Set.of(), NO_SLOTS, seenSkillBooks);
     }
 
     public RpgPlayerData withLearned(String id) {
@@ -146,7 +160,7 @@ public record RpgPlayerData(
         Set<String> l = new HashSet<>(learnedSkills);
         l.add(id);
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
-                inquiryAnswers, l, slots);
+                inquiryAnswers, l, slots, seenSkillBooks);
     }
 
     /**
@@ -176,6 +190,17 @@ public record RpgPlayerData(
         }
         s.set(index, id);
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
-                inquiryAnswers, learnedSkills, s);
+                inquiryAnswers, learnedSkills, s, seenSkillBooks);
+    }
+
+    /** Adds skill book ids to the seen set; returns this instance when nothing is new. */
+    public RpgPlayerData withSeenSkillBooks(java.util.Collection<String> ids) {
+        if (seenSkillBooks.containsAll(ids)) {
+            return this;
+        }
+        Set<String> seen = new HashSet<>(seenSkillBooks);
+        seen.addAll(ids);
+        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
+                inquiryAnswers, learnedSkills, slots, seen);
     }
 }

@@ -2,8 +2,9 @@ package dev.goddessrpg.skill.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.goddessrpg.GoddessRpg;
-import dev.goddessrpg.inquiry.client.InquiryClient;
 import dev.goddessrpg.skill.SkillPayloads;
+import dev.goddessrpg.tome.client.ClientTomeData;
+import dev.goddessrpg.tome.client.TomeClient;
 import java.util.List;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -64,7 +65,7 @@ public final class SkillKeys {
             }
             while (TOME.consumeClick()) {
                 if (usable) {
-                    InquiryClient.openStats(); // Task 7 replaces this with the goddess tome screen
+                    TomeClient.open();
                 }
             }
         }
@@ -72,6 +73,7 @@ public final class SkillKeys {
         @SubscribeEvent
         public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) {
             ClientSkillState.reset();
+            ClientTomeData.reset();
         }
     }
 }

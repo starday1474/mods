@@ -17,11 +17,4 @@ public final class InquiryClient {
         }
         mc.setScreen(new InquiryScreen(payload.stage(), payload.questions()));
     }
-
-    public static void openStats() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) {
-            mc.setScreen(new StatsScreen());
-        }
-    }
 }
