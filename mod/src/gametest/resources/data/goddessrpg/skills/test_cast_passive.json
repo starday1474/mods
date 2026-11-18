@@ -1,0 +1,8 @@
+{
+  "class": "vanguard",
+  "field": "sword",
+  "kind": "passive",
+  "unlock": {"type":"book"},
+  "effect": {"type": "passive_attribute", "attack_damage_pct": 20, "armor_flat": 2, "requires": "sword"},
+  "map": {"x": 2, "y": 5}
+}

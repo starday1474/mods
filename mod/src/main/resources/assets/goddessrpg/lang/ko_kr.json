@@ -120,5 +120,19 @@
   "goddessrpg.skill.test_vanguard_passive": "테스트 패시브",
   "goddessrpg.skill.test_dealer_prof": "테스트 딜러 스킬",
   "goddessrpg.skill.test_dealer_book": "테스트 딜러 책",
-  "goddessrpg.skill.test_tank_branch": "테스트 탱커 스킬"
+  "goddessrpg.skill.test_tank_branch": "테스트 탱커 스킬",
+  "key.categories.goddessrpg": "여신 RPG",
+  "key.goddessrpg.slot1": "스킬 슬롯 1",
+  "key.goddessrpg.slot2": "스킬 슬롯 2",
+  "key.goddessrpg.slot3": "스킬 슬롯 3",
+  "key.goddessrpg.slot4": "스킬 슬롯 4",
+  "key.goddessrpg.tome": "여신의 서 열기",
+  "goddessrpg.cast.empty_slot": "빈 슬롯입니다",
+  "goddessrpg.cast.not_learned": "배우지 않은 스킬입니다",
+  "goddessrpg.cast.wrong_class": "쓸 수 없는 스킬입니다",
+  "goddessrpg.cast.cooldown": "아직 쓸 수 없습니다 (재사용 대기)",
+  "goddessrpg.cast.no_stamina": "스태미나가 부족합니다",
+  "goddessrpg.cast.no_mana": "마력이 부족합니다",
+  "goddessrpg.cast.busy": "다른 동작 중입니다",
+  "attribute.name.goddessrpg.damage_taken": "받는 피해 배율"
 }

@@ -1,0 +1,10 @@
+{
+  "class": "vanguard",
+  "field": "defense",
+  "kind": "active",
+  "unlock": {"type":"book"},
+  "cooldown": 1,
+  "mana": 500,
+  "effect": {"type": "buff", "duration_sec": 1, "damage_taken_mult": 0.9},
+  "map": {"x": 2, "y": 2}
+}

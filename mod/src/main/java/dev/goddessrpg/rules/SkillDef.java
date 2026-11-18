@@ -66,14 +66,26 @@ public record SkillDef(
         });
     }
 
-    /** Effect kind plus numeric parameters; keys per kind are defined by the cast code. */
-    public record Effect(String type, Map<String, Double> params) {
+    /**
+     * Effect kind plus parameters; keys per kind are defined by the cast code ({@code SkillEffects}). Numbers go to
+     * {@code params}; string values (e.g. {@code passive_attribute}'s {@code "requires": "sword"}) go to {@code text}.
+     */
+    public record Effect(String type, Map<String, Double> params, Map<String, String> text) {
         public Effect {
             params = Map.copyOf(params);
+            text = Map.copyOf(text);
+        }
+
+        public Effect(String type, Map<String, Double> params) {
+            this(type, params, Map.of());
         }
 
         public double param(String key, double def) {
             return params.getOrDefault(key, def);
+        }
+
+        public Optional<String> text(String key) {
+            return Optional.ofNullable(text.get(key));
         }
 
         public static final Codec<Effect> CODEC = Codec.unboundedMap(Codec.STRING,
@@ -84,20 +96,19 @@ public record SkillDef(
                         return DataResult.error(() -> "Effect needs a string \"type\"");
                     }
                     Map<String, Double> params = new LinkedHashMap<>();
+                    Map<String, String> text = new LinkedHashMap<>();
                     for (var e : m.entrySet()) {
                         if (e.getKey().equals("type")) {
                             continue;
                         }
-                        if (e.getValue().left().isEmpty()) {
-                            return DataResult.error(() -> "Effect parameter " + e.getKey() + " must be a number");
-                        }
-                        params.put(e.getKey(), e.getValue().left().get());
+                        e.getValue().ifLeft(v -> params.put(e.getKey(), v)).ifRight(v -> text.put(e.getKey(), v));
                     }
-                    return DataResult.success(new Effect(t.right().get(), params));
+                    return DataResult.success(new Effect(t.right().get(), params, text));
                 }, e -> {
                     Map<String, com.mojang.datafixers.util.Either<Double, String>> m = new LinkedHashMap<>();
                     m.put("type", com.mojang.datafixers.util.Either.right(e.type()));
                     e.params().forEach((k, v) -> m.put(k, com.mojang.datafixers.util.Either.left(v)));
+                    e.text().forEach((k, v) -> m.put(k, com.mojang.datafixers.util.Either.right(v)));
                     return m;
                 });
     }

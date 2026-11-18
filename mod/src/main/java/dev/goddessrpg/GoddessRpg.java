@@ -27,6 +27,8 @@ public class GoddessRpg {
         InquiryPayloads.register(modBus);
         dev.goddessrpg.skill.SkillPayloads.register(modBus);
         dev.goddessrpg.mana.ManaAttachment.register(modBus);
+        dev.goddessrpg.skill.SkillCooldowns.register(modBus);
+        dev.goddessrpg.skill.SkillEffects.register(modBus);
         InquiryService.register();
         dev.goddessrpg.skill.SkillService.register();
         EfSkillPolicy.register();

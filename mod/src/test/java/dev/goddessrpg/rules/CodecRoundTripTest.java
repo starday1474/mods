@@ -24,4 +24,15 @@ class CodecRoundTripTest {
         assertEquals("rear_dealer", Subtype.CODEC.encodeStart(JsonOps.INSTANCE,
                 new Subtype("x", RpgClass.REAR_DEALER, true)).getOrThrow().getAsJsonObject().get("class").getAsString());
     }
+
+    @Test
+    void effectKeepsStringParams() {
+        var json = com.google.gson.JsonParser.parseString(
+                "{\"type\":\"passive_attribute\",\"attack_damage_pct\":10,\"requires\":\"sword\"}");
+        SkillDef.Effect e = SkillDef.Effect.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
+        assertEquals(10.0, e.param("attack_damage_pct", 0));
+        assertEquals("sword", e.text("requires").orElseThrow());
+        assertEquals(e, SkillDef.Effect.CODEC.parse(JsonOps.INSTANCE,
+                SkillDef.Effect.CODEC.encodeStart(JsonOps.INSTANCE, e).getOrThrow()).getOrThrow());
+    }
 }

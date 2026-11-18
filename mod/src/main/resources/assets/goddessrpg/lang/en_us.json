@@ -113,5 +113,19 @@
   "goddessrpg.command.skill.learned": "Taught %s the skill %s",
   "goddessrpg.command.skill.unknown": "Unknown skill: %s",
   "goddessrpg.command.skill.slot": "Equipped %2$s in slot %1$s",
-  "goddessrpg.command.skill.slot_refused": "Cannot slot (not learned or passive): %s"
+  "goddessrpg.command.skill.slot_refused": "Cannot slot (not learned or passive): %s",
+  "key.categories.goddessrpg": "Goddess RPG",
+  "key.goddessrpg.slot1": "Skill slot 1",
+  "key.goddessrpg.slot2": "Skill slot 2",
+  "key.goddessrpg.slot3": "Skill slot 3",
+  "key.goddessrpg.slot4": "Skill slot 4",
+  "key.goddessrpg.tome": "Open goddess tome",
+  "goddessrpg.cast.empty_slot": "Empty slot",
+  "goddessrpg.cast.not_learned": "Skill not learned",
+  "goddessrpg.cast.wrong_class": "You cannot use this skill",
+  "goddessrpg.cast.cooldown": "Not ready yet",
+  "goddessrpg.cast.no_stamina": "Not enough stamina",
+  "goddessrpg.cast.no_mana": "Not enough mana",
+  "goddessrpg.cast.busy": "Busy with another move",
+  "attribute.name.goddessrpg.damage_taken": "Damage taken multiplier"
 }

@@ -107,6 +107,8 @@ public final class InquiryService {
     /** Resets the player (knowledge kept) and opens the inquiry again. */
     public static void reroll(ServerPlayer player) {
         RpgAttachments.set(player, RpgAttachments.get(player).resetKeepKnowledge());
+        dev.goddessrpg.skill.SkillCooldowns.clear(player);
+        dev.goddessrpg.skill.SkillEffects.refreshPassives(player);
         start(player);
     }
 

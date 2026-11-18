@@ -1,0 +1,11 @@
+{
+  "class": "vanguard",
+  "field": "sword",
+  "kind": "active",
+  "unlock": {"type":"book"},
+  "cooldown": 2,
+  "stamina": 1,
+  "animation": "balanced_shield_bash",
+  "effect": {"type": "knockback_stun", "damage_mult": 2.0, "knockback": 1.0, "stun_sec": 1},
+  "map": {"x": 2, "y": 4}
+}

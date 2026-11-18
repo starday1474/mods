@@ -1,0 +1,11 @@
+{
+  "class": "vanguard",
+  "field": "sword",
+  "kind": "active",
+  "unlock": {"type":"book"},
+  "cooldown": 3,
+  "stamina": 1,
+  "animation": "goddessrpg:biped/combat/balanced_counter",
+  "effect": {"type": "counter_window", "window_sec": 2, "damage_mult": 1.5},
+  "map": {"x": 2, "y": 3}
+}

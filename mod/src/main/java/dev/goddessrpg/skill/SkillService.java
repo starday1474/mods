@@ -1,5 +1,7 @@
 package dev.goddessrpg.skill;
 
+import dev.goddessrpg.compat.epicfight.SkillAnimations;
+import dev.goddessrpg.mana.ManaAttachment;
 import dev.goddessrpg.player.RpgAttachments;
 import dev.goddessrpg.player.RpgPlayerData;
 import dev.goddessrpg.rules.SkillDef;
@@ -15,6 +17,9 @@ public final class SkillService {
     private SkillService() {}
 
     public enum LearnResult { OK, ALREADY, NOT_ALLOWED, UNKNOWN }
+
+    /** BUSY: another attack animation is playing. */
+    public enum CastResult { OK, EMPTY_SLOT, NOT_LEARNED, WRONG_CLASS, COOLDOWN, NO_STAMINA, NO_MANA, BUSY }
 
     public static void register() {
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent e) -> {
@@ -44,6 +49,9 @@ public final class SkillService {
             }
         }
         RpgAttachments.set(player, next);
+        if (def.get().kind() == SkillDef.Kind.PASSIVE) {
+            SkillEffects.refreshPassives(player);
+        }
         if (player.connection != null) {
             // chat, not actionbar: the level-up actionbar in the same tick would overwrite it
             player.sendSystemMessage(Component.translatable("goddessrpg.skill.learned", skillName(id)));
@@ -74,6 +82,57 @@ public final class SkillService {
                     && !data.learnedSkills().contains(s.id())) {
                 learn(player, s.id());
             }
+        }
+    }
+
+    /**
+     * Casts the skill in slot {@code slot} (0..3). The slot content is never trusted: it may hold a stale id (data
+     * changed), a skill of another class, or one the player never learned. Checks run in the order of the results below;
+     * nothing is spent or started unless the result is OK.
+     */
+    public static CastResult cast(ServerPlayer player, int slot) {
+        RpgPlayerData data = RpgAttachments.get(player);
+        if (slot < 0 || slot >= RpgPlayerData.SLOT_COUNT || data.slots().get(slot).isEmpty()) {
+            return CastResult.EMPTY_SLOT;
+        }
+        String id = data.slots().get(slot).get();
+        Optional<SkillDef> found = SkillRegistry.get(id);
+        if (found.isEmpty()) {
+            return CastResult.NOT_LEARNED;
+        }
+        SkillDef def = found.get();
+        if (!SkillRules.canLearn(def, data)) {
+            return CastResult.WRONG_CLASS;
+        }
+        if (!data.learnedSkills().contains(id) || def.kind() != SkillDef.Kind.ACTIVE) {
+            return CastResult.NOT_LEARNED;
+        }
+        if (!SkillCooldowns.isReady(player, id)) {
+            return CastResult.COOLDOWN;
+        }
+        if (!player.isAlive() || player.isSpectator() || SkillAnimations.busy(player)) {
+            return CastResult.BUSY;
+        }
+        if (!SkillAnimations.hasStamina(player, def.staminaCost())) {
+            return CastResult.NO_STAMINA;
+        }
+        if (def.manaCost() > 0 && ManaAttachment.get(player) < def.manaCost()) {
+            return CastResult.NO_MANA;
+        }
+        if (def.manaCost() > 0 && !ManaAttachment.tryConsume(player, def.manaCost())) {
+            return CastResult.NO_MANA;
+        }
+        SkillAnimations.consumeStamina(player, def.staminaCost());
+        SkillCooldowns.start(player, id, def.cooldownSec());
+        SkillEffects.apply(player, def);
+        return CastResult.OK;
+    }
+
+    /** Network entry: casts and shows a short actionbar message on rejection. */
+    public static void onCastRequest(ServerPlayer player, int slot) {
+        CastResult r = cast(player, slot);
+        if (r != CastResult.OK && player.connection != null) {
+            player.displayClientMessage(Component.translatable("goddessrpg.cast." + r.name().toLowerCase(java.util.Locale.ROOT)), true);
         }
     }
 
