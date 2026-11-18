@@ -99,5 +99,19 @@
   "goddessrpg.tome.already_read": "You have already read this book.",
   "goddessrpg.tome.read": "You read %s. Your knowledge grows.",
   "goddessrpg.growth.levelup": "Your %s proficiency reached level %s",
-  "item.goddessrpg.training_sword": "Training Sword"
+  "item.goddessrpg.training_sword": "Training Sword",
+  "goddessrpg.skill.learned": "Learned skill: %s",
+  "goddessrpg.skill.empty": "(empty)",
+  "goddessrpg.skillbook.not_your_path": "This is not your path",
+  "goddessrpg.skillbook.already": "You already know this skill",
+  "goddessrpg.skillbook.unknown": "Unknown skill book.",
+  "item.goddessrpg.skill_book": "Skill Book",
+  "item.goddessrpg.skill_book.named": "Skill Book: %s",
+  "goddessrpg.command.level": "Set %s's %s proficiency to level %s",
+  "goddessrpg.command.skill.list.header": "%s's skills (%s)",
+  "goddessrpg.command.skill.list.slot": "Slot %s: %s",
+  "goddessrpg.command.skill.learned": "Taught %s the skill %s",
+  "goddessrpg.command.skill.unknown": "Unknown skill: %s",
+  "goddessrpg.command.skill.slot": "Equipped %2$s in slot %1$s",
+  "goddessrpg.command.skill.slot_refused": "Cannot slot (not learned or passive): %s"
 }

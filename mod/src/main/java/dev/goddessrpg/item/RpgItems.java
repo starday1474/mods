@@ -27,6 +27,12 @@ public final class RpgItems {
     public static final Supplier<DataComponentType<String>> TOME_ID = COMPONENTS.registerComponentType("tome_id",
             b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
 
+    public static final Supplier<DataComponentType<String>> SKILL_ID = COMPONENTS.registerComponentType("skill_id",
+            b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
+    public static final DeferredItem<SkillBookItem> SKILL_BOOK =
+            ITEMS.register("skill_book", () -> new SkillBookItem(new Item.Properties().stacksTo(16)));
+
     public static final DeferredItem<AncientTomeItem> ANCIENT_TOME =
             ITEMS.register("ancient_tome", () -> new AncientTomeItem(new Item.Properties().stacksTo(16)));
 
@@ -44,6 +50,13 @@ public final class RpgItems {
             }
             if (e.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
                 e.accept(REROLL.get());
+                for (var def : dev.goddessrpg.skill.SkillRegistry.all().values()) {
+                    if (def.unlock() instanceof dev.goddessrpg.rules.SkillDef.Unlock.Book) {
+                        ItemStack book = new ItemStack(SKILL_BOOK.get());
+                        book.set(SKILL_ID.get(), def.id());
+                        e.accept(book);
+                    }
+                }
                 for (String id : new String[] {"first_steps", "old_war_record"}) {
                     ItemStack tome = new ItemStack(ANCIENT_TOME.get());
                     tome.set(TOME_ID.get(), id);

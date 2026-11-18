@@ -69,4 +69,12 @@ class SkillRulesTest {
         JsonElement j = JsonOps.INSTANCE.createString("x");
         assertTrue(SkillDef.CODEC.parse(JsonOps.INSTANCE, j).result().isEmpty());
     }
+
+    @Test
+    void unknownUnlockTypeIsError() {
+        var json = com.google.gson.JsonParser.parseString("{\"type\":\"bogus\",\"boss\":\"x\"}");
+        assertTrue(Unlock.CODEC.parse(JsonOps.INSTANCE, json).isError());
+        var ok = com.google.gson.JsonParser.parseString("{\"type\":\"boss\",\"boss\":\"x\"}");
+        assertEquals(new Unlock.Boss("x"), Unlock.CODEC.parse(JsonOps.INSTANCE, ok).getOrThrow());
+    }
 }

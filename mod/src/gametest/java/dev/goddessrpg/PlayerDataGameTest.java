@@ -40,7 +40,9 @@ public class PlayerDataGameTest {
         return RpgPlayerData.EMPTY
                 .withResult(RpgClass.VANGUARD, "balanced", stars, List.of(0, 2, 1), GrowthTuning.DEFAULT)
                 .withXp(Field.SWORD, new LevelProgress(7, 12.5))
-                .withTome("goddessrpg:tome_a", 0.05, 0.5);
+                .withTome("goddessrpg:tome_a", 0.05, 0.5)
+                .withLearned("test_vanguard_book")
+                .withSlot(2, java.util.Optional.of("test_vanguard_book"));
     }
 
     @GameTest(template = "empty")

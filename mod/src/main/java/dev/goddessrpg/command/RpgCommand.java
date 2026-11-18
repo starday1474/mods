@@ -2,6 +2,9 @@ package dev.goddessrpg.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import dev.goddessrpg.skill.SkillRegistry;
+import dev.goddessrpg.skill.SkillService;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -43,6 +46,32 @@ public final class RpgCommand {
                                         Arrays.stream(Field.values()).map(f -> f.name().toLowerCase()), b))
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0))
                                         .executes(RpgCommand::xp))))
+                .then(Commands.literal("skill")
+                        .then(Commands.literal("list")
+                                .executes(c -> skillList(c, c.getSource().getPlayerOrException()))
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .executes(c -> skillList(c, EntityArgument.getPlayer(c, "player")))))
+                        .then(Commands.literal("learn")
+                                .then(Commands.argument("id", StringArgumentType.word())
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(SkillRegistry.all().keySet(), b))
+                                        .executes(c -> skillLearn(c, c.getSource().getPlayerOrException()))
+                                        .then(Commands.argument("player", EntityArgument.player())
+                                                .executes(c -> skillLearn(c, EntityArgument.getPlayer(c, "player"))))))
+                        .then(Commands.literal("slot")
+                                .then(Commands.argument("slot", IntegerArgumentType.integer(1, RpgPlayerData.SLOT_COUNT))
+                                        .then(Commands.argument("id", StringArgumentType.word())
+                                                .suggests((c, b) -> SharedSuggestionProvider.suggest(
+                                                        java.util.stream.Stream.concat(java.util.stream.Stream.of("none"),
+                                                                SkillRegistry.all().keySet().stream()), b))
+                                                .executes(RpgCommand::skillSlot)))))
+                .then(Commands.literal("level")
+                        .then(Commands.argument("field", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(
+                                        Arrays.stream(Field.values()).map(f -> f.name().toLowerCase()), b))
+                                .then(Commands.argument("level", IntegerArgumentType.integer(0))
+                                        .executes(c -> level(c, c.getSource().getPlayerOrException()))
+                                        .then(Commands.argument("player", EntityArgument.player())
+                                                .executes(c -> level(c, EntityArgument.getPlayer(c, "player")))))))
                 .then(Commands.literal("anim")
                         .then(Commands.literal("list").executes(RpgCommand::animList))
                         .then(Commands.literal("play")
@@ -152,6 +181,74 @@ public final class RpgCommand {
     private static int reset(CommandContext<CommandSourceStack> c, ServerPlayer target) {
         dev.goddessrpg.inquiry.InquiryService.reroll(target);
         c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.reset", target.getDisplayName()), true);
+        return 1;
+    }
+
+    private static Field parseField(String name) throws CommandSyntaxException {
+        Field f = Field.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,
+                new com.google.gson.JsonPrimitive(name.toLowerCase(Locale.ROOT))).result().orElse(null);
+        if (f == null) {
+            throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.command.unknown_field", name)).create();
+        }
+        return f;
+    }
+
+    /** Sets a proficiency level directly (clamped to 0..max, xp 0) and runs auto-learn. */
+    public static int setLevel(ServerPlayer target, Field f, int level) {
+        int lv = Math.max(0, Math.min(RpgDataLoader.tuning().maxLevel(), level));
+        RpgAttachments.set(target, RpgAttachments.get(target).withXp(f, new LevelProgress(lv, 0.0)));
+        SkillService.grantMetProficiencySkills(target);
+        return lv;
+    }
+
+    private static int level(CommandContext<CommandSourceStack> c, ServerPlayer target) throws CommandSyntaxException {
+        Field f = parseField(StringArgumentType.getString(c, "field"));
+        if (!RpgAttachments.get(target).inquiryDone()) {
+            throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.command.no_inquiry")).create();
+        }
+        int lv = setLevel(target, f, IntegerArgumentType.getInteger(c, "level"));
+        c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.level",
+                target.getDisplayName(), Component.translatable("goddessrpg.field." + f.name().toLowerCase(Locale.ROOT)), lv), true);
+        return 1;
+    }
+
+    private static int skillList(CommandContext<CommandSourceStack> c, ServerPlayer target) {
+        RpgPlayerData d = RpgAttachments.get(target);
+        CommandSourceStack src = c.getSource();
+        src.sendSuccess(() -> Component.translatable("goddessrpg.command.skill.list.header", target.getDisplayName(),
+                d.learnedSkills().size()), false);
+        d.learnedSkills().stream().sorted().forEach(id -> src.sendSuccess(
+                () -> Component.literal(" - " + id + " ").append(SkillService.skillName(id)), false));
+        for (int i = 0; i < d.slots().size(); i++) {
+            int n = i + 1;
+            var s = d.slots().get(i);
+            src.sendSuccess(() -> Component.translatable("goddessrpg.command.skill.list.slot", n,
+                    s.<Component>map(SkillService::skillName).orElse(Component.translatable("goddessrpg.skill.empty"))), false);
+        }
+        return d.learnedSkills().size();
+    }
+
+    private static int skillLearn(CommandContext<CommandSourceStack> c, ServerPlayer target) throws CommandSyntaxException {
+        String id = StringArgumentType.getString(c, "id");
+        switch (SkillService.learn(target, id)) {
+            case OK -> c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.skill.learned",
+                    target.getDisplayName(), SkillService.skillName(id)), true);
+            case ALREADY -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.skillbook.already")).create();
+            case NOT_ALLOWED -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.skillbook.not_your_path")).create();
+            case UNKNOWN -> throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.command.skill.unknown", id)).create();
+        }
+        return 1;
+    }
+
+    private static int skillSlot(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        ServerPlayer p = c.getSource().getPlayerOrException();
+        int slot = IntegerArgumentType.getInteger(c, "slot");
+        String id = StringArgumentType.getString(c, "id");
+        java.util.Optional<String> v = id.equals("none") ? java.util.Optional.empty() : java.util.Optional.of(id);
+        if (!SkillService.setSlot(p, slot - 1, v)) {
+            throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.command.skill.slot_refused", id)).create();
+        }
+        c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.skill.slot", slot, id), false);
         return 1;
     }
 }

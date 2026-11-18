@@ -26,6 +26,7 @@ public class GoddessRpg {
         RpgSync.register(modBus);
         InquiryPayloads.register(modBus);
         InquiryService.register();
+        dev.goddessrpg.skill.SkillService.register();
         EfSkillPolicy.register();
         GrowthEvents.register();
         RpgItems.register(modBus);

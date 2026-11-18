@@ -44,6 +44,9 @@ public final class GrowthEvents {
         int before = data.levelOf(field);
         LevelProgress p = ProficiencyRules.addXp(t, before, data.xpOf(field), baseXp * mult);
         RpgAttachments.set(player, data.withXp(field, p));
+        if (p.level() > before) {
+            dev.goddessrpg.skill.SkillService.grantMetProficiencySkills(player);
+        }
         if (p.level() > before && player.connection != null) {
             player.sendSystemMessage(Component.translatable("goddessrpg.growth.levelup",
                     Component.translatable("goddessrpg.field." + field.name().toLowerCase(Locale.ROOT)), p.level()),

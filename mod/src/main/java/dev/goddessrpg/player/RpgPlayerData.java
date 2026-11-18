@@ -28,10 +28,16 @@ public record RpgPlayerData(
         Map<Field, Double> xp,
         Set<String> tomesRead,
         double knowledge,
-        List<Integer> inquiryAnswers) {
+        List<Integer> inquiryAnswers,
+        Set<String> learnedSkills,
+        List<Optional<String>> slots) {
+
+    public static final int SLOT_COUNT = 4;
+    private static final List<Optional<String>> NO_SLOTS = List.of(Optional.empty(), Optional.empty(),
+            Optional.empty(), Optional.empty());
 
     public static final RpgPlayerData EMPTY = new RpgPlayerData(
-            false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(), Set.of(), 0.0, List.of());
+            false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(), Set.of(), 0.0, List.of(), Set.of(), NO_SLOTS);
 
     private static final Codec<Map<Field, Integer>> FIELD_INTS = Codec.unboundedMap(Field.CODEC, Codec.INT);
     private static final Codec<Map<Field, Double>> FIELD_DOUBLES = Codec.unboundedMap(Field.CODEC, Codec.DOUBLE);
@@ -47,7 +53,14 @@ public record RpgPlayerData(
             Codec.STRING.listOf().optionalFieldOf("tomes_read", List.of()).xmap(Set::copyOf, List::copyOf)
                     .forGetter(RpgPlayerData::tomesRead),
             Codec.DOUBLE.optionalFieldOf("knowledge", 0.0).forGetter(RpgPlayerData::knowledge),
-            Codec.INT.listOf().optionalFieldOf("inquiry_answers", List.of()).forGetter(RpgPlayerData::inquiryAnswers)
+            Codec.INT.listOf().optionalFieldOf("inquiry_answers", List.of()).forGetter(RpgPlayerData::inquiryAnswers),
+            Codec.STRING.listOf().optionalFieldOf("learned_skills", List.of()).xmap(Set::copyOf, l -> l.stream().sorted().toList())
+                    .forGetter(RpgPlayerData::learnedSkills),
+            // an empty slot is stored as ""
+            Codec.STRING.listOf().optionalFieldOf("slots", List.of())
+                    .xmap(l -> l.stream().map(x -> x.isEmpty() ? Optional.<String>empty() : Optional.of(x)).toList(),
+                            l -> l.stream().map(o -> o.orElse("")).toList())
+                    .forGetter(RpgPlayerData::slots)
     ).apply(i, RpgPlayerData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RpgPlayerData> STREAM_CODEC =
@@ -60,6 +73,12 @@ public record RpgPlayerData(
         xp = Map.copyOf(xp);
         tomesRead = Set.copyOf(tomesRead);
         inquiryAnswers = List.copyOf(inquiryAnswers);
+        learnedSkills = Set.copyOf(learnedSkills);
+        List<Optional<String>> fixed = new java.util.ArrayList<>(slots);
+        while (fixed.size() < SLOT_COUNT) {
+            fixed.add(Optional.empty());
+        }
+        slots = List.copyOf(fixed.subList(0, SLOT_COUNT));
     }
 
     public int levelOf(Field f) {
@@ -90,7 +109,7 @@ public record RpgPlayerData(
             xpMap.put(f, 0.0);
         }
         return new RpgPlayerData(true, Optional.of(c), Optional.of(subtype), stars.talent(), stars.aptitude(),
-                lv, xpMap, tomesRead, knowledge, answers);
+                lv, xpMap, tomesRead, knowledge, answers, learnedSkills, slots);
     }
 
     public RpgPlayerData withXp(Field f, LevelProgress p) {
@@ -101,7 +120,7 @@ public record RpgPlayerData(
         xpMap.putAll(xp);
         xpMap.put(f, p.xp());
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, lv, xpMap, tomesRead, knowledge,
-                inquiryAnswers);
+                inquiryAnswers, learnedSkills, slots);
     }
 
     public RpgPlayerData withTome(String id, double gain, double cap) {
@@ -111,12 +130,52 @@ public record RpgPlayerData(
         Set<String> tomes = new HashSet<>(tomesRead);
         tomes.add(id);
         double k = Math.min(cap, knowledge + gain);
-        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomes, k, inquiryAnswers);
+        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomes, k, inquiryAnswers, learnedSkills, slots);
     }
 
     /** Admin reset: back to a fresh, un-inquired state; tomes and knowledge are kept. */
     public RpgPlayerData resetKeepKnowledge() {
         return new RpgPlayerData(false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(),
-                tomesRead, knowledge, List.of());
+                tomesRead, knowledge, List.of(), Set.of(), NO_SLOTS);
+    }
+
+    public RpgPlayerData withLearned(String id) {
+        if (learnedSkills.contains(id)) {
+            return this;
+        }
+        Set<String> l = new HashSet<>(learnedSkills);
+        l.add(id);
+        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
+                inquiryAnswers, l, slots);
+    }
+
+    /**
+     * Puts a learned active skill into a slot (or clears it with empty). The same skill is never in two slots.
+     *
+     * @throws IllegalArgumentException for a bad index, an unlearned skill, or a passive/unknown skill
+     */
+    public RpgPlayerData withSlot(int index, Optional<String> id) {
+        if (index < 0 || index >= SLOT_COUNT) {
+            throw new IllegalArgumentException("slot index " + index);
+        }
+        List<Optional<String>> s = new java.util.ArrayList<>(slots);
+        if (id.isPresent()) {
+            String sid = id.get();
+            if (!learnedSkills.contains(sid)) {
+                throw new IllegalArgumentException("not learned: " + sid);
+            }
+            var def = dev.goddessrpg.skill.SkillRegistry.get(sid);
+            if (def.isEmpty() || def.get().kind() != dev.goddessrpg.rules.SkillDef.Kind.ACTIVE) {
+                throw new IllegalArgumentException("not an active skill: " + sid);
+            }
+            for (int i = 0; i < s.size(); i++) {
+                if (id.equals(s.get(i))) {
+                    s.set(i, Optional.empty());
+                }
+            }
+        }
+        s.set(index, id);
+        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
+                inquiryAnswers, learnedSkills, s);
     }
 }

@@ -50,14 +50,19 @@ public record SkillDef(
         MapCodec<Book> BOOK = MapCodec.unit(Book::new);
         MapCodec<Boss> BOSS = Codec.STRING.fieldOf("boss").xmap(Boss::new, Boss::boss);
 
-        Codec<Unlock> CODEC = Codec.STRING.dispatch("type", u -> switch (u) {
+        Codec<String> TYPE = Codec.STRING.validate(t -> switch (t) {
+            case "proficiency", "book", "boss" -> DataResult.success(t);
+            default -> DataResult.error(() -> "Unknown unlock type: " + t);
+        });
+
+        Codec<Unlock> CODEC = TYPE.dispatch("type", u -> switch (u) {
             case Proficiency p -> "proficiency";
             case Book b -> "book";
             case Boss b -> "boss";
         }, type -> switch (type) {
             case "proficiency" -> PROFICIENCY;
             case "book" -> BOOK;
-            default -> BOSS;
+            default -> BOSS; // "boss"; TYPE has already rejected anything else
         });
     }
 

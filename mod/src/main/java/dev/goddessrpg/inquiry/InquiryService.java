@@ -172,6 +172,7 @@ public final class InquiryService {
                         .withResult(p.rpgClass, p.subtype.id(), stars, all, RpgDataLoader.tuning());
                 PROGRESS.remove(player.getUUID());
                 RpgAttachments.set(player, data);
+                dev.goddessrpg.skill.SkillService.grantMetProficiencySkills(player);
                 giveTome(player);
                 send(player, new QuestionsPayload(0, List.of()));
                 tell(player, Component.translatable("goddessrpg.inquiry.outro"));

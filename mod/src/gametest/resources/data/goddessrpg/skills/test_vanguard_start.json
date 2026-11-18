@@ -1,0 +1,10 @@
+{
+  "class": "vanguard",
+  "field": "defense",
+  "kind": "active",
+  "unlock": {"type":"proficiency","field":"defense","level":3},
+  "cooldown": 6,
+  "stamina": 10,
+  "effect": {"type": "damage", "amount": 4},
+  "map": {"x": 1, "y": 1}
+}

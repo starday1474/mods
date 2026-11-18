@@ -1,0 +1,10 @@
+{
+  "class": "vanguard",
+  "field": "sword",
+  "kind": "active",
+  "unlock": {"type":"proficiency","field":"sword","level":10},
+  "cooldown": 6,
+  "stamina": 10,
+  "effect": {"type": "damage", "amount": 4},
+  "map": {"x": 1, "y": 1}
+}
