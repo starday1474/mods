@@ -92,6 +92,7 @@
   "item.goddessrpg.goddess_tome": "Goddess Tome",
   "item.goddessrpg.goddess_reroll": "Feather of Re-Inquiry",
   "goddessrpg.skillbook.blocked": "Skills outside the Goddess's blessing cannot be learned.",
+  "goddessrpg.innate.blocked": "Weapon innate skills cannot be used.",
   "item.goddessrpg.ancient_tome": "Ancient Tome",
   "goddessrpg.tome.first_steps": "Record of First Steps",
   "goddessrpg.tome.old_war_record": "Old War Record",

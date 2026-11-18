@@ -32,6 +32,7 @@ public class GoddessRpg {
         InquiryService.register();
         dev.goddessrpg.skill.SkillService.register();
         EfSkillPolicy.register();
+        dev.goddessrpg.compat.epicfight.EfInnatePolicy.register();
         GrowthEvents.register();
         RpgItems.register(modBus);
         RpgAnimations.register(modBus);
