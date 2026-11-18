@@ -1,0 +1,8 @@
+{
+  "class": "vanguard",
+  "field": "sword",
+  "kind": "passive",
+  "unlock": {"type": "proficiency", "field": "sword", "level": 20},
+  "effect": {"type": "passive_attribute", "attack_damage_pct": 10, "requires": "sword"},
+  "map": {"x": 140, "y": -50}
+}

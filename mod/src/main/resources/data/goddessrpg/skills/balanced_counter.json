@@ -1,0 +1,12 @@
+{
+  "class": "vanguard",
+  "subtype": "balanced",
+  "field": "sword",
+  "kind": "active",
+  "unlock": {"type": "proficiency", "field": "sword", "level": 15},
+  "cooldown": 10,
+  "stamina": 3,
+  "animation": "goddessrpg:biped/combat/balanced_counter",
+  "effect": {"type": "counter_window", "window_sec": 0.6, "damage_mult": 1.6},
+  "map": {"x": 40, "y": 90}
+}

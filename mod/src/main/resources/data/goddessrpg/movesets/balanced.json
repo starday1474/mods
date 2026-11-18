@@ -1,0 +1,11 @@
+{
+  "weapon_type": "goddessrpg:balanced_sword",
+  "base": "epicfight:sword",
+  "combo": [
+    "epicfightx:biped/combat/sword_auto1",
+    "epicfightx:biped/combat/sword_auto2",
+    "epicfightx:biped/combat/sword_auto3"
+  ],
+  "dash": "epicfightx:biped/combat/sword_dash",
+  "air": "epicfightx:biped/combat/sword_airslash"
+}

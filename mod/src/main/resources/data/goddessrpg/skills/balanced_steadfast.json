@@ -1,0 +1,11 @@
+{
+  "class": "vanguard",
+  "subtype": "balanced",
+  "field": "defense",
+  "kind": "active",
+  "unlock": {"type": "book"},
+  "cooldown": 20,
+  "stamina": 2,
+  "effect": {"type": "buff", "duration_sec": 4, "damage_taken_mult": 0.7, "move_speed_mult": 0.85},
+  "map": {"x": -40, "y": 90}
+}

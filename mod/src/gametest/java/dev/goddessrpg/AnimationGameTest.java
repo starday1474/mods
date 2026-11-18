@@ -20,7 +20,6 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.ComboAttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
@@ -86,8 +85,9 @@ public class AnimationGameTest {
         }
         List<AnimationAccessor<? extends AttackAnimation>> combo =
                 weapon.getMovesetForStyle(CapabilityItem.Styles.ONE_HAND).getComboAttackAnimations();
-        List<AnimationAccessor<?>> want = List.of(RpgAnimations.BALANCED_AUTO1, RpgAnimations.BALANCED_AUTO2,
-                RpgAnimations.BALANCED_AUTO3, Animations.SWORD_DASH, Animations.SWORD_AIR_SLASH);
+        // data/goddessrpg/movesets/balanced.json: Epic Fight Extra sword combo, dash and air slash (user decision A)
+        List<AnimationAccessor<?>> want = java.util.stream.Stream.of("sword_auto1", "sword_auto2", "sword_auto3", "sword_dash",
+                "sword_airslash").<AnimationAccessor<?>>map(n -> AnimationManager.byKey("epicfightx:biped/combat/" + n)).toList();
         if (combo.size() != want.size()) {
             h.fail("combo " + combo);
             return;

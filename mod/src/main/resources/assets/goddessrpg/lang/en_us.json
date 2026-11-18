@@ -128,5 +128,17 @@
   "goddessrpg.cast.no_stamina": "Not enough stamina",
   "goddessrpg.cast.no_mana": "Not enough mana",
   "goddessrpg.cast.busy": "Busy with another move",
-  "attribute.name.goddessrpg.damage_taken": "Damage taken multiplier"
+  "attribute.name.goddessrpg.damage_taken": "Damage taken multiplier",
+  "goddessrpg.skill.balanced_shield_bash": "Shield Bash",
+  "goddessrpg.skill.balanced_shield_bash.desc": "Shove the enemy in front with your shield and pin it in place briefly.",
+  "goddessrpg.skill.balanced_dash_slash": "Dash Slash",
+  "goddessrpg.skill.balanced_dash_slash.desc": "Drop low, rush forward and cut hard.",
+  "goddessrpg.skill.balanced_counter": "Counter",
+  "goddessrpg.skill.balanced_counter.desc": "Brace for a moment; the first attack in that time is blocked and answered with a cut.",
+  "goddessrpg.skill.balanced_steadfast": "Steadfast",
+  "goddessrpg.skill.balanced_steadfast.desc": "Take less damage for a while at the cost of moving slower.",
+  "goddessrpg.skill.vanguard_sword_mastery": "Sword Mastery",
+  "goddessrpg.skill.vanguard_sword_mastery.desc": "Higher attack damage while holding a sword.",
+  "goddessrpg.skill.vanguard_shield_mastery": "Shield Mastery",
+  "goddessrpg.skill.vanguard_shield_mastery.desc": "More armor while holding a shield in the off hand."
 }

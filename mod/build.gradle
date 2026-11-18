@@ -28,6 +28,9 @@ configurations {
 }
 
 def efJar = files('../.cache/jars/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar')
+// Epic Fight Extra (modpack): the balanced moveset (data/goddessrpg/movesets/balanced.json) uses its epicfightx: animations.
+// Runtime only; without it the ids fail to resolve and the moveset falls back to EF's sword combo.
+def efxJar = files('../.cache/jars/epicfight-extra-neoforge1.21.1-1.2.2.jar')
 
 neoForge {
     version = '21.1.266'
@@ -55,8 +58,10 @@ neoForge {
 dependencies {
     compileOnly efJar
     localRuntime efJar
+    localRuntime efxJar
     gametestCompileOnly efJar
     gametestLocalRuntime efJar
+    gametestLocalRuntime efxJar
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

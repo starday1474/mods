@@ -1,0 +1,11 @@
+{
+  "class": "vanguard",
+  "field": "sword",
+  "kind": "active",
+  "unlock": {"type": "proficiency", "field": "sword", "level": 10},
+  "cooldown": 8,
+  "stamina": 4,
+  "animation": "epicfightx:biped/combat/sword_dash",
+  "effect": {"type": "animation_strike", "damage_mult": 1.3},
+  "map": {"x": 80, "y": -20}
+}

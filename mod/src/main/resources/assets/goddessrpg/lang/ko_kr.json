@@ -135,5 +135,17 @@
   "goddessrpg.cast.no_stamina": "스태미나가 부족합니다",
   "goddessrpg.cast.no_mana": "마력이 부족합니다",
   "goddessrpg.cast.busy": "다른 동작 중입니다",
-  "attribute.name.goddessrpg.damage_taken": "받는 피해 배율"
+  "attribute.name.goddessrpg.damage_taken": "받는 피해 배율",
+  "goddessrpg.skill.balanced_shield_bash": "방패 밀치기",
+  "goddessrpg.skill.balanced_shield_bash.desc": "방패로 앞의 적을 밀쳐 내고 잠시 묶어 둔다.",
+  "goddessrpg.skill.balanced_dash_slash": "돌진 베기",
+  "goddessrpg.skill.balanced_dash_slash.desc": "몸을 낮춰 앞으로 돌진하며 강하게 벤다.",
+  "goddessrpg.skill.balanced_counter": "받아치기",
+  "goddessrpg.skill.balanced_counter.desc": "잠깐 자세를 잡고, 그사이 들어온 첫 공격을 막고 되받아 벤다.",
+  "goddessrpg.skill.balanced_steadfast": "굳건한 자세",
+  "goddessrpg.skill.balanced_steadfast.desc": "잠시 걸음을 늦추는 대신 받는 피해를 줄인다.",
+  "goddessrpg.skill.vanguard_sword_mastery": "검술 숙련",
+  "goddessrpg.skill.vanguard_sword_mastery.desc": "검을 들면 공격력이 오른다.",
+  "goddessrpg.skill.vanguard_shield_mastery": "방패 숙련",
+  "goddessrpg.skill.vanguard_shield_mastery.desc": "왼손에 방패를 들면 방어력이 오른다."
 }

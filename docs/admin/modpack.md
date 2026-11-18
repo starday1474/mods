@@ -171,9 +171,9 @@ python3 tools/anim/build_anims.py mod/anim mod/src/main/resources/assets/goddess
 ### 등록
 
 - 동작: `mod/src/main/java/dev/goddessrpg/compat/epicfight/RpgAnimations.java`의 `build()`에 `builder.nextAccessor("biped/combat/<이름>", ...)`를 추가 (Epic Fight 검 동작처럼 `ComboAttackAnimation`, 판정 관절 `toolR`, 공격 속도 기준 1.6)
-- 무기 종류: `RpgWeaponTypes.java`. `goddessrpg:balanced_sword`는 Epic Fight `sword`와 같고 한손 콤보만 `balanced_auto1~3` + Epic Fight 대시·공중 베기로 바꾼 것 (Epic Fight 1.21 버전은 콤보를 "무브셋"으로 관리하므로 무브셋 `goddessrpg:balanced_1h`를 함께 등록)
+- 무기 종류: 평타 구성 파일 `mod/src/main/resources/data/goddessrpg/movesets/<이름>.json` 하나가 무기 종류 하나다 (`MovesetLoader`가 읽고 `RpgWeaponTypes`가 등록). 형식은 `{"weapon_type":"goddessrpg:balanced_sword","base":"epicfight:sword","combo":[ID...],"dash":ID,"air":ID}`이고 ID는 `epicfight:`, `epicfightx:`, `wom:`, `goddessrpg:` 동작 ID다. 지금 `goddessrpg:balanced_sword`는 Epic Fight `sword`와 같고 한손 콤보만 EF-Extra `sword_auto1~3` + `sword_dash` + `sword_airslash`로 바꾼 것 (무브셋 `goddessrpg:balanced_1h`). 우리 `balanced_auto1~3`으로 돌리려면 파일의 ID만 `goddessrpg:biped/combat/balanced_auto1` 등으로 바꾼다. 없는 ID가 하나라도 있으면 로그에 오류를 남기고 Epic Fight 기본 검 콤보를 쓴다 (EF-Extra가 빠진 경우 포함)
 - 무기 연결: `data/<모드ID>/capabilities/weapons/<아이템>.json`에 `{"type": "goddessrpg:balanced_sword"}` (모드팩 쪽은 위 "Epic Fight 무기 연결 추가"와 같은 방법, `EF_WEAPON_TYPES`에 이미 들어 있음)
-- 확인: `cd mod && ./gradlew runGameTestServer` (`AnimationGameTest`가 동작 등록과 수련용 검 연결을 확인)
+- 확인: `cd mod && ./gradlew runGameTestServer` (`AnimationGameTest`, `BalancedKitGameTest`가 동작 등록, 수련용 검 연결, EF-Extra ID 해석을 확인). 게임 테스트 실행에는 EF-Extra jar도 넣는다 (`build.gradle`의 `efxJar`)
 
 ## 우리 모드 릴리스
 

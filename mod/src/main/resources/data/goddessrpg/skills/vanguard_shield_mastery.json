@@ -1,0 +1,8 @@
+{
+  "class": "vanguard",
+  "field": "defense",
+  "kind": "passive",
+  "unlock": {"type": "proficiency", "field": "defense", "level": 20},
+  "effect": {"type": "passive_attribute", "armor_flat": 2, "requires": "shield_offhand"},
+  "map": {"x": -140, "y": -50}
+}

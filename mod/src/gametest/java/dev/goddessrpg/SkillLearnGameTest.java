@@ -65,7 +65,8 @@ public class SkillLearnGameTest {
         RpgPlayerData d = RpgAttachments.get(p);
         expect(h, d.levelOf(Field.SWORD) >= 10, "sword level " + d.levelOf(Field.SWORD));
         expect(h, d.learnedSkills().contains("test_vanguard_prof10"), "not learned: " + d.learnedSkills());
-        expect(h, d.slots().get(0).equals(Optional.of("test_vanguard_prof10")), "slot 0: " + d.slots());
+        // real skills (balanced_dash_slash, balanced_counter, ...) are auto-learned at the same time and compete for slots
+        expect(h, d.slots().contains(Optional.of("test_vanguard_prof10")), "not slotted: " + d.slots());
         h.succeed();
     }
 

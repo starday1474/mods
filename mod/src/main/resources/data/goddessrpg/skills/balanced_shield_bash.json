@@ -1,0 +1,11 @@
+{
+  "class": "vanguard",
+  "field": "defense",
+  "kind": "active",
+  "unlock": {"type": "proficiency", "field": "defense", "level": 5},
+  "cooldown": 6,
+  "stamina": 3,
+  "animation": "goddessrpg:biped/combat/balanced_shield_bash",
+  "effect": {"type": "knockback_stun", "knockback": 1.2, "stun_sec": 1, "damage_mult": 0.6},
+  "map": {"x": -80, "y": -20}
+}
