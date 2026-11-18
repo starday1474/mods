@@ -86,7 +86,7 @@ public class ManaGameTest {
         expect(h, ManaAttachment.get(p) == 10.0, "mana changed on failure: " + ManaAttachment.get(p));
         expect(h, ManaAttachment.tryConsume(p, 4.0) && ManaAttachment.get(p) == 6.0, "consume: " + ManaAttachment.get(p));
         expect(h, !ManaAttachment.tryConsume(p, -5.0) && !ManaAttachment.tryConsume(p, Double.NaN)
-                && ManaAttachment.get(p) == 10.0, "negative/NaN amount accepted: " + ManaAttachment.get(p));
+                && ManaAttachment.get(p) == 6.0, "negative/NaN amount accepted: " + ManaAttachment.get(p));
         expect(h, ManaAttachment.tryConsume(p, 0.0), "zero cost refused");
         h.succeed();
     }
