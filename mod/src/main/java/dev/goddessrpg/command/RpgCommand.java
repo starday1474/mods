@@ -130,11 +130,20 @@ public final class RpgCommand {
             throw new SimpleCommandExceptionType(Component.translatable("goddessrpg.command.no_inquiry")).create();
         }
         double amount = DoubleArgumentType.getDouble(c, "amount");
-        LevelProgress lp = ProficiencyRules.addXp(RpgDataLoader.tuning(), data.levelOf(f), data.xpOf(f), amount);
-        RpgAttachments.set(p, data.withXp(f, lp));
+        LevelProgress lp = addXp(p, f, amount);
         c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.xp",
                 Component.translatable("goddessrpg.field." + f.name().toLowerCase()), lp.level()), true);
         return 1;
+    }
+
+    /** Adds raw XP (no multiplier), saves, and runs auto-learn plus the level-up message if the level rose. */
+    public static LevelProgress addXp(ServerPlayer p, Field f, double amount) {
+        RpgPlayerData data = RpgAttachments.get(p);
+        int before = data.levelOf(f);
+        LevelProgress lp = ProficiencyRules.addXp(RpgDataLoader.tuning(), before, data.xpOf(f), amount);
+        RpgAttachments.set(p, data.withXp(f, lp));
+        dev.goddessrpg.growth.GrowthEvents.onLevelChange(p, f, before, lp.level());
+        return lp;
     }
 
     private static int animList(CommandContext<CommandSourceStack> c) {

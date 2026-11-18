@@ -146,7 +146,11 @@ public final class SkillPayloads {
     public static void register(IEventBus modBus) {
         modBus.addListener(SkillPayloads::onRegister);
         // fires for a joining player (after data is loaded) and for everyone after /reload
-        NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent e) -> e.getRelevantPlayers().forEach(SkillPayloads::sendTomeData));
+        NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent e) -> e.getRelevantPlayers().forEach(p -> {
+            sendTomeData(p);
+            SkillService.grantMetProficiencySkills(p);
+            dev.goddessrpg.skill.SkillEffects.refreshPassives(p);
+        }));
     }
 
     public static void sendTomeData(ServerPlayer player) {

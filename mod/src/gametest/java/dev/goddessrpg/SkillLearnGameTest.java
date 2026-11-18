@@ -100,6 +100,19 @@ public class SkillLearnGameTest {
 
     @GameTest(template = "empty")
     @PrefixGameTestTemplate(false)
+    public static void xpCommandTriggersAutoLearn(GameTestHelper h) {
+        ServerPlayer p = fakePlayer(h);
+        RpgAttachments.set(p, player(RpgClass.VANGUARD, "balanced", 1));
+        expect(h, !RpgAttachments.get(p).learnedSkills().contains("test_vanguard_prof10"), "learned too early");
+        RpgCommand.addXp(p, Field.SWORD, 1.0e9);
+        RpgPlayerData d = RpgAttachments.get(p);
+        expect(h, d.levelOf(Field.SWORD) >= 10, "level: " + d.levelOf(Field.SWORD));
+        expect(h, d.learnedSkills().contains("test_vanguard_prof10"), "not learned: " + d.learnedSkills());
+        h.succeed();
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
     public static void skillBookLearnsAndConsumes(GameTestHelper h) {
         ServerPlayer p = fakePlayer(h);
         RpgAttachments.set(p, player(RpgClass.VANGUARD, "balanced", 1));
