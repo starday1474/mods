@@ -151,6 +151,7 @@ docs/design/skills-balanced.md      밸런스형 스킬 표 (사용자 검토용
     - `/goddessrpg skill list [player]`
     - `/goddessrpg skill learn <id> [player]`
     - `/goddessrpg skill slot <1-4> <id|none>`
+    - `/goddessrpg level <field> <level> [player]`: 숙련도 레벨을 바로 설정한다(0~최대 레벨, 경험치 0). 레벨이 오르는 경우 자동 습득도 일어나야 한다(테스트 `levelCommandTriggersAutoLearn`). 사용자 요청(2026-11-18).
 
 - [ ] **Step 1: 실패하는 GameTest 작성**
   - `autoLearnOnProficiency`: 밸런스형 플레이어의 검술을 `Proficiency(SWORD,10)` 직전으로 두고 경험치를 줘서 10이 되게 한다. 그러면 그 스킬이 `learnedSkills`에 들어가고, 액티브라면 빈 슬롯 0에 들어간다.
