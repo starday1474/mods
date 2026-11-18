@@ -99,6 +99,8 @@ public final class SkillEffects {
         long counterUntil = Long.MIN_VALUE;
         double counterMult = 1.0;
         Optional<String> counterAnimation = Optional.empty();
+        /** Targets already knocked back / stunned by the current strike: once per target per cast. */
+        final Set<UUID> struck = new java.util.HashSet<>();
     }
 
     private record Expiry(ServerPlayer player, Holder<Attribute> attribute, ResourceLocation id, long due) {}
@@ -122,8 +124,15 @@ public final class SkillEffects {
                 refreshPassives(sp);
             }
         });
+        // a death ends any open counter/strike window
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.living.LivingDeathEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp) {
+                forget(sp.getUUID());
+            }
+        });
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent e) -> {
             if (e.getEntity() instanceof ServerPlayer sp) {
+                forget(sp.getUUID());
                 refreshPassives(sp);
             }
         });
@@ -179,6 +188,7 @@ public final class SkillEffects {
         r.strikeUntil = until;
         r.knockback = knockback;
         r.stunSec = stunSec;
+        r.struck.clear();
     }
 
     private static void buff(ServerPlayer player, SkillDef def, SkillDef.Effect e) {
@@ -241,8 +251,10 @@ public final class SkillEffects {
         }
     }
 
+    /** knockback_stun: only the caster's own melee hits (direct entity = caster), once per target per cast. */
     private static void onDamageDealt(LivingDamageEvent.Post e) {
-        if (!(e.getSource().getEntity() instanceof ServerPlayer player) || e.getEntity() == player) {
+        if (!(e.getSource().getEntity() instanceof ServerPlayer player) || e.getSource().getDirectEntity() != player
+                || e.getEntity() == player) {
             return;
         }
         Runtime r = RUNTIME.get(player.getUUID());
@@ -250,6 +262,9 @@ public final class SkillEffects {
             return;
         }
         LivingEntity target = e.getEntity();
+        if (!r.struck.add(target.getUUID())) {
+            return;
+        }
         if (r.knockback > 0) {
             target.knockback(r.knockback, player.getX() - target.getX(), player.getZ() - target.getZ());
             target.hurtMarked = true;

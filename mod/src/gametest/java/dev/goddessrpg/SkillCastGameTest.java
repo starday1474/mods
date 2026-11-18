@@ -206,6 +206,40 @@ public class SkillCastGameTest {
         });
     }
 
+    private static void meleeOrThrow(Zombie z, net.minecraft.world.damagesource.DamageSource src) {
+        z.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+        z.invulnerableTime = 0;
+        z.hurt(src, 1.0F);
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void knockbackStunOnlyDirectHitsOncePerTarget(GameTestHelper h) {
+        Zombie melee = h.spawn(EntityType.ZOMBIE, 1, 2, 1);
+        Zombie shot = h.spawn(EntityType.ZOMBIE, 3, 2, 3);
+        ServerPlayer p = caster(h, "test_cast_strike");
+        p.setPos(melee.getX() + 1.5, melee.getY(), melee.getZ()); // moveTo would reset the (absent) connection
+        expect(h, SkillService.cast(p, 0) == CastResult.OK, "cast");
+        var slow = net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN;
+
+        meleeOrThrow(melee, h.getLevel().damageSources().playerAttack(p));
+        var eff = melee.getEffect(slow);
+        expect(h, eff != null && eff.getAmplifier() == 3, "direct hit not stunned: " + eff);
+        double kb = melee.getDeltaMovement().horizontalDistance();
+        expect(h, kb > 0.7, "direct hit not knocked back hard: " + kb);
+
+        var snowball = new net.minecraft.world.entity.projectile.Snowball(h.getLevel(), p);
+        meleeOrThrow(shot, h.getLevel().damageSources().thrown(snowball, p));
+        expect(h, shot.getEffect(slow) == null, "projectile applied the stun");
+
+        melee.removeEffect(slow);
+        meleeOrThrow(melee, h.getLevel().damageSources().playerAttack(p));
+        expect(h, melee.getEffect(slow) == null, "second hit re-applied the stun");
+        expect(h, melee.getDeltaMovement().horizontalDistance() < 0.7,
+                "second hit re-applied knockback: " + melee.getDeltaMovement().horizontalDistance());
+        h.succeed();
+    }
+
     @GameTest(template = "empty")
     @PrefixGameTestTemplate(false)
     public static void passiveAppliesOnlyWithCondition(GameTestHelper h) {

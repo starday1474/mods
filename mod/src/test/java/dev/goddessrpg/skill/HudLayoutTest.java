@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class HudLayoutTest {
-    private static final int[][] SIZES = {{320, 240}, {427, 240}, {480, 270}, {640, 360}, {1920, 1080}};
+    private static final int[][] SIZES = {{320, 240}, {370, 240}, {384, 240}, {400, 240}, {424, 240}, {427, 240}, {480, 270}, {640, 360}, {1920, 1080}};
 
     private static boolean overlaps(Rect a, Rect b) {
         return a.x() < b.x() + b.w() && b.x() < a.x() + a.w() && a.y() < b.y() + b.h() && b.y() < a.y() + a.h();
@@ -32,7 +32,8 @@ class HudLayoutTest {
                 assertTrue(r.w() >= 12 && r.h() >= 12, "size " + r);
                 assertTrue(inside(r, w, h), r + " inside " + w + "x" + h);
                 assertFalse(overlaps(r, hotbar), r + " overlaps hotbar at " + w + "x" + h);
-                assertTrue(r.x() >= hotbar.x() + hotbar.w(), r + " right of hotbar at " + w + "x" + h);
+                assertTrue(r.x() >= hotbar.x() + hotbar.w() + 32,
+                        r + " must leave room for the off-hand slot right of the hotbar at " + w + "x" + h);
             }
             for (int i = 0; i < 4; i++) {
                 for (int j = i + 1; j < 4; j++) {

@@ -32,7 +32,7 @@ public final class HudLayout {
 
     private static boolean row(int w) {
         int need = 4 * ROW_SIZE + 3 * SPACING;
-        return w - (w / 2 + HOTBAR_HALF) >= need + 2 * MIN_GAP;
+        return w - (w / 2 + HOTBAR_HALF) >= need + GAP_FROM_HOTBAR + MIN_GAP;
     }
 
     public static List<Rect> slots(int screenW, int screenH) {
