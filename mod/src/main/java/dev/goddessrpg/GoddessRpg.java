@@ -31,7 +31,10 @@ public class GoddessRpg {
         RpgItems.register(modBus);
         RpgAnimations.register(modBus);
         RpgWeaponTypes.register(modBus);
-        NeoForge.EVENT_BUS.addListener((AddReloadListenerEvent e) -> e.addListener(new RpgDataLoader()));
+        NeoForge.EVENT_BUS.addListener((AddReloadListenerEvent e) -> {
+            e.addListener(new RpgDataLoader());
+            e.addListener(new dev.goddessrpg.skill.SkillRegistry());
+        });
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> RpgCommand.register(e.getDispatcher()));
     }
 }

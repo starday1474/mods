@@ -63,6 +63,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // Codec-based rule records are tested without booting Minecraft; DFU is the only library they need.
     testImplementation 'com.mojang:datafixerupper:8.0.16'
+    // RpgPlayerData's static init loads Minecraft network codec classes; plain class loading suffices (no bootstrap).
+    testImplementation files(sourceSets.main.compileClasspath)
 }
 
 tasks.withType(Test).configureEach { useJUnitPlatform() }
