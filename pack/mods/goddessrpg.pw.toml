@@ -1,8 +1,8 @@
 name = "goddessrpg"
-filename = "goddessrpg-0.2.1.jar"
+filename = "goddessrpg-0.3.0.jar"
 side = "both"
 
 [download]
-url = "https://github.com/starday1474/mods/releases/download/mod-v0.2.1/goddessrpg-0.2.1.jar"
+url = "https://github.com/starday1474/mods/releases/download/mod-v0.3.0/goddessrpg-0.3.0.jar"
 hash-format = "sha256"
-hash = "d8c79efca1609b1da96029024535b2f6ef97dec7baab889907bedbfe2959594a"
+hash = "5dcfe1ae79d7024eee4620b910d7b2920d196ba2c24107a8ec0744ded92c2487"
