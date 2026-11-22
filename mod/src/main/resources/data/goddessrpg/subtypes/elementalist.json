@@ -1,4 +1,7 @@
 {
   "class": "rear_dealer",
-  "available": false
+  "available": false,
+  "weapon": "staff",
+  "icon": "minecraft:blaze_rod",
+  "order": 5
 }

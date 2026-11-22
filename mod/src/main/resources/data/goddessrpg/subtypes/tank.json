@@ -1,4 +1,7 @@
 {
   "class": "vanguard",
-  "available": false
+  "available": false,
+  "weapon": "shield_mace",
+  "icon": "minecraft:shield",
+  "order": 2
 }

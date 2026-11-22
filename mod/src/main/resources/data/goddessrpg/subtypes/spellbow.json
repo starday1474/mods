@@ -1,4 +1,8 @@
 {
   "class": "rear_dealer",
-  "available": false
+  "available": false,
+  "weapon": "spellbow",
+  "icon": "minecraft:crossbow",
+  "order": 99,
+  "hidden": true
 }

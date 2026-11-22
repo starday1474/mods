@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.goddessrpg.GoddessRpg;
+import dev.goddessrpg.rules.AllocationRules.AllocationTuning;
 import dev.goddessrpg.rules.GrowthTuning;
 import dev.goddessrpg.rules.ManaRules.ManaTuning;
 import dev.goddessrpg.rules.InquiryData.Question;
@@ -39,11 +40,11 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
     private static final Codec<List<Question>> QUESTIONS =
             Question.CODEC.listOf().fieldOf("questions").codec();
 
-    public record Snapshot(GrowthTuning tuning, ManaTuning mana, List<Subtype> subtypes, List<Question> stage1,
+    public record Snapshot(GrowthTuning tuning, ManaTuning mana, AllocationTuning allocation, List<Subtype> subtypes, List<Question> stage1,
                            Map<RpgClass, List<Question>> stage2, Map<RpgClass, List<Question>> stage3,
                            Map<String, TomeData> tomes) {}
 
-    private static volatile Snapshot current = new Snapshot(GrowthTuning.DEFAULT, ManaTuning.DEFAULT, List.of(), List.of(),
+    private static volatile Snapshot current = new Snapshot(GrowthTuning.DEFAULT, ManaTuning.DEFAULT, AllocationTuning.DEFAULT, List.of(), List.of(),
             new EnumMap<>(RpgClass.class), new EnumMap<>(RpgClass.class), Map.of());
 
     public static GrowthTuning tuning() {
@@ -52,6 +53,10 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
 
     public static ManaTuning manaTuning() {
         return current.mana();
+    }
+
+    public static AllocationTuning allocationTuning() {
+        return current.allocation();
     }
 
     public static List<Subtype> subtypes() {
@@ -118,6 +123,11 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
                         .resultOrPartial(err -> LOGGER.error("Bad mana.json: {}", err)))
                 .orElse(ManaTuning.DEFAULT);
 
+        AllocationTuning allocation = readJson(rm, id("tuning/allocation.json"))
+                .flatMap(j -> AllocationTuning.CODEC.parse(JsonOps.INSTANCE, j)
+                        .resultOrPartial(err -> LOGGER.error("Bad allocation.json: {}", err)))
+                .orElse(AllocationTuning.DEFAULT);
+
         List<Subtype> subtypes = new ArrayList<>();
         rm.listResources("subtypes", l -> l.getNamespace().equals(GoddessRpg.MODID) && l.getPath().endsWith(".json"))
                 .forEach((loc, res) -> {
@@ -149,7 +159,7 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
                                     .resultOrPartial(err -> LOGGER.error("Bad tome {}: {}", name, err)))
                             .ifPresent(t -> tomes.put(name, t));
                 });
-        return new Snapshot(tuning, mana, List.copyOf(subtypes), readQuestions(rm, "inquiry/stage1.json"), s2, s3,
+        return new Snapshot(tuning, mana, allocation, List.copyOf(subtypes), readQuestions(rm, "inquiry/stage1.json"), s2, s3,
                 Map.copyOf(tomes));
     }
 

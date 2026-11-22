@@ -1,4 +1,7 @@
 {
   "class": "rear_dealer",
-  "available": false
+  "available": false,
+  "weapon": "longbow",
+  "icon": "minecraft:bow",
+  "order": 4
 }

@@ -1,4 +1,7 @@
 {
   "class": "rear_supporter",
-  "available": false
+  "available": false,
+  "weapon": "summon_stone",
+  "icon": "minecraft:ender_eye",
+  "order": 6
 }

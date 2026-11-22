@@ -1,4 +1,7 @@
 {
   "class": "rear_supporter",
-  "available": false
+  "available": false,
+  "weapon": "relic",
+  "icon": "minecraft:heart_of_the_sea",
+  "order": 8
 }

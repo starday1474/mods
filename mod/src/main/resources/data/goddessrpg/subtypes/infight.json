@@ -1,4 +1,7 @@
 {
   "class": "vanguard",
-  "available": false
+  "available": false,
+  "weapon": "greatsword_dual",
+  "icon": "minecraft:netherite_sword",
+  "order": 3
 }

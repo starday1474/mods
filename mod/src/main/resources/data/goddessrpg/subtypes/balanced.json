@@ -1,4 +1,7 @@
 {
   "class": "vanguard",
-  "available": true
+  "available": true,
+  "weapon": "sword_shield",
+  "icon": "minecraft:iron_sword",
+  "order": 1
 }
