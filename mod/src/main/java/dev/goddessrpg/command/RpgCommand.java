@@ -188,7 +188,7 @@ public final class RpgCommand {
     }
 
     private static int reset(CommandContext<CommandSourceStack> c, ServerPlayer target) {
-        dev.goddessrpg.inquiry.InquiryService.reroll(target);
+        dev.goddessrpg.creation.CreationService.reopen(target, true);
         c.getSource().sendSuccess(() -> Component.translatable("goddessrpg.command.reset", target.getDisplayName()), true);
         return 1;
     }

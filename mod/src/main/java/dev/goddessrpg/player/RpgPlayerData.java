@@ -2,6 +2,7 @@ package dev.goddessrpg.player;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.goddessrpg.rules.CreationChoice;
 import dev.goddessrpg.rules.Field;
 import dev.goddessrpg.rules.GrowthTuning;
 import dev.goddessrpg.rules.LevelProgress;
@@ -31,14 +32,15 @@ public record RpgPlayerData(
         List<Integer> inquiryAnswers,
         Set<String> learnedSkills,
         List<Optional<String>> slots,
-        Set<String> seenSkillBooks) {
+        Set<String> seenSkillBooks,
+        Optional<CreationChoice> creation) {
 
     public static final int SLOT_COUNT = 4;
     private static final List<Optional<String>> NO_SLOTS = List.of(Optional.empty(), Optional.empty(),
             Optional.empty(), Optional.empty());
 
     public static final RpgPlayerData EMPTY = new RpgPlayerData(
-            false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(), Set.of(), 0.0, List.of(), Set.of(), NO_SLOTS, Set.of());
+            false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(), Set.of(), 0.0, List.of(), Set.of(), NO_SLOTS, Set.of(), Optional.empty());
 
     private static final Codec<Map<Field, Integer>> FIELD_INTS = Codec.unboundedMap(Field.CODEC, Codec.INT);
     private static final Codec<Map<Field, Double>> FIELD_DOUBLES = Codec.unboundedMap(Field.CODEC, Codec.DOUBLE);
@@ -54,6 +56,7 @@ public record RpgPlayerData(
             Codec.STRING.listOf().optionalFieldOf("tomes_read", List.of()).xmap(Set::copyOf, List::copyOf)
                     .forGetter(RpgPlayerData::tomesRead),
             Codec.DOUBLE.optionalFieldOf("knowledge", 0.0).forGetter(RpgPlayerData::knowledge),
+            // 0.2.x goddess inquiry picks: still read and written so old saves round-trip, no longer used
             Codec.INT.listOf().optionalFieldOf("inquiry_answers", List.of()).forGetter(RpgPlayerData::inquiryAnswers),
             Codec.STRING.listOf().optionalFieldOf("learned_skills", List.of()).xmap(Set::copyOf, l -> l.stream().sorted().toList())
                     .forGetter(RpgPlayerData::learnedSkills),
@@ -64,7 +67,9 @@ public record RpgPlayerData(
                     .forGetter(RpgPlayerData::slots),
             // skill book ids the player has held at least once (the tome's mind map reveals those book skills)
             Codec.STRING.listOf().optionalFieldOf("seen_skill_books", List.of()).xmap(Set::copyOf, l -> l.stream().sorted().toList())
-                    .forGetter(RpgPlayerData::seenSkillBooks)
+                    .forGetter(RpgPlayerData::seenSkillBooks),
+            // the character creation pick; absent for characters made before 0.3 (goddess inquiry)
+            CreationChoice.CODEC.optionalFieldOf("creation").forGetter(RpgPlayerData::creation)
     ).apply(i, RpgPlayerData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RpgPlayerData> STREAM_CODEC =
@@ -86,13 +91,22 @@ public record RpgPlayerData(
         seenSkillBooks = Set.copyOf(seenSkillBooks);
     }
 
+    /** Without the creation choice (kept for callers written before that field existed). */
+    public RpgPlayerData(boolean inquiryDone, Optional<RpgClass> rpgClass, Optional<String> subtype,
+                         Map<Field, Integer> talent, Map<Field, Integer> aptitude, Map<Field, Integer> level,
+                         Map<Field, Double> xp, Set<String> tomesRead, double knowledge, List<Integer> inquiryAnswers,
+                         Set<String> learnedSkills, List<Optional<String>> slots, Set<String> seenSkillBooks) {
+        this(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge, inquiryAnswers,
+                learnedSkills, slots, seenSkillBooks, Optional.empty());
+    }
+
     /** Without seen skill books (kept for callers written before that field existed). */
     public RpgPlayerData(boolean inquiryDone, Optional<RpgClass> rpgClass, Optional<String> subtype,
                          Map<Field, Integer> talent, Map<Field, Integer> aptitude, Map<Field, Integer> level,
                          Map<Field, Double> xp, Set<String> tomesRead, double knowledge, List<Integer> inquiryAnswers,
                          Set<String> learnedSkills, List<Optional<String>> slots) {
         this(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge, inquiryAnswers,
-                learnedSkills, slots, Set.of());
+                learnedSkills, slots, Set.of(), Optional.empty());
     }
 
     public int levelOf(Field f) {
@@ -123,7 +137,13 @@ public record RpgPlayerData(
             xpMap.put(f, 0.0);
         }
         return new RpgPlayerData(true, Optional.of(c), Optional.of(subtype), stars.talent(), stars.aptitude(),
-                lv, xpMap, tomesRead, knowledge, answers, learnedSkills, slots, seenSkillBooks);
+                lv, xpMap, tomesRead, knowledge, answers, learnedSkills, slots, seenSkillBooks, Optional.empty());
+    }
+
+    /** Records the character creation pick (chained after {@link #withResult}). */
+    public RpgPlayerData withCreation(CreationChoice choice) {
+        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
+                inquiryAnswers, learnedSkills, slots, seenSkillBooks, Optional.of(choice));
     }
 
     public RpgPlayerData withXp(Field f, LevelProgress p) {
@@ -134,7 +154,7 @@ public record RpgPlayerData(
         xpMap.putAll(xp);
         xpMap.put(f, p.xp());
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, lv, xpMap, tomesRead, knowledge,
-                inquiryAnswers, learnedSkills, slots, seenSkillBooks);
+                inquiryAnswers, learnedSkills, slots, seenSkillBooks, creation);
     }
 
     public RpgPlayerData withTome(String id, double gain, double cap) {
@@ -144,13 +164,13 @@ public record RpgPlayerData(
         Set<String> tomes = new HashSet<>(tomesRead);
         tomes.add(id);
         double k = Math.min(cap, knowledge + gain);
-        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomes, k, inquiryAnswers, learnedSkills, slots, seenSkillBooks);
+        return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomes, k, inquiryAnswers, learnedSkills, slots, seenSkillBooks, creation);
     }
 
-    /** Admin reset: back to a fresh, un-inquired state; tomes, knowledge and seen skill books are kept. */
+    /** Reset: back to a fresh, uncreated character; tomes, knowledge and seen skill books are kept. */
     public RpgPlayerData resetKeepKnowledge() {
         return new RpgPlayerData(false, Optional.empty(), Optional.empty(), Map.of(), Map.of(), Map.of(), Map.of(),
-                tomesRead, knowledge, List.of(), Set.of(), NO_SLOTS, seenSkillBooks);
+                tomesRead, knowledge, List.of(), Set.of(), NO_SLOTS, seenSkillBooks, Optional.empty());
     }
 
     public RpgPlayerData withLearned(String id) {
@@ -160,7 +180,7 @@ public record RpgPlayerData(
         Set<String> l = new HashSet<>(learnedSkills);
         l.add(id);
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
-                inquiryAnswers, l, slots, seenSkillBooks);
+                inquiryAnswers, l, slots, seenSkillBooks, creation);
     }
 
     /**
@@ -190,7 +210,7 @@ public record RpgPlayerData(
         }
         s.set(index, id);
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
-                inquiryAnswers, learnedSkills, s, seenSkillBooks);
+                inquiryAnswers, learnedSkills, s, seenSkillBooks, creation);
     }
 
     /** Adds skill book ids to the seen set; returns this instance when nothing is new. */
@@ -201,6 +221,6 @@ public record RpgPlayerData(
         Set<String> seen = new HashSet<>(seenSkillBooks);
         seen.addAll(ids);
         return new RpgPlayerData(inquiryDone, rpgClass, subtype, talent, aptitude, level, xp, tomesRead, knowledge,
-                inquiryAnswers, learnedSkills, slots, seen);
+                inquiryAnswers, learnedSkills, slots, seen, creation);
     }
 }

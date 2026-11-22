@@ -22,6 +22,9 @@ public final class RpgItems {
     public static final DeferredItem<RerollItem> REROLL =
             ITEMS.register("goddess_reroll", () -> new RerollItem(new Item.Properties().stacksTo(1)));
 
+    public static final DeferredItem<ReawakeningCrystalItem> REAWAKENING_CRYSTAL = ITEMS.register("reawakening_crystal",
+            () -> new ReawakeningCrystalItem(new Item.Properties().stacksTo(16).rarity(net.minecraft.world.item.Rarity.EPIC)));
+
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(
             Registries.DATA_COMPONENT_TYPE, GoddessRpg.MODID);
     public static final Supplier<DataComponentType<String>> TOME_ID = COMPONENTS.registerComponentType("tome_id",
@@ -47,6 +50,9 @@ public final class RpgItems {
         modBus.addListener((BuildCreativeModeTabContentsEvent e) -> {
             if (e.getTabKey() == CreativeModeTabs.COMBAT) {
                 e.accept(TRAINING_SWORD.get());
+            }
+            if (e.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+                e.accept(REAWAKENING_CRYSTAL.get());
             }
             if (e.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
                 e.accept(REROLL.get());

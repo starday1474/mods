@@ -3,7 +3,7 @@ package dev.goddessrpg;
 import com.mojang.authlib.GameProfile;
 import dev.goddessrpg.command.RpgCommand;
 import dev.goddessrpg.growth.GrowthEvents;
-import dev.goddessrpg.inquiry.InquiryService;
+import dev.goddessrpg.creation.CreationService;
 import dev.goddessrpg.item.RpgItems;
 import dev.goddessrpg.item.SkillBookItem;
 import dev.goddessrpg.player.RpgAttachments;
@@ -165,7 +165,7 @@ public class SkillLearnGameTest {
         ServerPlayer p = fakePlayer(h);
         RpgAttachments.set(p, player(RpgClass.VANGUARD, "balanced", 1).withTome("a", 0.1, 0.5));
         SkillService.learn(p, "test_vanguard_book");
-        InquiryService.reroll(p);
+        CreationService.reopen(p, true);
         RpgPlayerData d = RpgAttachments.get(p);
         expect(h, d.learnedSkills().isEmpty(), "skills kept: " + d.learnedSkills());
         expect(h, d.slots().size() == 4 && d.slots().stream().allMatch(Optional::isEmpty), "slots kept: " + d.slots());

@@ -3,6 +3,9 @@ package dev.goddessrpg.rules;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.goddessrpg.rules.CreationChoice.Allocation;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,6 +21,12 @@ public final class AllocationRules {
                 Codec.INT.fieldOf("min").forGetter(AllocationTuning::min),
                 Codec.INT.fieldOf("max").forGetter(AllocationTuning::max)
         ).apply(i, AllocationTuning::new));
+
+        public static final StreamCodec<ByteBuf, AllocationTuning> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT, AllocationTuning::budget,
+                ByteBufCodecs.VAR_INT, AllocationTuning::min,
+                ByteBufCodecs.VAR_INT, AllocationTuning::max,
+                AllocationTuning::new);
 
         public static final AllocationTuning DEFAULT = new AllocationTuning(12, 1, 5);
     }

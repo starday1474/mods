@@ -4,8 +4,6 @@ import dev.goddessrpg.GoddessRpg;
 import dev.goddessrpg.client.ClientSync;
 import dev.goddessrpg.data.RpgDataLoader;
 import dev.goddessrpg.data.TomeData;
-import dev.goddessrpg.rules.InquiryData.Question;
-import dev.goddessrpg.rules.RpgClass;
 import dev.goddessrpg.rules.SkillDef;
 import dev.goddessrpg.tome.TomeRef;
 import java.util.HashMap;
@@ -112,29 +110,18 @@ public final class SkillPayloads {
         }
     }
 
-    /** Server -> client: level cap, tome knowledge values and inquiry text keys (see {@link TomeRef}). */
+    /** Server -> client: level cap and tome knowledge values (see {@link TomeRef}). */
     public record TomeRefPayload(TomeRef ref) implements CustomPacketPayload {
         public static final Type<TomeRefPayload> TYPE =
                 new Type<>(ResourceLocation.fromNamespaceAndPath(GoddessRpg.MODID, "tome_ref"));
         public static final StreamCodec<RegistryFriendlyByteBuf, TomeRefPayload> STREAM_CODEC =
                 ByteBufCodecs.fromCodecWithRegistries(TomeRef.CODEC).map(TomeRefPayload::new, TomeRefPayload::ref);
 
-        private static List<TomeRef.QuestionKeys> keys(List<Question> qs) {
-            return qs.stream().map(q -> new TomeRef.QuestionKeys(q.textKey(),
-                    q.answers().stream().map(a -> a.textKey()).toList())).toList();
-        }
-
         public static TomeRefPayload fromServer() {
-            Map<String, List<TomeRef.QuestionKeys>> s2 = new HashMap<>();
-            Map<String, List<TomeRef.QuestionKeys>> s3 = new HashMap<>();
-            for (RpgClass c : RpgClass.values()) {
-                s2.put(c.id(), keys(RpgDataLoader.stage2(c)));
-                s3.put(c.id(), keys(RpgDataLoader.stage3(c)));
-            }
             Map<String, Double> tomes = new HashMap<>();
             RpgDataLoader.tomeIds().forEach(id -> RpgDataLoader.tome(id).map(TomeData::knowledge).ifPresent(k -> tomes.put(id, k)));
             return new TomeRefPayload(new TomeRef(RpgDataLoader.tuning().maxLevel(), RpgDataLoader.tuning().knowledgeCap(),
-                    tomes, keys(RpgDataLoader.stage1()), s2, s3));
+                    tomes));
         }
 
         @Override

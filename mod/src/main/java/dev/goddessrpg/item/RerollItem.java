@@ -1,6 +1,6 @@
 package dev.goddessrpg.item;
 
-import dev.goddessrpg.inquiry.InquiryService;
+import dev.goddessrpg.creation.CreationService;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-/** Admin-only: wipes the inquiry result (knowledge kept) and reopens the inquiry. */
+/** Admin-only: wipes the character (knowledge kept) and reopens character creation. */
 public class RerollItem extends Item {
     public RerollItem(Properties properties) {
         super(properties);
@@ -24,7 +24,7 @@ public class RerollItem extends Item {
         }
         if (player instanceof ServerPlayer sp) {
             if (player.hasPermissions(2) || player.isCreative()) {
-                InquiryService.reroll(sp);
+                CreationService.reopen(sp, true);
             } else if (sp.connection != null) {
                 sp.displayClientMessage(Component.translatable("goddessrpg.reroll.denied"), true);
             }

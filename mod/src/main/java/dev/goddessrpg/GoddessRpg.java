@@ -6,8 +6,8 @@ import dev.goddessrpg.compat.epicfight.RpgAnimations;
 import dev.goddessrpg.compat.epicfight.RpgWeaponTypes;
 import dev.goddessrpg.data.RpgDataLoader;
 import dev.goddessrpg.growth.GrowthEvents;
-import dev.goddessrpg.inquiry.InquiryPayloads;
-import dev.goddessrpg.inquiry.InquiryService;
+import dev.goddessrpg.creation.CreationPayloads;
+import dev.goddessrpg.creation.CreationService;
 import dev.goddessrpg.item.RpgItems;
 import dev.goddessrpg.player.RpgAttachments;
 import dev.goddessrpg.player.RpgSync;
@@ -24,12 +24,12 @@ public class GoddessRpg {
     public GoddessRpg(IEventBus modBus) {
         RpgAttachments.REGISTER.register(modBus);
         RpgSync.register(modBus);
-        InquiryPayloads.register(modBus);
+        CreationPayloads.register(modBus);
         dev.goddessrpg.skill.SkillPayloads.register(modBus);
         dev.goddessrpg.mana.ManaAttachment.register(modBus);
         dev.goddessrpg.skill.SkillCooldowns.register(modBus);
         dev.goddessrpg.skill.SkillEffects.register(modBus);
-        InquiryService.register();
+        CreationService.register();
         dev.goddessrpg.skill.SkillService.register();
         EfSkillPolicy.register();
         dev.goddessrpg.compat.epicfight.EfInnatePolicy.register();

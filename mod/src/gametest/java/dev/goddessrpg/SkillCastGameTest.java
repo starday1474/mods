@@ -1,7 +1,7 @@
 package dev.goddessrpg;
 
 import com.mojang.authlib.GameProfile;
-import dev.goddessrpg.inquiry.InquiryService;
+import dev.goddessrpg.creation.CreationService;
 import dev.goddessrpg.player.RpgAttachments;
 import dev.goddessrpg.player.RpgPlayerData;
 import dev.goddessrpg.rules.GrowthTuning;
@@ -150,7 +150,7 @@ public class SkillCastGameTest {
         expect(h, SkillService.cast(m, 0) == CastResult.NO_MANA, "no mana");
 
         // reroll clears cooldowns
-        InquiryService.reroll(p);
+        CreationService.reopen(p, true);
         expect(h, SkillCooldowns.all(p).isEmpty(), "reroll kept cooldowns");
         h.succeed();
     }
@@ -262,7 +262,7 @@ public class SkillCastGameTest {
         // reroll forgets the passive
         p.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
         SkillEffects.refreshPassives(p);
-        InquiryService.reroll(p);
+        CreationService.reopen(p, true);
         expect(h, p.getAttributeValue(Attributes.ATTACK_DAMAGE) == bare, "passive kept after reroll");
         h.succeed();
     }

@@ -3,19 +3,15 @@ package dev.goddessrpg.data;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.goddessrpg.GoddessRpg;
 import dev.goddessrpg.rules.AllocationRules.AllocationTuning;
 import dev.goddessrpg.rules.GrowthTuning;
 import dev.goddessrpg.rules.ManaRules.ManaTuning;
-import dev.goddessrpg.rules.InquiryData.Question;
 import dev.goddessrpg.rules.InquiryData.Subtype;
-import dev.goddessrpg.rules.RpgClass;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,26 +22,20 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import org.slf4j.Logger;
 
 /**
- * Loads tuning, subtypes and inquiry stages from data packs.
+ * Loads tuning, subtypes and tomes from data packs.
  * <ul>
- * <li>{@code data/goddessrpg/tuning/growth.json}, {@code tuning/mana.json}</li>
+ * <li>{@code data/goddessrpg/tuning/growth.json}, {@code tuning/mana.json}, {@code tuning/allocation.json}</li>
  * <li>{@code data/goddessrpg/subtypes/<id>.json} ({@code {"class":..,"available":..}}, id = file name)</li>
- * <li>{@code data/goddessrpg/inquiry/stage1.json}, {@code inquiry/stage2/<class>.json},
- *     {@code inquiry/stage3/<class>.json}: each an object {"questions":[...]}; missing files give empty lists</li>
  * <li>{@code data/goddessrpg/tomes/<id>.json} ({@code {"knowledge":..,"title":..}}, id = file name)</li>
  * </ul>
  */
 public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataLoader.Snapshot> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Codec<List<Question>> QUESTIONS =
-            Question.CODEC.listOf().fieldOf("questions").codec();
-
-    public record Snapshot(GrowthTuning tuning, ManaTuning mana, AllocationTuning allocation, List<Subtype> subtypes, List<Question> stage1,
-                           Map<RpgClass, List<Question>> stage2, Map<RpgClass, List<Question>> stage3,
+    public record Snapshot(GrowthTuning tuning, ManaTuning mana, AllocationTuning allocation, List<Subtype> subtypes,
                            Map<String, TomeData> tomes) {}
 
-    private static volatile Snapshot current = new Snapshot(GrowthTuning.DEFAULT, ManaTuning.DEFAULT, AllocationTuning.DEFAULT, List.of(), List.of(),
-            new EnumMap<>(RpgClass.class), new EnumMap<>(RpgClass.class), Map.of());
+    private static volatile Snapshot current = new Snapshot(GrowthTuning.DEFAULT, ManaTuning.DEFAULT,
+            AllocationTuning.DEFAULT, List.of(), Map.of());
 
     public static GrowthTuning tuning() {
         return current.tuning();
@@ -63,16 +53,8 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
         return current.subtypes();
     }
 
-    public static List<Question> stage1() {
-        return current.stage1();
-    }
-
-    public static List<Question> stage2(RpgClass c) {
-        return current.stage2().getOrDefault(c, List.of());
-    }
-
-    public static List<Question> stage3(RpgClass c) {
-        return current.stage3().getOrDefault(c, List.of());
+    public static Optional<Subtype> subtype(String id) {
+        return current.subtypes().stream().filter(s -> s.id().equals(id)).findFirst();
     }
 
     public static java.util.Set<String> tomeIds() {
@@ -98,17 +80,6 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
             LOGGER.error("Failed to read {}", file, e);
             return Optional.empty();
         }
-    }
-
-    /** Parses an inquiry stage file of the form {"questions":[...]}; malformed input gives an empty list. */
-    public static List<Question> parseQuestions(JsonElement json, String what) {
-        return QUESTIONS.parse(JsonOps.INSTANCE, json)
-                .resultOrPartial(err -> LOGGER.error("Bad inquiry file {}: {}", what, err))
-                .orElse(List.of());
-    }
-
-    private static List<Question> readQuestions(ResourceManager rm, String path) {
-        return readJson(rm, id(path)).map(json -> parseQuestions(json, path)).orElse(List.of());
     }
 
     @Override
@@ -144,12 +115,6 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
                 });
         subtypes.sort(java.util.Comparator.comparing(Subtype::id));
 
-        Map<RpgClass, List<Question>> s2 = new EnumMap<>(RpgClass.class);
-        Map<RpgClass, List<Question>> s3 = new EnumMap<>(RpgClass.class);
-        for (RpgClass c : RpgClass.values()) {
-            s2.put(c, readQuestions(rm, "inquiry/stage2/" + c.id() + ".json"));
-            s3.put(c, readQuestions(rm, "inquiry/stage3/" + c.id() + ".json"));
-        }
         Map<String, TomeData> tomes = new java.util.HashMap<>();
         rm.listResources("tomes", l -> l.getNamespace().equals(GoddessRpg.MODID) && l.getPath().endsWith(".json"))
                 .forEach((loc, res) -> {
@@ -159,8 +124,7 @@ public final class RpgDataLoader extends SimplePreparableReloadListener<RpgDataL
                                     .resultOrPartial(err -> LOGGER.error("Bad tome {}: {}", name, err)))
                             .ifPresent(t -> tomes.put(name, t));
                 });
-        return new Snapshot(tuning, mana, allocation, List.copyOf(subtypes), readQuestions(rm, "inquiry/stage1.json"), s2, s3,
-                Map.copyOf(tomes));
+        return new Snapshot(tuning, mana, allocation, List.copyOf(subtypes), Map.copyOf(tomes));
     }
 
     @Override

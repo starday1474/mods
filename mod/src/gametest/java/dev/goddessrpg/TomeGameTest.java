@@ -101,7 +101,7 @@ public class TomeGameTest {
         TomeRefPayload ref = TomeRefPayload.fromServer();
         TomeRefPayload refBack = roundTrip(h, TomeRefPayload.STREAM_CODEC, ref);
         expect(h, refBack.equals(ref), "tome ref round trip");
-        expect(h, !ref.ref().stage1().isEmpty() && ref.ref().tomeKnowledge().containsKey("first_steps"), "tome ref content " + ref);
+        expect(h, ref.ref().tomeKnowledge().containsKey("first_steps"), "tome ref content " + ref);
         h.succeed();
     }
 
@@ -120,7 +120,7 @@ public class TomeGameTest {
         expect(h, RpgAttachments.get(p).seenSkillBooks().equals(java.util.Set.of("balanced_steadfast")),
                 "seen " + RpgAttachments.get(p).seenSkillBooks());
         // survives reroll and the codec
-        dev.goddessrpg.inquiry.InquiryService.reroll(p);
+        dev.goddessrpg.creation.CreationService.reopen(p, true);
         RpgPlayerData d = RpgAttachments.get(p);
         expect(h, d.seenSkillBooks().contains("balanced_steadfast"), "reroll forgot seen books");
         RpgPlayerData back = RpgPlayerData.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,
