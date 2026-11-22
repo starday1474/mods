@@ -188,7 +188,10 @@
   "goddessrpg.create.error.done": "이미 캐릭터를 만들었습니다.",
   "goddessrpg.create.error.not_open": "캐릭터 만들기가 열려 있지 않습니다.",
   "item.goddessrpg.reawakening_crystal": "재각성의 결정",
-  "goddessrpg.crystal.confirm": "한 번 더 사용하면 초기화됩니다",
+  "goddessrpg.crystal.confirm": "웅크린 채(Shift) 우클릭하면 초기화됩니다",
+  "goddessrpg.crystal.tooltip.1": "캐릭터를 다시 만든다.",
+  "goddessrpg.crystal.tooltip.2": "숙련도와 스킬이 초기화되고, 지식은 유지된다.",
+  "goddessrpg.crystal.tooltip.3": "사용법: 우클릭 후 5초 안에 Shift+우클릭",
   "goddessrpg.crystal.not_created": "캐릭터를 만든 뒤에 쓸 수 있습니다.",
   "goddessrpg.crystal.used": "재각성했습니다. 숙련도와 스킬이 초기화되었고, 지식은 그대로 남았습니다. 캐릭터를 다시 만드세요."
 }

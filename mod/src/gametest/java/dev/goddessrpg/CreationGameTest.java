@@ -229,12 +229,24 @@ public class CreationGameTest {
 
         p.getInventory().selected = 8; // keep the tome (given into the first free slot) out of the hand
         p.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(RpgItems.REAWAKENING_CRYSTAL.get(), 2));
-        RpgItems.REAWAKENING_CRYSTAL.get().use(h.getLevel(), p, InteractionHand.MAIN_HAND);
-        expect(h, p.getMainHandItem().getCount() == 2, "first use consumed");
-        expect(h, RpgAttachments.get(p).equals(d), "first use already reset");
-        expect(h, !CreationService.isInCreation(p), "first use opened creation");
-        RpgItems.REAWAKENING_CRYSTAL.get().use(h.getLevel(), p, InteractionHand.MAIN_HAND);
-        expect(h, p.getMainHandItem().getCount() == 1, "second use did not consume exactly one: " + p.getMainHandItem().getCount());
+        var crystal = RpgItems.REAWAKENING_CRYSTAL.get();
+        // sneaking without arming only arms
+        p.setShiftKeyDown(true);
+        crystal.use(h.getLevel(), p, InteractionHand.MAIN_HAND);
+        expect(h, p.getMainHandItem().getCount() == 2 && RpgAttachments.get(p).equals(d), "unarmed sneak use confirmed");
+        // holding / repeated non-sneak uses never confirm
+        p.setShiftKeyDown(false);
+        for (int i = 0; i < 30; i++) {
+            crystal.use(h.getLevel(), p, InteractionHand.MAIN_HAND);
+        }
+        expect(h, p.getMainHandItem().getCount() == 2, "non-sneak uses consumed");
+        expect(h, RpgAttachments.get(p).equals(d), "non-sneak uses reset");
+        expect(h, !CreationService.isInCreation(p), "non-sneak uses opened creation");
+        // sneak use while armed confirms and consumes exactly one
+        p.setShiftKeyDown(true);
+        crystal.use(h.getLevel(), p, InteractionHand.MAIN_HAND);
+        expect(h, p.getMainHandItem().getCount() == 1, "sneak confirm did not consume exactly one: " + p.getMainHandItem().getCount());
+        p.setShiftKeyDown(false);
 
         RpgPlayerData r = RpgAttachments.get(p);
         expect(h, !r.inquiryDone() && r.rpgClass().isEmpty() && r.creation().isEmpty(), "class kept " + r);

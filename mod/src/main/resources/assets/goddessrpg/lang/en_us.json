@@ -181,7 +181,10 @@
   "goddessrpg.create.error.done": "You have already created your character.",
   "goddessrpg.create.error.not_open": "Character creation is not open.",
   "item.goddessrpg.reawakening_crystal": "Reawakening Crystal",
-  "goddessrpg.crystal.confirm": "Use once more to reset",
+  "goddessrpg.crystal.confirm": "Sneak (Shift) + right-click to reset",
+  "goddessrpg.crystal.tooltip.1": "Remakes your character.",
+  "goddessrpg.crystal.tooltip.2": "Proficiency and skills are reset; knowledge is kept.",
+  "goddessrpg.crystal.tooltip.3": "Usage: right-click, then Shift+right-click within 5 s",
   "goddessrpg.crystal.not_created": "Create your character before using this.",
   "goddessrpg.crystal.used": "You have reawakened. Proficiency and skills were reset; your knowledge remains. Create your character again."
 }
