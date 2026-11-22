@@ -232,3 +232,59 @@
 - [Patch 7.3 New Combat Animations: It's Magic — Blizzard](https://worldofwarcraft.blizzard.com/en-us/news/20946579/patch-7-3-new-combat-animations-it-s-magic)
 - [Runewatch Dev Log #4 — IndieDB](https://www.indiedb.com/games/runewatch/news/runewatch-dev-log-4)
 - [Wand spell timing critique — Animation Mentor](https://www.animationmentor.com/?p=90190)
+
+## 5. 레퍼런스를 모을 곳과 검색어
+
+저장소에는 **링크와 메모만** 남긴다. 다른 사람의 영상이나 이미지 파일은 올리지 않는다.
+
+### 5.1 모을 곳
+
+| 종류 | 곳 | 용도 |
+|---|---|---|
+| 영상 | YouTube, Bilibili, 니코니코 | 실제 무술·궁술 영상, 게임 애니메이터 릴 |
+| 영상 | GDC Vault (무료 강연) | 전투 애니메이션·손맛 강연 |
+| 영상 | Sakugabooru | 애니메이션의 과장된 액션 작화. "재미있는 판타지" 과장 참고 |
+| 영상 | ArtStation (애니메이터 포트폴리오) | 게임 전투 모션 릴, 브레이크다운 |
+| 3D 동작 | Mixamo, Sketchfab, CMU 모션캡처 DB | 동작을 돌려 보며 관절 움직임 확인 |
+| 자세 사진 | Line of Action, Posemaniacs, Pinterest | 예비 동작·타격 순간의 실루엣 |
+| VFX | realtimevfx.com, ArtStation | 마법·유물 효과 타이밍 |
+| 모드팩 안 | EF / EF-Extra / WOM 동작 (`tools/anim/catalog.py` 미리보기) | 실제로 불러 쓸 수 있는 동작 |
+
+### 5.2 검색어
+
+- **공통:**
+  - `combat animation reel`, `game attack animation breakdown`
+  - `anticipation follow through game animation`, `hitstop game feel`
+- **근접:**
+  - `HEMA longsword techniques`, `greatsword swing slow motion`
+  - `shield bash reference`, `dual sword kata`, `검술 시연`, `검도 머리치기 슬로우`
+- **궁수:**
+  - `kyudo hassetsu`, `弓道 射法八節`, `kyudo slow motion`
+  - `국궁 습사`, `Korean traditional archery`
+  - `English longbow shooting slow motion`, `horseback archery`, `fast archery shooting`
+  - `bow attack animation game`
+  - `몬헌 월드 활 강의` (조작 흐름 확인용, 모션 따라 그리기 금지)
+- **마법사:**
+  - `spell casting animation reel`, `mage attack animation`
+  - `staff spin martial arts`, `bo staff kata`
+- **소환사:**
+  - `summoning animation`, `ritual gesture animation`
+  - `ground slam magic animation`
+- **치유사:**
+  - `healing spell animation`, `tai chi slow motion`
+  - `ballet port de bras` (부드럽게 감싸는 팔 곡선)
+- **유물사:**
+  - `telekinesis animation`, `puppeteer hand gesture`
+  - `orchestra conductor gesture` (바늘 지휘), `fan dance` (펼치고 휘두르기)
+- **VFX:**
+  - `stylized magic vfx breakdown`, `realtime vfx fire`
+  - `anime magic circle effect`
+- **과장 참고:**
+  - `sakuga sword fight`, `sakuga archery`
+
+### 5.3 모으는 방법
+
+- 동작 하나마다 **실제 사람 영상 1개 + 게임이나 애니메이션 1개 이상**을 모은다.
+- 메모 양식은 다음과 같다.
+  - `링크 / 몇 초 구간 / 무엇을 가져올지(예: 허리 비틀기, 넘침 양)`
+- 모은 링크는 이 문서의 직업별 항목 아래나 해당 동작의 설계 문서에 붙인다.
