@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Client-side copy of what the server sent for the goddess tome ({@code SkillDefsPayload}, {@code TomeRefPayload}).
+ * Client-side copy of what the server sent for the adventurer's tome ({@code SkillDefsPayload}, {@code TomeRefPayload}).
  * Has no client-only imports, but is only ever filled on the client; cleared on logout.
  */
 public final class ClientTomeData {

@@ -3,7 +3,7 @@ package dev.goddessrpg.tome.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.goddessrpg.GoddessRpg;
 import dev.goddessrpg.skill.client.SkillKeys;
-import dev.goddessrpg.tome.client.pages.GoddessPage;
+import dev.goddessrpg.tome.client.pages.ChoicePage;
 import dev.goddessrpg.tome.client.pages.KnowledgePage;
 import dev.goddessrpg.tome.client.pages.MindMapPage;
 import dev.goddessrpg.tome.client.pages.StatsPage;
@@ -18,7 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
 /**
- * The goddess tome: an open book of four spreads (stats, skill mind map, knowledge, goddess's words). Pages turn with
+ * The adventurer's tome: an open book of four spreads (stats, skill mind map, knowledge, my choice). Pages turn with
  * the arrow buttons, the left/right keys and the mouse wheel; the last page viewed is remembered while the game runs.
  */
 public class TomeScreen extends Screen {
@@ -40,7 +40,7 @@ public class TomeScreen extends Screen {
 
     private static int lastPage = 0;
 
-    private final List<TomePage> pages = List.of(new StatsPage(), new MindMapPage(), new KnowledgePage(), new GoddessPage());
+    private final List<TomePage> pages = List.of(new StatsPage(), new MindMapPage(), new KnowledgePage(), new ChoicePage());
     private int page = TomePaging.clamp(lastPage);
     private PageButton back;
     private PageButton forward;

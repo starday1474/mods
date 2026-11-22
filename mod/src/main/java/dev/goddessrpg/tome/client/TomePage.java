@@ -2,7 +2,7 @@ package dev.goddessrpg.tome.client;
 
 import net.minecraft.client.gui.GuiGraphics;
 
-/** One spread (two sides) of the goddess tome. Coordinates passed in are screen coordinates. */
+/** One spread (two sides) of the adventurer's tome. Coordinates passed in are screen coordinates. */
 public interface TomePage {
     /** {@code left}/{@code top}: the book texture's top-left corner on screen. */
     void render(TomeScreen screen, GuiGraphics g, int left, int top, int mouseX, int mouseY);

@@ -6,7 +6,9 @@ import dev.goddessrpg.rules.AllocationRules.AllocationTuning;
 import dev.goddessrpg.rules.CreationChoice;
 import dev.goddessrpg.rules.RpgClass;
 import io.netty.buffer.ByteBuf;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -36,20 +38,50 @@ public final class CreationPayloads {
                 SubtypeCard::new);
     }
 
+    private static final StreamCodec<ByteBuf, Map<Integer, Integer>> START_LEVEL_CODEC =
+            ByteBufCodecs.<ByteBuf, Integer, Integer, Map<Integer, Integer>>map(HashMap::new,
+                    ByteBufCodecs.VAR_INT, ByteBufCodecs.VAR_INT, 16);
+    private static final StreamCodec<ByteBuf, Map<Integer, Double>> MULTIPLIER_CODEC =
+            ByteBufCodecs.<ByteBuf, Integer, Double, Map<Integer, Double>>map(HashMap::new,
+                    ByteBufCodecs.VAR_INT, ByteBufCodecs.DOUBLE, 16);
+
     /**
-     * Server to client: open (or replace) the character creation screen. Hidden subtypes are left out and the cards
+     * Server to client: open (or refresh) the character creation screen. Hidden subtypes are left out and the cards
      * come in display order. An empty card list closes the screen (creation finished).
+     *
+     * <p>{@code talentStartLevel} and {@code aptitudeMultiplier} are the growth tables (star count to start level /
+     * proficiency XP multiplier) so the allocation step can preview them; they travel here rather than in
+     * {@code TomeRef} because the screen can open on login before the tome reference data arrives, and only this
+     * screen needs them. {@code error} is the translation key of the reason the last confirm was refused (empty
+     * when there is none); the screen keeps the player's pick and shows it.
      */
-    public record OpenCreationPayload(List<SubtypeCard> cards, AllocationTuning tuning) implements CustomPacketPayload {
+    public record OpenCreationPayload(List<SubtypeCard> cards, AllocationTuning tuning,
+            Map<Integer, Integer> talentStartLevel, Map<Integer, Double> aptitudeMultiplier, String error)
+            implements CustomPacketPayload {
         public static final Type<OpenCreationPayload> TYPE =
                 new Type<>(ResourceLocation.fromNamespaceAndPath(GoddessRpg.MODID, "creation_open"));
         public static final StreamCodec<RegistryFriendlyByteBuf, OpenCreationPayload> STREAM_CODEC = StreamCodec.composite(
                 SubtypeCard.STREAM_CODEC.apply(ByteBufCodecs.list(MAX_CARDS)), OpenCreationPayload::cards,
                 AllocationTuning.STREAM_CODEC, OpenCreationPayload::tuning,
+                START_LEVEL_CODEC, OpenCreationPayload::talentStartLevel,
+                MULTIPLIER_CODEC, OpenCreationPayload::aptitudeMultiplier,
+                ByteBufCodecs.STRING_UTF8, OpenCreationPayload::error,
                 OpenCreationPayload::new);
 
         public OpenCreationPayload {
             cards = List.copyOf(cards);
+            talentStartLevel = Map.copyOf(talentStartLevel);
+            aptitudeMultiplier = Map.copyOf(aptitudeMultiplier);
+            error = error == null ? "" : error;
+        }
+
+        /** The payload that closes the screen. */
+        public static OpenCreationPayload close(AllocationTuning tuning) {
+            return new OpenCreationPayload(List.of(), tuning, Map.of(), Map.of(), "");
+        }
+
+        public boolean closes() {
+            return cards.isEmpty();
         }
 
         @Override

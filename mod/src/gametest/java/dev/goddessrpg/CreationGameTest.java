@@ -95,6 +95,11 @@ public class CreationGameTest {
         expect(h, open.cards().stream().filter(SubtypeCard::available).map(SubtypeCard::subtype).toList()
                 .equals(List.of("balanced")), "availability " + open.cards());
         expect(h, open.tuning().equals(RpgDataLoader.allocationTuning()), "tuning " + open.tuning());
+        expect(h, open.talentStartLevel().equals(RpgDataLoader.tuning().talentStartLevel())
+                && open.aptitudeMultiplier().equals(RpgDataLoader.tuning().aptitudeMultiplier())
+                && open.error().isEmpty(), "growth preview tables " + open);
+        OpenCreationPayload withError = CreationService.openPayload("goddessrpg.create.error.sum");
+        expect(h, roundTrip(h, OpenCreationPayload.STREAM_CODEC, withError).equals(withError), "error payload round trip");
         expect(h, roundTrip(h, OpenCreationPayload.STREAM_CODEC, open).equals(open), "open payload round trip");
         SubmitCreationPayload sub = new SubmitCreationPayload(BALANCED_4233);
         expect(h, roundTrip(h, SubmitCreationPayload.STREAM_CODEC, sub).equals(sub), "submit payload round trip");
@@ -255,6 +260,30 @@ public class CreationGameTest {
         ItemStack out = recipe.get().value().getResultItem(h.getLevel().registryAccess());
         expect(h, out.is(RpgItems.REAWAKENING_CRYSTAL.get()) && out.getCount() == 1, "recipe result " + out);
         h.succeed();
+    }
+
+    @GameTest(template = "empty")
+    @PrefixGameTestTemplate(false)
+    public static void rejectedSubmitsAreThrottled(GameTestHelper h) {
+        ServerPlayer p = fakePlayer(h);
+        CreationService.onLogin(p);
+        int sent = CreationService.openCount(p);
+        CreationChoice bad = new CreationChoice("balanced", new Allocation(5, 5, 5, 5));
+        CreationService.onSubmitPacket(p, bad);
+        expect(h, CreationService.openCount(p) == sent + 1, "refusal not answered with the screen");
+        for (int i = 0; i < 20; i++) {
+            CreationService.onSubmitPacket(p, bad);
+        }
+        expect(h, CreationService.openCount(p) == sent + 1, "spammed refusals answered: " + (CreationService.openCount(p) - sent));
+        expect(h, RpgAttachments.get(p).equals(RpgPlayerData.EMPTY) && CreationService.isInCreation(p), "state changed");
+        h.runAfterDelay(CreationService.REJECT_COOLDOWN_TICKS + 1, () -> {
+            CreationService.onSubmitPacket(p, bad);
+            expect(h, CreationService.openCount(p) == sent + 2, "refusal after the cooldown not answered");
+            // a valid confirm is never throttled
+            CreationService.onSubmitPacket(p, BALANCED_4233);
+            expect(h, RpgAttachments.get(p).creation().equals(Optional.of(BALANCED_4233)), "valid confirm dropped");
+            h.succeed();
+        });
     }
 
     @GameTest(template = "empty")

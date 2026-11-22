@@ -1,5 +1,6 @@
 package dev.goddessrpg.creation;
 
+import com.mojang.logging.LogUtils;
 import dev.goddessrpg.creation.CreationPayloads.OpenCreationPayload;
 import dev.goddessrpg.creation.CreationPayloads.SubtypeCard;
 import dev.goddessrpg.data.RpgDataLoader;
@@ -28,6 +29,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.slf4j.Logger;
 
 /**
  * Server side of character creation (weapon card + star allocation), which replaced the goddess inquiry. Whether a
@@ -41,10 +43,16 @@ public final class CreationService {
     public static final String ERROR_SUBTYPE = "goddessrpg.create.error.subtype";
     public static final String ERROR_NOT_OPEN = "goddessrpg.create.error.not_open";
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+    /** A refused confirm is answered (chat line + screen refresh) at most once per this many ticks per player. */
+    public static final int REJECT_COOLDOWN_TICKS = 10;
+
     /** Players with the creation screen open. */
     private static final Set<UUID> OPEN = ConcurrentHashMap.newKeySet();
     /** Open payload send attempts per player, kept across sessions so tests can see resends. */
     private static final Map<UUID, Integer> SENT = new ConcurrentHashMap<>();
+    /** Server tick of the last answered refusal per player. */
+    private static final Map<UUID, Integer> LAST_REJECT = new ConcurrentHashMap<>();
 
     public static void register() {
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent e) -> {
@@ -96,6 +104,7 @@ public final class CreationService {
     public static void onLogout(ServerPlayer player) {
         OPEN.remove(player.getUUID());
         SENT.remove(player.getUUID());
+        LAST_REJECT.remove(player.getUUID());
         ReawakeningCrystalItem.forget(player.getUUID());
     }
 
@@ -109,8 +118,18 @@ public final class CreationService {
     }
 
     private static void resend(ServerPlayer player) {
+        resend(player, "");
+    }
+
+    private static void resend(ServerPlayer player, String error) {
         if (isInCreation(player)) {
-            send(player, openPayload());
+            OpenCreationPayload payload = openPayload(error);
+            if (payload.closes()) {
+                LOGGER.error("No character creation cards loaded; not resending the creation screen to {}",
+                        player.getGameProfile().getName());
+                return;
+            }
+            send(player, payload);
         }
     }
 
@@ -131,19 +150,37 @@ public final class CreationService {
         open(player);
     }
 
+    /**
+     * Marks the player as in creation (invulnerable) and sends the screen. With no cards loaded (broken data pack)
+     * nothing is marked or sent, since an empty card list would mean "close" and leave the player invulnerable.
+     */
     private static void open(ServerPlayer player) {
+        OpenCreationPayload payload = openPayload();
+        if (payload.closes()) {
+            LOGGER.error("No character creation cards loaded (check data/goddessrpg/subtypes); "
+                    + "not opening creation for {}", player.getGameProfile().getName());
+            return;
+        }
         OPEN.add(player.getUUID());
-        send(player, openPayload());
+        send(player, payload);
     }
 
-    /** The cards and tuning the screen is opened with: hidden subtypes left out, in display order. */
     public static OpenCreationPayload openPayload() {
+        return openPayload("");
+    }
+
+    /**
+     * The cards, tuning and growth tables the screen is opened with (hidden subtypes left out, in display order), with
+     * the translation key of a refusal to show, or "".
+     */
+    public static OpenCreationPayload openPayload(String error) {
         List<SubtypeCard> cards = RpgDataLoader.subtypes().stream()
                 .filter(s -> !s.hidden())
                 .sorted(Comparator.comparingInt(Subtype::order).thenComparing(Subtype::id))
                 .map(s -> new SubtypeCard(s.id(), s.rpgClass(), s.weapon(), s.icon(), s.available()))
                 .toList();
-        return new OpenCreationPayload(cards, RpgDataLoader.allocationTuning());
+        return new OpenCreationPayload(cards, RpgDataLoader.allocationTuning(),
+                RpgDataLoader.tuning().talentStartLevel(), RpgDataLoader.tuning().aptitudeMultiplier(), error);
     }
 
     /** Why a pick would be refused (a translation key), or empty when it would be accepted. Changes nothing. */
@@ -180,19 +217,34 @@ public final class CreationService {
         SkillService.grantMetProficiencySkills(player);
         SkillEffects.refreshPassives(player);
         ManaAttachment.refill(player);
-        send(player, new OpenCreationPayload(List.of(), RpgDataLoader.allocationTuning())); // closes the screen
+        send(player, OpenCreationPayload.close(RpgDataLoader.allocationTuning()));
         tell(player, Component.translatable("goddessrpg.create.done"));
         return true;
     }
 
-    static void onSubmitPacket(ServerPlayer player, CreationChoice choice) {
+    /**
+     * A confirm from the client. A refusal is answered with a chat line and the screen again (carrying the reason), or
+     * a close when the player is not in creation (stale screen), but at most once per {@link #REJECT_COOLDOWN_TICKS}
+     * per player so a spamming client cannot flood chat and the network; refusals within that window are dropped.
+     */
+    public static void onSubmitPacket(ServerPlayer player, CreationChoice choice) {
         Optional<String> error = check(player, choice);
-        if (error.isPresent()) {
-            tell(player, Component.translatable(error.get()));
-            resend(player); // let a confused or forging client see the real state again
+        if (error.isEmpty()) {
+            submit(player, choice);
             return;
         }
-        submit(player, choice);
+        int now = player.server.getTickCount();
+        Integer last = LAST_REJECT.get(player.getUUID());
+        if (last != null && now - last < REJECT_COOLDOWN_TICKS && now >= last) {
+            return;
+        }
+        LAST_REJECT.put(player.getUUID(), now);
+        tell(player, Component.translatable(error.get()));
+        if (isInCreation(player)) {
+            resend(player, error.get()); // let a confused or forging client see the real state again
+        } else {
+            send(player, OpenCreationPayload.close(RpgDataLoader.allocationTuning()));
+        }
     }
 
     private static void giveTome(ServerPlayer player) {
