@@ -5,8 +5,8 @@ license = "All Rights Reserved"
 [[mods]]
 modId = "goddessrpg"
 version = "${mod_version}"
-displayName = "Goddess RPG"
-description = '''여신 RPG 서버 전용 모드'''
+displayName = "Adventurer RPG"
+description = '''모험가 RPG: 무기 선택과 재능·적성으로 성장하는 친구용 RPG 모드'''
 
 [[dependencies.goddessrpg]]
 modId = "neoforge"
