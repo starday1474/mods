@@ -8,7 +8,7 @@ from . import paths, store, tools
 
 
 def _ffmpeg(*args) -> None:
-    cmd = [tools.require("ffmpeg"), "-y", "-hide_banner", "-loglevel", "error", *map(str, args)]
+    cmd = [tools.require("ffmpeg"), "-nostdin", "-y", "-hide_banner", "-loglevel", "error", *map(str, args)]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0:
         raise RuntimeError(f"ffmpeg 실패: {r.stderr.strip()}")
@@ -62,7 +62,7 @@ def contact_sheet(src: Path, dst: Path, cols: int = 6, every: int = 3) -> Path:
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         _ffmpeg("-i", src, "-vf", f"select=not(mod(n\\,{int(every)})),scale='min(320,iw)':-2",
-                "-vsync", "vfr", td / "f%05d.png")
+                "-fps_mode", "vfr", td / "f%05d.png")
         frames = sorted(td.glob("f*.png"))
         if not frames:
             raise RuntimeError("프레임을 뽑지 못했습니다.")

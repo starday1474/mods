@@ -63,7 +63,11 @@ def _cmd_list(a) -> int:
         print("등록된 동작이 없습니다.")
         return 0
     for n in names:
-        print(f"{n}\t{len(store.load(n))}개")
+        try:
+            print(f"{n}\t{len(store.load(n))}개")
+        except ValueError as e:
+            print(f"오류: {e}", file=sys.stderr)
+            return 2
     return 0
 
 
@@ -102,6 +106,8 @@ def _cmd_fetch(a) -> int:
             return 2
     rc = 0
     for r in refs:
+        if not a.id and (not r.url or r.file):
+            continue  # 링크가 없거나 이미 파일이 있는 항목은 건너뛴다
         try:
             p = fetch.fetch_ref(a.motion, r, pol)
             print(f"내려받았습니다: {r.id} -> {p}")
@@ -109,6 +115,9 @@ def _cmd_fetch(a) -> int:
             print(f"{r.id}: {e.reason} 링크 모드로 유지합니다.")
         except subprocess.CalledProcessError:
             print(f"오류: {r.id} 다운로드에 실패했습니다.", file=sys.stderr)
+            rc = 2
+        except (RuntimeError, ValueError) as e:
+            print(f"오류: {r.id}: {e}", file=sys.stderr)
             rc = 2
     return rc
 
@@ -251,11 +260,17 @@ def _cmd_pose(a) -> int:
     except (ValueError, FileNotFoundError, RuntimeError) as e:
         print(f"오류: {e}", file=sys.stderr)
         return 2
-    refs = store.load(a.motion)
+    try:
+        refs = store.load(a.motion)
+    except ValueError as e:
+        print(f"오류: {e}", file=sys.stderr)
+        return 2
     cur = next(r for r in refs if r.id == ref.id)
     cur.pose = summary
     sug = summary.get("suggested_marks")
-    if a.use_suggested_marks and sug and not cur.marks:
+    if a.use_suggested_marks and summary.get("warning"):
+        print("추천 표시는 검출률이 낮아 적용하지 않았습니다. 직접 mark 하세요.")
+    elif a.use_suggested_marks and sug and not cur.marks:
         cur.marks = dict(sug)
         print("추천 표시를 저장했습니다: " + ", ".join(f"{k}={v:g}" for k, v in sug.items()))
     store.save(a.motion, refs)

@@ -4,7 +4,7 @@
 
 ## 1. Windows 설치
 
-1. **Python 3.10 이상**을 설치합니다. 설치 화면에서 "Add python.exe to PATH"를 켭니다.
+1. **Python 3.11 이상**을 설치합니다. 설치 화면에서 "Add python.exe to PATH"를 켭니다.
 2. 외부 프로그램 세 개를 설치합니다. (PowerShell)
 
    ```powershell

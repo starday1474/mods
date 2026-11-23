@@ -93,6 +93,12 @@ def _from_dict(d: dict) -> Ref:
     for k in ("start", "end"):
         if kw.get(k) is not None:
             kw[k] = parse_time(kw[k])
+    for k in ("tags",):
+        if kw.get(k) is None:
+            kw[k] = []
+    for k in ("marks", "pose"):
+        if kw.get(k) is None:
+            kw[k] = {}
     if kw.get("marks"):
         kw["marks"] = {k: parse_time(v) for k, v in kw["marks"].items()}
     for k in ("url", "take", "license", "file"):
@@ -105,8 +111,13 @@ def load(motion: str) -> list[Ref]:
     p = _path(motion)
     if not p.exists():
         return []
-    data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-    return [_from_dict(d) for d in data.get("refs", [])]
+    try:
+        data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as e:
+        raise ValueError(f"{p.name} 을(를) 읽을 수 없습니다(YAML 문법 오류): {e}") from e
+    if not isinstance(data, dict):
+        raise ValueError(f"{p.name} 형식이 올바르지 않습니다.")
+    return [_from_dict(d) for d in (data.get("refs") or [])]
 
 
 def save(motion: str, refs: list[Ref]):

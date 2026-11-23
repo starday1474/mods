@@ -5,8 +5,10 @@
   mediapipe.Image(image_format=mediapipe.ImageFormat.SRGB, data=...)
   landmarker.detect_for_video(image, timestamp_ms) -> result.pose_world_landmarks / pose_landmarks
 """
+import contextlib
 import os
 import subprocess
+import sys
 import urllib.request
 from pathlib import Path
 from typing import Iterator
@@ -54,7 +56,7 @@ def video_info(video: Path) -> tuple[int, int, float]:
 
 def frames(video: Path) -> Iterator[tuple[float, np.ndarray]]:
     w, h, fps = video_info(video)
-    cmd = [tools.require("ffmpeg"), "-hide_banner", "-loglevel", "error", "-i", str(video),
+    cmd = [tools.require("ffmpeg"), "-nostdin", "-hide_banner", "-loglevel", "error", "-i", str(video),
            "-f", "rawvideo", "-pix_fmt", "rgb24", "-"]
     size = w * h * 3
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -72,9 +74,32 @@ def frames(video: Path) -> Iterator[tuple[float, np.ndarray]]:
         p.wait()
 
 
+@contextlib.contextmanager
+def _quiet_stderr():
+    """네이티브 라이브러리의 로그가 fd 2로 나오는 것을 잠시 막는다."""
+    saved = None
+    try:
+        sys.stderr.flush()
+        saved = os.dup(2)
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        try:
+            os.dup2(devnull, 2)
+        finally:
+            os.close(devnull)
+    except (OSError, ValueError):
+        pass
+    try:
+        yield
+    finally:
+        if saved is not None:
+            os.dup2(saved, 2)
+            os.close(saved)
+
+
 def estimate(video: Path) -> tuple[np.ndarray, np.ndarray, float]:
     require_mediapipe()
-    os.environ.setdefault("GLOG_minloglevel", "2")
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+    os.environ["GLOG_minloglevel"] = "3"
     import mediapipe as mp
     from mediapipe.tasks.python import BaseOptions, vision
 
@@ -87,7 +112,7 @@ def estimate(video: Path) -> tuple[np.ndarray, np.ndarray, float]:
         base_options=BaseOptions(model_asset_buffer=buf),
         running_mode=vision.RunningMode.VIDEO, num_poses=1)
     world, image = [], []
-    with vision.PoseLandmarker.create_from_options(opts) as lmk:
+    with _quiet_stderr(), vision.PoseLandmarker.create_from_options(opts) as lmk:
         for t, frame in frames(video):
             res = lmk.detect_for_video(
                 mp.Image(image_format=mp.ImageFormat.SRGB, data=np.ascontiguousarray(frame)),

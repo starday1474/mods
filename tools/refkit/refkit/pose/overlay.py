@@ -15,7 +15,7 @@ def draw(video: Path, lm_img: np.ndarray, out: Path) -> Path:
     """이미지 좌표 랜드마크로 뼈대 선을 그려 영상으로 인코딩한다."""
     w, h, fps = runner.video_info(video)
     out.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [tools.require("ffmpeg"), "-y", "-hide_banner", "-loglevel", "error",
+    cmd = [tools.require("ffmpeg"), "-nostdin", "-y", "-hide_banner", "-loglevel", "error",
            "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{w}x{h}", "-r", f"{fps:g}", "-i", "-",
            "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(out)]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)

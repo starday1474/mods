@@ -2,7 +2,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from PIL import Image
+
 from . import anim, marks, media, paths, store, tools
+
+OUR_FPS = 30
 
 
 def render_ours(anim_name: str, out_gif: Path) -> Path:
@@ -39,11 +43,20 @@ def side_by_side(ref_clip: Path, ours: Path, out: Path, ref_pad: float, our_pad:
                  height: int = 480) -> Path:
     ref_clip, ours, out = Path(ref_clip), Path(ours), Path(out)
     d_ref = media.probe_duration(ref_clip) + ref_pad
-    d_our = media.probe_duration(ours) + our_pad
+    # preview.py는 프레임을 33ms로 쓰지만 GIF는 30ms로 저장되어 그대로 읽으면 약 10% 빨라진다.
+    # 프레임 번호를 기준으로 30fps로 다시 시간을 매긴다.
+    try:
+        with Image.open(ours) as im:
+            n_our = getattr(im, "n_frames", 1)
+        retime = True
+    except (OSError, ValueError):  # GIF가 아닌 입력(테스트용 mp4 등)은 그대로 쓴다
+        n_our, retime = 0, False
+    d_our = (n_our / OUR_FPS if retime else media.probe_duration(ours)) + our_pad
     total = max(d_ref, d_our)
 
     def chain(idx, pad, dur, label):
-        return (f"[{idx}:v]fps=30,tpad=start_duration={pad:.3f}:start_mode=clone"
+        rt = f"setpts=N/({OUR_FPS}*TB)," if idx == 1 and retime else ""
+        return (f"[{idx}:v]{rt}fps=30,tpad=start_duration={pad:.3f}:start_mode=clone"
                 f":stop_duration={total - dur + 0.1:.3f}:stop_mode=clone,"
                 f"scale=-2:{int(height)},setsar=1[{label}]")
 

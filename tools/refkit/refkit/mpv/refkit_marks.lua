@@ -46,6 +46,7 @@ mp.add_key_binding("1", "refkit-start", mark("start"))
 mp.add_key_binding("2", "refkit-impact", mark("impact"))
 mp.add_key_binding("3", "refkit-settle", mark("settle"))
 mp.add_key_binding("0", "refkit-clear", function()
-    append("clear", 0)
-    mp.osd_message("표시를 지웠습니다", 2)
+    if append("clear", 0) then
+        mp.osd_message("표시를 지웠습니다", 2)
+    end
 end)
