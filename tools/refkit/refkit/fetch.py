@@ -54,7 +54,8 @@ def fetch_ref(motion: str, ref: Ref, policy: Policy) -> Path:
     got = sorted(p for p in d.glob("source.*")
                  if p.suffix not in (".part", ".ytdl", ".section"))
     if not got:
-        return d / "source.mp4"
+        raise RuntimeError("yt-dlp가 끝났지만 내려받은 파일(source.*)이 없습니다.")
+    got.sort(key=lambda p: p.stat().st_mtime, reverse=True)
     marker = d / "source.section"
     if sectioned:
         marker.write_text("downloaded section only\n", encoding="utf-8")

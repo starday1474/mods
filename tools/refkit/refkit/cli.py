@@ -270,6 +270,11 @@ def _cmd_doctor(a) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
     ap = argparse.ArgumentParser(prog="refkit", description="동작 레퍼런스 수집/비교 도구")
     sub = ap.add_subparsers(dest="cmd")
 

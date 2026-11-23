@@ -2,6 +2,7 @@
 -- 사용: mpv --script=refkit_marks.lua --script-opts=refkit-out=<파일> <영상>
 local mp = require 'mp'
 local options = require 'mp.options'
+local ok_utils, utils = pcall(require, 'mp.utils')
 
 local opts = { ["out"] = "" }
 options.read_options(opts, "refkit")
@@ -13,21 +14,31 @@ local function append(label, value)
         mp.osd_message("refkit-out 이 지정되지 않았습니다", 3)
         return
     end
-    local f = io.open(out_path, "a")
-    if not f then
-        mp.osd_message("표시 파일을 열 수 없습니다", 3)
-        return
+    local text = string.format("%s %.3f\n", label, value)
+    local ok = false
+    if ok_utils and utils.append_file then
+        local r = utils.append_file(out_path, text)
+        ok = (r ~= nil and r ~= false)
+    else
+        local f = io.open(out_path, "a")
+        if f then
+            ok = f:write(text) ~= nil
+            f:close()
+        end
     end
-    f:write(string.format("%s %.3f\n", label, value))
-    f:close()
+    if not ok then
+        mp.osd_message("표시 파일을 쓸 수 없습니다", 3)
+    end
+    return ok
 end
 
 local function mark(label)
     return function()
         local t = mp.get_property_number("time-pos")
         if not t then return end
-        append(label, t)
-        mp.osd_message(string.format("%s %.3f", label, t), 2)
+        if append(label, t) then
+            mp.osd_message(string.format("%s %.3f", label, t), 2)
+        end
     end
 end
 

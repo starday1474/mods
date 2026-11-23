@@ -1,3 +1,4 @@
+import math
 import subprocess
 from importlib import resources
 from pathlib import Path
@@ -25,9 +26,11 @@ def parse_marks_file(path: Path) -> dict[str, float]:
         if label not in LABELS:
             continue
         try:
-            out[label] = float(val)
+            v = float(val)
         except ValueError:
             continue
+        if math.isfinite(v):
+            out[label] = v
     return out
 
 

@@ -11,12 +11,18 @@ def render_ours(anim_name: str, out_gif: Path) -> Path:
     src = paths.repo() / "mod" / "anim" / f"{anim_name}.json"
     if not src.is_file():
         raise FileNotFoundError(f"mod/anim/{anim_name}.json 이 없습니다.")
+    # preview.py는 빌드된 EF 형식("animation")만 읽는다. mod/anim은 원본("keys") 형식이라
+    # 빌드 결과가 있으면 그것을 그린다.
+    built = (paths.repo() / "mod" / "src" / "main" / "resources" / "assets" / "goddessrpg"
+             / "animmodels" / "animations" / "biped" / "combat" / f"{anim_name}.json")
+    draw = built if built.is_file() else src
     out_gif = Path(out_gif)
-    if out_gif.is_file() and out_gif.stat().st_mtime >= src.stat().st_mtime:
+    newest = max(src.stat().st_mtime, draw.stat().st_mtime)
+    if out_gif.is_file() and out_gif.stat().st_mtime >= newest:
         return out_gif
     out_gif.parent.mkdir(parents=True, exist_ok=True)
     preview = paths.repo() / "tools" / "anim" / "preview.py"
-    r = subprocess.run([sys.executable, str(preview), str(src), str(out_gif)],
+    r = subprocess.run([sys.executable, str(preview), str(draw), str(out_gif)],
                        capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0 or not out_gif.is_file():
         raise RuntimeError(f"우리 동작 미리보기에 실패했습니다: {(r.stderr or '').strip()}")

@@ -65,3 +65,22 @@ def test_render_ours_cached(tmp_env, monkeypatch):
     os.utime(j, (t, t))
     compare.render_ours("bow", out)
     assert len(calls) == 2
+
+
+def test_render_ours_prefers_built_json(tmp_env, monkeypatch):
+    repo, lib = tmp_env
+    (repo / "mod" / "anim").mkdir(parents=True)
+    (repo / "mod" / "anim" / "bow.json").write_text(json.dumps({"length": 1.0}), encoding="utf-8")
+    b = (repo / "mod/src/main/resources/assets/goddessrpg/animmodels/animations/biped/combat")
+    b.mkdir(parents=True)
+    (b / "bow.json").write_text("{}", encoding="utf-8")
+    calls = []
+
+    def fake_run(cmd, *a, **k):
+        calls.append(cmd)
+        open(cmd[-1], "wb").write(b"GIF89a")
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(compare.subprocess, "run", fake_run)
+    compare.render_ours("bow", lib / "_ours" / "bow.gif")
+    assert calls[0][2] == str(b / "bow.json")

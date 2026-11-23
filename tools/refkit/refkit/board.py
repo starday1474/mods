@@ -1,6 +1,6 @@
 import html
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 from . import anim, compare, marks, paths, policy, store
 
@@ -61,7 +61,7 @@ def _card(motion: str, r: store.Ref, media: bool, base: Path) -> str:
         out.append("<p>" + "".join(f"<span class=\"tag\">{_e(t)}</span>" for t in r.tags) + "</p>")
     if r.take:
         out.append(f"<p class=\"take\">{_e(r.take)}</p>")
-    if r.url:
+    if r.url and urlparse(r.url).scheme.lower() in ("http", "https"):
         label = store.format_time(r.start) if r.start is not None else "링크"
         url = policy.timestamped_url(r.url, r.start)
         out.append(f"<p><a href=\"{_e(url)}\">{_e(label)} 에서 보기</a></p>")
