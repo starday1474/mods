@@ -2,10 +2,11 @@ import argparse
 import subprocess
 import sys
 import tempfile
+import webbrowser
 
 from pathlib import Path
 
-from . import doctor, fetch, marks, media, paths, policy, store, tools
+from . import board, compare, doctor, fetch, marks, media, paths, policy, store, tools
 from .store import Ref
 
 
@@ -186,6 +187,31 @@ def _cmd_timing(a) -> int:
     return 0
 
 
+def _cmd_compare(a) -> int:
+    try:
+        outs = compare.compare_motion(a.motion, a.anim)
+    except (ValueError, FileNotFoundError, RuntimeError, KeyError) as e:
+        print(f"오류: {e}", file=sys.stderr)
+        return 2
+    print(f"비교 영상 {len(outs)}개를 만들었습니다.")
+    return 0
+
+
+def _cmd_board(a) -> int:
+    try:
+        if a.share:
+            p = board.build_share(a.motion, Path(a.share), a.anim)
+        else:
+            p = board.build(a.motion, a.anim)
+    except (ValueError, OSError) as e:
+        print(f"오류: {e}", file=sys.stderr)
+        return 2
+    print(f"만들었습니다: {p}")
+    if a.open and not a.share:
+        webbrowser.open(p.as_uri())
+    return 0
+
+
 def _cmd_doctor(a) -> int:
     return doctor.run()
 
@@ -239,6 +265,18 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--motion", required=True)
     p.add_argument("--anim")
     p.set_defaults(fn=_cmd_timing)
+
+    p = sub.add_parser("compare", help="레퍼런스와 우리 동작 나란히 비교 영상")
+    p.add_argument("--motion", required=True)
+    p.add_argument("--anim")
+    p.set_defaults(fn=_cmd_compare)
+
+    p = sub.add_parser("board", help="정리 보드 HTML 만들기")
+    p.add_argument("--motion", required=True)
+    p.add_argument("--anim")
+    p.add_argument("--open", action="store_true")
+    p.add_argument("--share", metavar="OUT.html")
+    p.set_defaults(fn=_cmd_board)
 
     p = sub.add_parser("doctor", help="필요한 도구 점검")
     p.set_defaults(fn=_cmd_doctor)
