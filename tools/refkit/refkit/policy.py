@@ -13,8 +13,8 @@ class Policy:
     fetch_allowed: list[str] = field(default_factory=list)
 
     def can_fetch(self, ref: Ref) -> tuple[bool, str]:
-        allowed = set(self.fetch_allowed)
-        if ref.kind == "own" and "own" in allowed:
+        allowed = {a.lower() for a in self.fetch_allowed}
+        if ref.kind == "own":
             return True, "직접 만든 자료라 내려받을 수 있습니다."
         host = (urlparse(ref.url).hostname or "").lower()
         for a in allowed:
