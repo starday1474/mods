@@ -25,7 +25,7 @@ def test_side_by_side_retimes_ours_to_30fps(sample_video, tmp_path):
     gif = _gif(tmp_path / "ours.gif", 19, 33)  # GIF에는 30ms로 저장된다
     assert media.probe_duration(gif) == pytest.approx(19 * 0.03, abs=0.02)  # 원래는 10% 빠름
     out = tmp_path / "o" / "compare.mp4"
-    # 레퍼런스(3초)가 더 길어 전체 길이는 3.0. 우리 쪽은 19/30초 뒤에 마지막 프레임으로 멈춘다.
+    # 레퍼런스(3초)가 더 길어 전체 길이는 3.0.
     compare.side_by_side(sample_video, gif, out, 0.0, 0.0, height=64)
     assert media.probe_duration(out) == pytest.approx(3.0, abs=0.1)
     # 우리 쪽 길이가 n/30 임을 확인: 레퍼런스를 짧게 만들고 our_pad로 총 길이를 본다.
@@ -164,4 +164,22 @@ def test_side_by_side_filter_retimes_input1_only(sample_video, tmp_path, monkeyp
     monkeypatch.setattr(media, "_ffmpeg", lambda *a: seen.append([str(x) for x in a]))
     compare.side_by_side(sample_video, gif, tmp_path / "c.mp4", 0.0, 0.0)
     fc = seen[0][seen[0].index("-filter_complex") + 1]
-    assert "[1:v]setpts=N/(30*TB),fps=30" in fc and "[0:v]fps=30" in fc
+    assert "[1:v]setpts=PTS*10/9,fps=30" in fc and "[0:v]fps=30" in fc
+
+
+@needs_ffmpeg
+def test_side_by_side_static_holds_keep_duration(tmp_path):
+    # 검정 3장 + 회색 2장(33ms): Pillow가 [90, 60]ms 두 프레임으로 합쳐 저장한다.
+    black, grey = Image.new("RGB", (64, 64), "black"), Image.new("RGB", (64, 64), (128, 128, 128))
+    gif = tmp_path / "hold.gif"
+    frames = [black] * 3 + [grey] * 2
+    frames[0].save(gif, save_all=True, append_images=frames[1:], duration=33, loop=0)
+    with Image.open(gif) as im:
+        assert im.n_frames == 2
+    short = tmp_path / "short.mp4"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+                    "testsrc=size=64x64:rate=30", "-t", "0.1", "-pix_fmt", "yuv420p", str(short)],
+                   check=True)
+    out = tmp_path / "c.mp4"
+    compare.side_by_side(short, gif, out, 0.0, 0.5, height=64)
+    assert media.probe_duration(out) == pytest.approx(0.5 + 5 / 30, abs=1 / 30 + 0.02)
