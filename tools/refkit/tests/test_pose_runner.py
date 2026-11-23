@@ -19,6 +19,14 @@ def mp_ready(tmp_env):
         runner.model_path()
     except Exception as e:  # 오프라인 등
         pytest.skip(f"모델을 받을 수 없습니다: {e}")
+    try:  # libEGL 등 시스템 라이브러리가 없으면 landmarker 생성에서 OSError
+        from mediapipe.tasks.python import BaseOptions, vision
+        opts = vision.PoseLandmarkerOptions(
+            base_options=BaseOptions(model_asset_buffer=runner.model_path().read_bytes()),
+            running_mode=vision.RunningMode.VIDEO)
+        vision.PoseLandmarker.create_from_options(opts).close()
+    except OSError as e:
+        pytest.skip(f"mediapipe를 쓸 수 없습니다: {e}")
 
 
 def test_runner_estimate_no_person(sample_video, mp_ready):

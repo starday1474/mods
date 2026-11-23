@@ -40,7 +40,7 @@ def joint_angles(lm: np.ndarray) -> dict[str, np.ndarray]:
         out[f"knee_{s}"] = angle(lm[:, j[f"hip_{s}"]], lm[:, j[f"knee_{s}"]], lm[:, j[f"ankle_{s}"]])
     diff = _line_angle(lm[:, j["shoulder_l"]], lm[:, j["shoulder_r"]]) - \
         _line_angle(lm[:, j["hip_l"]], lm[:, j["hip_r"]])
-    out["torso_twist"] = np.abs((diff + 180.0) % 360.0 - 180.0)
+    out["torso_twist"] = (diff + 180.0) % 360.0 - 180.0  # 부호 유지, [-180, 180)
     sh = (lm[:, j["shoulder_l"]] + lm[:, j["shoulder_r"]]) / 2
     hip = (lm[:, j["hip_l"]] + lm[:, j["hip_r"]]) / 2
     up = sh - hip

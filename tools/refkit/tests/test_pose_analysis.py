@@ -41,6 +41,19 @@ def test_torso_twist():
                         "knee_l", "knee_r", "torso_twist", "torso_lean"}
 
 
+def test_torso_twist_keeps_sign():
+    out = analysis.joint_angles(_pose(twist_deg=-30.0))
+    assert out["torso_twist"][0] == pytest.approx(-30.0, abs=0.5)
+
+
+def test_torso_twist_sweep_range():
+    lm = np.concatenate([_pose(1, -30.0), _pose(1, 30.0)])
+    a = analysis.summarize(lm, 30.0)["angles"]["torso_twist"]
+    assert a["min"] == pytest.approx(-30.0, abs=0.5)
+    assert a["max"] == pytest.approx(30.0, abs=0.5)
+    assert a["range"] == pytest.approx(60.0, abs=1.0)
+
+
 def _hit_pose(fps=30, n=60):
     lm = np.zeros((n, 33, 3))
     for i in range(n):

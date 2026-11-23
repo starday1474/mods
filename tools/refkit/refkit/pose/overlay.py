@@ -29,10 +29,16 @@ def draw(video: Path, lm_img: np.ndarray, out: Path) -> Path:
                     if not (np.isnan(pts[a]).any() or np.isnan(pts[b]).any()):
                         d.line([tuple(pts[a]), tuple(pts[b])], fill=(0, 255, 0), width=3)
             p.stdin.write(im.tobytes())
-        p.stdin.close()
     except BrokenPipeError:
         pass
+    except BaseException:
+        p.kill()  # 예외가 나면 ffmpeg가 입력을 기다리며 멈추지 않게 한다
+        raise
     finally:
+        try:
+            p.stdin.close()
+        except OSError:
+            pass
         rc = p.wait()
     if rc != 0:
         raise RuntimeError("ffmpeg 인코딩에 실패했습니다.")
