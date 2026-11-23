@@ -1,0 +1,2 @@
+default: link
+fetch_allowed: [own, mocap.cs.cmu.edu, "license:cc0", "license:cc-by", "license:cc-by-sa"]

@@ -33,6 +33,8 @@ jobs:
         run: python3 tools/fetch_jars.py pack .cache/jars
       - name: Animation tool tests
         run: python3 -m pytest tools/anim
+      - name: Refkit tests
+        run: python3 -m pytest tools/refkit
       - name: Animation check
         run: python3 tools/anim/build_anims.py mod/anim mod/src/main/resources/assets/goddessrpg/animmodels/animations/biped/combat --check
       - name: Build and test mod

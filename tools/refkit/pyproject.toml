@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "refkit"
+version = "0.1.0"
+description = "동작 레퍼런스 수집/비교 도구"
+requires-python = ">=3.11"
+dependencies = ["pyyaml", "numpy", "pillow"]
+
+[project.optional-dependencies]
+pose = ["mediapipe"]
+
+[project.scripts]
+refkit = "refkit.cli:main"
+
+[tool.setuptools]
+packages = ["refkit"]
