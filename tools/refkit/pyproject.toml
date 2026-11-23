@@ -16,7 +16,7 @@ pose = ["mediapipe"]
 refkit = "refkit.cli:main"
 
 [tool.setuptools]
-packages = ["refkit"]
+packages = ["refkit", "refkit.pose"]
 
 [tool.setuptools.package-data]
 refkit = ["mpv/*.lua"]

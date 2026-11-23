@@ -1,4 +1,5 @@
 import argparse
+import csv
 import subprocess
 import sys
 import tempfile
@@ -6,7 +7,10 @@ import webbrowser
 
 from pathlib import Path
 
+import numpy as np
+
 from . import board, compare, doctor, fetch, marks, media, paths, policy, store, tools
+from .pose import analysis, overlay, runner
 from .store import Ref
 
 
@@ -212,6 +216,55 @@ def _cmd_board(a) -> int:
     return 0
 
 
+def _cmd_pose(a) -> int:
+    try:
+        ref = store.get(a.motion, a.id)
+    except KeyError:
+        print(f"오류: 없는 레퍼런스입니다: {a.id}", file=sys.stderr)
+        return 2
+    except ValueError as e:
+        print(f"오류: {e}", file=sys.stderr)
+        return 2
+    if "game" in ref.tags:
+        print("오류: 자세 추정은 실제 사람 영상에만 씁니다 (game 태그가 있는 레퍼런스는 거절).",
+              file=sys.stderr)
+        return 2
+    runner.require_mediapipe()
+    tools.require("ffmpeg")
+    tools.require("ffprobe")
+    try:
+        d = paths.ref_dir(a.motion, ref.id)
+        clip = d / "clip.mp4"
+        if not clip.is_file():
+            clip = media.clip_ref(a.motion, ref)["clip"]
+        world, img, fps = runner.estimate(clip)
+        summary = analysis.summarize(world, fps)
+        np.savez_compressed(d / "pose_landmarks.npz", world=world, image=img, fps=fps)
+        with open(d / "pose_angles.csv", "w", newline="", encoding="utf-8") as f:
+            ang = analysis.joint_angles(world)
+            w = csv.writer(f)
+            w.writerow(["time", *ang])
+            for i in range(len(world)):
+                w.writerow([f"{i / fps:.3f}", *("" if np.isnan(v[i]) else f"{v[i]:.1f}" for v in ang.values())])
+        if not a.no_overlay and summary["detected"] > 0:
+            overlay.draw(clip, img, d / "pose_overlay.mp4")
+    except (ValueError, FileNotFoundError, RuntimeError) as e:
+        print(f"오류: {e}", file=sys.stderr)
+        return 2
+    refs = store.load(a.motion)
+    cur = next(r for r in refs if r.id == ref.id)
+    cur.pose = summary
+    sug = summary.get("suggested_marks")
+    if a.use_suggested_marks and sug and not cur.marks:
+        cur.marks = dict(sug)
+        print("추천 표시를 저장했습니다: " + ", ".join(f"{k}={v:g}" for k, v in sug.items()))
+    store.save(a.motion, refs)
+    print(f"자세 통계를 저장했습니다: 프레임 {summary['frames']}, 검출 {summary['detected']:.0%}")
+    if summary.get("warning"):
+        print(f"경고: {summary['warning']}")
+    return 0
+
+
 def _cmd_doctor(a) -> int:
     return doctor.run()
 
@@ -277,6 +330,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--open", action="store_true")
     p.add_argument("--share", metavar="OUT.html")
     p.set_defaults(fn=_cmd_board)
+
+    p = sub.add_parser("pose", help="자세 추정(각도/타이밍 통계)")
+    p.add_argument("--motion", required=True)
+    p.add_argument("--id", required=True)
+    p.add_argument("--no-overlay", action="store_true")
+    p.add_argument("--use-suggested-marks", action="store_true")
+    p.set_defaults(fn=_cmd_pose)
 
     p = sub.add_parser("doctor", help="필요한 도구 점검")
     p.set_defaults(fn=_cmd_doctor)
