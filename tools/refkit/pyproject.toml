@@ -17,3 +17,6 @@ refkit = "refkit.cli:main"
 
 [tool.setuptools]
 packages = ["refkit"]
+
+[tool.setuptools.package-data]
+refkit = ["mpv/*.lua"]

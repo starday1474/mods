@@ -1,10 +1,11 @@
 import argparse
 import subprocess
 import sys
+import tempfile
 
 from pathlib import Path
 
-from . import doctor, fetch, media, paths, policy, store, tools
+from . import doctor, fetch, marks, media, paths, policy, store, tools
 from .store import Ref
 
 
@@ -124,6 +125,67 @@ def _cmd_clip(a) -> int:
     return 0
 
 
+def _cmd_mark(a) -> int:
+    try:
+        ref = store.get(a.motion, a.id)
+    except KeyError:
+        print(f"오류: 없는 레퍼런스입니다: {a.id}", file=sys.stderr)
+        return 2
+    except ValueError as e:
+        print(f"오류: {e}", file=sys.stderr)
+        return 2
+    if a.set:
+        m = {}
+        try:
+            for item in a.set:
+                k, sep, v = item.partition("=")
+                if not sep or k not in marks.LABELS:
+                    raise ValueError(f"잘못된 표시: {item!r} (start=, impact=, settle= 형식)")
+                m[k] = store.parse_time(v)
+        except ValueError as e:
+            print(f"오류: {e}", file=sys.stderr)
+            return 2
+        merged = {**ref.marks, **m}
+        warns = marks.validate(merged) if len(merged) == 3 else []
+        if len(merged) == 3 and warns:
+            print("오류: " + " ".join(warns), file=sys.stderr)
+            return 2
+    else:
+        tools.require("mpv")
+        try:
+            clip = paths.ref_dir(a.motion, ref.id) / "clip.mp4"
+            if not clip.is_file():
+                tools.require("ffmpeg")
+                tools.require("ffprobe")
+                clip = media.clip_ref(a.motion, ref)["clip"]
+        except (ValueError, FileNotFoundError, RuntimeError) as e:
+            print(f"오류: {e}", file=sys.stderr)
+            return 2
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "marks.txt"
+            marks.run_mpv(clip, out)
+            m = marks.parse_marks_file(out)
+        if not m:
+            print("표시가 없습니다. 저장하지 않았습니다.")
+            return 2
+        for w in marks.validate(m):
+            print(f"경고: {w}")
+        merged = m
+    ref.marks = merged
+    store.upsert(a.motion, ref)
+    print("표시를 저장했습니다: " + ", ".join(f"{k}={merged[k]:g}" for k in marks.LABELS if k in merged))
+    return 0
+
+
+def _cmd_timing(a) -> int:
+    try:
+        print(marks.timing_report(a.motion, a.anim))
+    except (ValueError, FileNotFoundError, KeyError) as e:
+        print(f"오류: {e}", file=sys.stderr)
+        return 2
+    return 0
+
+
 def _cmd_doctor(a) -> int:
     return doctor.run()
 
@@ -166,6 +228,17 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--motion", required=True)
     p.add_argument("--id", required=True)
     p.set_defaults(fn=_cmd_clip)
+
+    p = sub.add_parser("mark", help="mpv로 타이밍 표시(또는 --set으로 직접 입력)")
+    p.add_argument("--motion", required=True)
+    p.add_argument("--id", required=True)
+    p.add_argument("--set", nargs="+", metavar="LABEL=SEC")
+    p.set_defaults(fn=_cmd_mark)
+
+    p = sub.add_parser("timing", help="레퍼런스와 우리 동작 타이밍 비교")
+    p.add_argument("--motion", required=True)
+    p.add_argument("--anim")
+    p.set_defaults(fn=_cmd_timing)
 
     p = sub.add_parser("doctor", help="필요한 도구 점검")
     p.set_defaults(fn=_cmd_doctor)
